@@ -1,0 +1,4 @@
+nest-server/
+node_modules/
+dist/
+.env

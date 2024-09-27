@@ -1,0 +1,18 @@
+services:
+  nest-server:
+      build:
+        context: .
+        dockerfile: dev.Dockerfile
+      container_name: entrustexim-nest-server
+      ports:
+        - "3000:3001"
+      restart: always
+      depends_on:
+        - postgres
+        - redis
+      env_file:
+        - ./.env
+      volumes:
+        - .:/workspace:cached
+      environment:
+        - NODE_ENV=development
