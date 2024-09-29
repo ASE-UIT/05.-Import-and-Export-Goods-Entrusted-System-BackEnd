@@ -2,7 +2,7 @@ import { Test } from '@nestjs/testing';
 import { createId } from '@paralleldrive/cuid2';
 import { PrismaClient } from '@prisma/client';
 import { DeepMockProxy, mockDeep } from 'jest-mock-extended';
-import { PrismaService } from '../../database/prisma.service';
+import { PrismaService } from '@/database/prisma.service';
 import { UsersRepository } from './users.repository';
 
 describe(`UsersRepository`, () => {
@@ -32,8 +32,6 @@ describe(`UsersRepository`, () => {
         password: `password`,
         createdAt: new Date(),
         updatedAt: new Date(),
-        content: `Hello world, this is a tweet.`,
-        userId: 1234,
       };
       prismaService.user.create.mockResolvedValue(mockedUser);
 

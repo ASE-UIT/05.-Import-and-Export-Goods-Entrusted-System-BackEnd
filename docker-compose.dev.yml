@@ -9,7 +9,7 @@ services:
       restart: always
       depends_on:
         - postgres
-        - redis
+        # - redis
       env_file:
         - ./.env
       volumes:

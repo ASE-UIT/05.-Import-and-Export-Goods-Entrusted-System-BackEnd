@@ -18,11 +18,16 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
-    "migrate": "npx prisma migrate dev"
+    "migrate": "npx prisma migrate dev",
+    "build:docker:dev": "docker build -t import_export-backend-service -f dev.Dockerfile .",
+    "build:docker:prod": "docker build -t import_export-backend-service -f prod.Dockerfile .",
+    "docker:dev": "docker run -p 3001:3000 import_export-backend-service",
+    "docker:prod": "docker run -p 3000:3000 import_export-backend-service"
   },
   "dependencies": {
-    "@nestjs/common": "^10.0.0",
-    "@nestjs/core": "^10.0.0",
+    "@nestjs/common": "^10.4.4",
+    "@nestjs/config": "^3.2.3",
+    "@nestjs/core": "^10.4.4",
     "@nestjs/platform-express": "^10.0.0",
     "@paralleldrive/cuid2": "^2.2.2",
     "@prisma/client": "^5.20.0",
