@@ -9,6 +9,7 @@ import { EmployeesModule } from './employees/employees.module';
 import { LegalRepsModule } from './legalReps/legalReps.module';
 import { CustomersModule } from './customers/customers.module';
 import { ProvidersModule } from './providers/providers.module';
+import { QuotationReqsModule } from './quotationReqs/quotationReqs.module';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { ProvidersModule } from './providers/providers.module';
     LegalRepsModule,
     CustomersModule,
     ProvidersModule,
+    QuotationReqsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

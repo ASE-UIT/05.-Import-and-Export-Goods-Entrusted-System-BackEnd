@@ -1,4 +1,5 @@
 import { LegalRep } from '@/legalReps/models/legalReps.model';
+import { QuotationReq } from '@/quotationReqs/models/quotationReq.model';
 import sequelize from 'sequelize';
 import {
   AllowNull,
@@ -46,4 +47,7 @@ export class Customer extends Model {
   //Associations
   @HasMany(() => LegalRep)
   legalReps: LegalRep[];
+
+  @HasMany(() => QuotationReq)
+  quotationReqs: QuotationReq[];
 }
