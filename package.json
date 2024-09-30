@@ -19,8 +19,6 @@
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "migrate": "npx prisma migrate dev",
-    "build:docker:dev": "docker build -t import_export-backend-service -f dev.Dockerfile .",
-    "build:docker:prod": "docker build -t import_export-backend-service -f prod.Dockerfile .",
     "docker:dev": "docker compose -f docker-compose.dev.yml up --build"
   },
   "dependencies": {
