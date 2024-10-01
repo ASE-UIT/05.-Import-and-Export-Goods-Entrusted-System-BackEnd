@@ -10,16 +10,18 @@ import { LegalRepsModule } from './legalReps/legalReps.module';
 import { CustomersModule } from './customers/customers.module';
 import { ProvidersModule } from './providers/providers.module';
 import { QuotationReqsModule } from './quotationReqs/quotationReqs.module';
-import { QuotationServicesModule } from './quotation-services/quotation-services.module';
+import { ServicesModule } from './services/services.module';
 import { QuotationsModule } from './quotations/quotations.module';
-import { ShipmentsModule } from './shipments/shipments.module';
+import { QuotationServicesModule } from './quotation-services/quotation-services.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
+
     SequelizeModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
+
       useFactory: (configService: ConfigService) => ({
         dialect: 'postgres',
         port: configService.getOrThrow<number>('POSTGRES_PORT'),
@@ -31,6 +33,7 @@ import { ShipmentsModule } from './shipments/shipments.module';
         sync: { alter: true },
       }),
     }),
+
     UsersModule,
     RolesModule,
     EmployeesModule,
@@ -38,9 +41,10 @@ import { ShipmentsModule } from './shipments/shipments.module';
     CustomersModule,
     ProvidersModule,
     QuotationReqsModule,
-    QuotationServicesModule,
+    ServicesModule,
     QuotationsModule,
-    ShipmentsModule,
+    QuotationServicesModule,
+    ServicesModule,
   ],
   controllers: [AppController],
   providers: [AppService],
