@@ -10,6 +10,9 @@ import { LegalRepsModule } from './legalReps/legalReps.module';
 import { CustomersModule } from './customers/customers.module';
 import { ProvidersModule } from './providers/providers.module';
 import { QuotationReqsModule } from './quotationReqs/quotationReqs.module';
+import { QuotationServicesModule } from './quotation-services/quotation-services.module';
+import { QuotationsModule } from './quotations/quotations.module';
+import { ShipmentsModule } from './shipments/shipments.module';
 
 @Module({
   imports: [
@@ -35,6 +38,9 @@ import { QuotationReqsModule } from './quotationReqs/quotationReqs.module';
     CustomersModule,
     ProvidersModule,
     QuotationReqsModule,
+    QuotationServicesModule,
+    QuotationsModule,
+    ShipmentsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
