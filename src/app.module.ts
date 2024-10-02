@@ -4,7 +4,12 @@ import { AppService } from './app.service';
 import { UsersModule } from './users/users.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { SequelizeModule } from '@nestjs/sequelize';
-import { CustomersModule } from './models/customers/customers.module';
+import { RolesModule } from './roles/roles.module';
+import { EmployeesModule } from './employees/employees.module';
+import { LegalRepsModule } from './legalReps/legalReps.module';
+import { CustomersModule } from './customers/customers.module';
+import { ProvidersModule } from './providers/providers.module';
+import { QuotationReqsModule } from './quotationReqs/quotationReqs.module';
 
 @Module({
   imports: [
@@ -20,9 +25,16 @@ import { CustomersModule } from './models/customers/customers.module';
         password: configService.getOrThrow<string>('POSTGRES_PASSWORD'),
         database: configService.getOrThrow<string>('POSTGRES_DB'),
         autoLoadModels: true,
+        sync: { alter: true },
       }),
     }),
     UsersModule,
+    RolesModule,
+    EmployeesModule,
+    LegalRepsModule,
+    CustomersModule,
+    ProvidersModule,
+    QuotationReqsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

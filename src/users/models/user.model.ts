@@ -1,8 +1,12 @@
+import { Employee } from '@/employees/models/employee.model';
+import { Role } from '@/roles/models/role.model';
 import sequelize from 'sequelize';
 import {
   AllowNull,
+  BelongsTo,
   Column,
   Default,
+  ForeignKey,
   Model,
   PrimaryKey,
   Table,
@@ -35,4 +39,21 @@ export class User extends Model {
   @AllowNull(false)
   @Column
   hashedPassword: string;
+
+  //Associations
+  @ForeignKey(() => Role)
+  @AllowNull(false)
+  @Column
+  roleId: string;
+
+  @BelongsTo(() => Role)
+  role: Role;
+
+  @ForeignKey(() => Employee)
+  @AllowNull(false)
+  @Column
+  employeeId: string;
+
+  @BelongsTo(() => Employee)
+  employee: Employee;
 }
