@@ -19,7 +19,7 @@ import { QuotationReqsModule } from './quotationReqs/quotationReqs.module';
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({
         dialect: 'postgres',
-        port: configService.getOrThrow<number>('POSTGRES_PORT'),
+        port: 5432,
         host: configService.getOrThrow<string>('POSTGRES_HOST'),
         username: configService.getOrThrow<string>('POSTGRES_USER'),
         password: configService.getOrThrow<string>('POSTGRES_PASSWORD'),
@@ -39,4 +39,4 @@ import { QuotationReqsModule } from './quotationReqs/quotationReqs.module';
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule { }

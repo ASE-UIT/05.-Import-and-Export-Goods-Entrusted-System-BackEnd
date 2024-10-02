@@ -3,7 +3,7 @@ services:
     image: traefik:v3.1
     command: --api.insecure=true --providers.docker --providers.docker.exposedByDefault=false
     ports:
-      - "80:80"
+      - "3000:80"
       - "8080:8080"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
