@@ -27,15 +27,6 @@ export class User extends Model {
   @Column
   username: string;
 
-  @Unique
-  @AllowNull(false)
-  @Column
-  email: string;
-
-  @AllowNull(false)
-  @Column
-  name: string;
-
   @AllowNull(false)
   @Column
   hashedPassword: string;

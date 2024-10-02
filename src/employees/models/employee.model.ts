@@ -12,6 +12,16 @@ import {
   Table,
   Unique,
 } from 'sequelize-typescript';
+
+export enum Position {
+  MANAGER = 'MANAGER',
+  ACCOUNTANT = 'ACCOUNTANT',
+  SALES = 'SALES',
+  CUSTOMER_SERVICE = 'CUSTOMER_SERVICE',
+  HUMAN_RESOURCES = 'HUMAN_RESOURCES',
+  DOCUMENTATION = 'DOCUMENTATION',
+}
+
 @Table({
   tableName: 'employees',
 })
@@ -39,7 +49,7 @@ export class Employee extends Model {
 
   @AllowNull(false)
   @Column
-  position: string;
+  position: Position;
 
   @AllowNull(false)
   @Column
