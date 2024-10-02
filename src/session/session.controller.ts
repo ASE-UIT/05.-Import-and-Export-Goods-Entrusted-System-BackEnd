@@ -9,6 +9,7 @@ import {
 } from '@nestjs/common';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { AuthenticatedGuard } from './guards/authenticated.guard';
+import { User } from '@/shared/decorators/user.decorator';
 
 @Controller({
   path: 'session',
@@ -17,15 +18,15 @@ import { AuthenticatedGuard } from './guards/authenticated.guard';
 export class SessionController {
   @UseGuards(LocalAuthGuard)
   @Post()
-  async login(@Req() req) {
-    const { hashedPassword, ...rest } = req.user;
+  async login(@User() user) {
+    const { hashedPassword, ...rest } = user;
     return rest;
   }
 
   @UseGuards(AuthenticatedGuard)
   @Get()
-  async getLoggedInUser(@Req() req) {
-    const { hashedPassword, ...rest } = req.user;
+  async getLoggedInUser(@User() user) {
+    const { hashedPassword, ...rest } = user;
     return rest;
   }
 

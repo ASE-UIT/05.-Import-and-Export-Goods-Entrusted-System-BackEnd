@@ -1,7 +1,10 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Post, UseGuards } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto, CreateUserSchema } from './dtos/CreateUserDto';
 import { ZodValidationPipe } from '@/shared/pipes/zod.pipe';
+import { RoleGuard } from '@/shared/guards/role.guard';
+import { Roles } from '@/shared/decorators/role.decorator';
+import { RoleEnum } from '@/shared/enums/roles.enum';
 
 @Controller({
   path: 'users',
@@ -10,6 +13,8 @@ import { ZodValidationPipe } from '@/shared/pipes/zod.pipe';
 export class UsersController {
   constructor(private usersService: UsersService) {}
 
+  @UseGuards(RoleGuard)
+  @Roles([RoleEnum.ADMIN])
   @Post()
   async createUser(
     @Body(new ZodValidationPipe(CreateUserSchema)) reqBody: CreateUserDto,
