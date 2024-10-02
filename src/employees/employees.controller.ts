@@ -1,5 +1,5 @@
 import { ZodValidationPipe } from '@/shared/pipes/zod.pipe';
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Param, Patch, Post } from '@nestjs/common';
 import {
   CreateEmployeeDto,
   CreateEmployeeSchema,
@@ -19,5 +19,15 @@ export class EmployeesController {
   ) {
     const employee = await this.employeesService.createEmployee(body);
     return { message: 'Employee successfully created' };
+  }
+
+  @Patch(':employeeId')
+  async updateEmployee(
+    @Param('employeeId') employeeId: string,
+    @Body(new ZodValidationPipe(CreateEmployeeSchema.partial()))
+    updateDetails: Partial<CreateEmployeeDto>,
+  ) {
+    await this.employeesService.updateEmployee(employeeId, updateDetails);
+    return { message: 'Employee successfully updated' };
   }
 }

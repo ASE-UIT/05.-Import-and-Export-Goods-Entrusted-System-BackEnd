@@ -1,4 +1,9 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateEmployeeDto } from './dtos/CreateEmployeeDto';
 import { Employee } from './models/employee.model';
 
@@ -24,5 +29,15 @@ export class EmployeesService {
     employee.phone = employeeInfo.phone;
 
     return await employee.save();
+  }
+
+  async updateEmployee(
+    employeeId: string,
+    updateInfo: Partial<CreateEmployeeDto>,
+  ) {
+    const employee = await Employee.findOne({ where: { id: employeeId } });
+    if (!employee) throw new NotFoundException('Employee does not exist');
+
+    return await employee.update({ ...updateInfo });
   }
 }

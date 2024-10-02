@@ -1,7 +1,7 @@
 import {
-  BadRequestException,
   ConflictException,
   Injectable,
+  NotFoundException,
 } from '@nestjs/common';
 import { User } from './models/user.model';
 import { FindUserByEmailStrategy } from './strategies/find-user/find-by-email.strategy';
@@ -72,7 +72,7 @@ export class UsersService {
     // Check employee exists
     const employee = await Employee.findOne({ where: { id: employeeId } });
     if (!employee)
-      throw new BadRequestException(`Employee (ID: ${employeeId}) not found`);
+      throw new NotFoundException(`Employee (ID: ${employeeId}) not found`);
 
     // Create a new user
     const user = new User();
