@@ -1,12 +1,7 @@
 import { Quotation } from '@/quotations/models/quotations.model';
 import { Service } from '@/services/models/service.model';
-import {
-  Column,
-  Model,
-  Table,
-  PrimaryKey,
-  ForeignKey,
-} from 'sequelize-typescript';
+import { Column, Model, Table, PrimaryKey, ForeignKey } from 'sequelize-typescript';
+
 
 @Table({ tableName: 'QuotationService', timestamps: false })
 export class QuotationService extends Model<QuotationService> {

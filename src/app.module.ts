@@ -10,9 +10,13 @@ import { LegalRepsModule } from './legalReps/legalReps.module';
 import { CustomersModule } from './customers/customers.module';
 import { ProvidersModule } from './providers/providers.module';
 import { QuotationReqsModule } from './quotationReqs/quotationReqs.module';
+<<<<<<< HEAD
 import { ServicesModule } from './services/services.module';
 import { QuotationsModule } from './quotations/quotations.module';
 import { QuotationServicesModule } from './quotation-services/quotation-services.module';
+=======
+import { SessionModule } from './session/session.module';
+>>>>>>> e00b54ed4e671048373681e9803125afd318e87a
 
 @Module({
   imports: [
@@ -24,7 +28,7 @@ import { QuotationServicesModule } from './quotation-services/quotation-services
 
       useFactory: (configService: ConfigService) => ({
         dialect: 'postgres',
-        port: configService.getOrThrow<number>('POSTGRES_PORT'),
+        port: 5432,
         host: configService.getOrThrow<string>('POSTGRES_HOST'),
         username: configService.getOrThrow<string>('POSTGRES_USER'),
         password: configService.getOrThrow<string>('POSTGRES_PASSWORD'),
@@ -41,10 +45,14 @@ import { QuotationServicesModule } from './quotation-services/quotation-services
     CustomersModule,
     ProvidersModule,
     QuotationReqsModule,
+<<<<<<< HEAD
     ServicesModule,
     QuotationsModule,
     QuotationServicesModule,
     ServicesModule,
+=======
+    SessionModule,
+>>>>>>> e00b54ed4e671048373681e9803125afd318e87a
   ],
   controllers: [AppController],
   providers: [AppService],

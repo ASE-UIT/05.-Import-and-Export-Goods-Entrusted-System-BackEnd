@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Put } from '@nestjs/common';
 import { ServicesService } from './services.service';
 import { Service } from './models/service.model';
 /*
@@ -7,7 +7,6 @@ import { Service } from './models/service.model';
   version: '1',
 })
   */
-
 @Controller('services')
 export class ServicesController {
   constructor(private serviceService: ServicesService) {}
@@ -25,4 +24,11 @@ export class ServicesController {
   create(@Body() service): Promise<Service> {
     return this.serviceService.create(service);
   }
+
+  @Put(':id')
+  update(@Param('id') id: number, @Body() service: Service): Promise<[number, Service[]]> {
+    return this.serviceService.update(id, service);
+  }
+
+
 }

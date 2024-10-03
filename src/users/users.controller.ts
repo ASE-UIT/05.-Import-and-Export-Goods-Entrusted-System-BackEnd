@@ -1,6 +1,10 @@
-import { Controller, Get } from '@nestjs/common';
+import { Body, Controller, Post, UseGuards } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { FindUserStrategy } from './strategies/find-user/find-user-strategy.enum';
+import { CreateUserDto, CreateUserSchema } from './dtos/CreateUserDto';
+import { ZodValidationPipe } from '@/shared/pipes/zod.pipe';
+import { RoleGuard } from '@/shared/guards/role.guard';
+import { Roles } from '@/shared/decorators/role.decorator';
+import { RoleEnum } from '@/shared/enums/roles.enum';
 
 @Controller({
   path: 'users',
@@ -9,12 +13,13 @@ import { FindUserStrategy } from './strategies/find-user/find-user-strategy.enum
 export class UsersController {
   constructor(private usersService: UsersService) {}
 
-  @Get()
-  async getUsers() {
-    await this.usersService.createUser();
-    return await this.usersService.findUser(
-      FindUserStrategy.USERNAME,
-      'testuser',
-    );
+  @UseGuards(RoleGuard)
+  @Roles([RoleEnum.ADMIN])
+  @Post()
+  async createUser(
+    @Body(new ZodValidationPipe(CreateUserSchema)) reqBody: CreateUserDto,
+  ) {
+    const user = await this.usersService.createUser(reqBody);
+    return { message: 'User successfully created' };
   }
 }
