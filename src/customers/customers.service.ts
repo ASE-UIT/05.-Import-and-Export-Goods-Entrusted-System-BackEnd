@@ -5,6 +5,7 @@ import { FindCustomerByPhoneStrategy } from './strategies/find-customer/find-by-
 import { FindCustomerStrategy } from './strategies/find-customer/find-customer-strategy.enum';
 import { IFindCustomerStrategy } from './strategies/find-customer/find-customer-strategy.interface';
 import { Customer } from './models/customer.model';
+import { FindAllCustomerStrategy } from './strategies/find-customer/find-all.strategy';
 
 @Injectable()
 export class CustomersService {
@@ -12,18 +13,23 @@ export class CustomersService {
     private findCustomerByNameStraregy: FindCustomerByNameStrategy,
     private findCustomerByEmailStrategy: FindCustomerByEmailStrategy,
     private findCustomerByPhoneStrategy: FindCustomerByPhoneStrategy,
+    private findAllCustomerStrategy: FindAllCustomerStrategy,
   ) {}
+
+  // finding services
   async findCustomer(
     strategy: FindCustomerStrategy,
     customerInfo: string,
-  ): Promise<Customer | null> {
+  ): Promise<Customer[] | null> {
     const findStrategy = this.getFindStrategy(strategy);
-    const customer: Customer | null = await findStrategy.find(customerInfo);
+    const customer: Customer[] | null = await findStrategy.find(customerInfo);
     return customer;
   }
 
   getFindStrategy(strategy: FindCustomerStrategy): IFindCustomerStrategy {
     switch (strategy) {
+      case FindCustomerStrategy.ALL:
+        return this.findAllCustomerStrategy;
       case FindCustomerStrategy.EMAIL:
         return this.findCustomerByEmailStrategy;
       case FindCustomerStrategy.NAME:
