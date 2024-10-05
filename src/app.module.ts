@@ -10,6 +10,7 @@ import { LegalRepsModule } from './legalReps/legalReps.module';
 import { CustomersModule } from './customers/customers.module';
 import { ProvidersModule } from './providers/providers.module';
 import { QuotationReqsModule } from './quotationReqs/quotationReqs.module';
+import { SessionModule } from './session/session.module';
 
 @Module({
   imports: [
@@ -35,6 +36,7 @@ import { QuotationReqsModule } from './quotationReqs/quotationReqs.module';
     CustomersModule,
     ProvidersModule,
     QuotationReqsModule,
+    SessionModule,
   ],
   controllers: [AppController],
   providers: [AppService],

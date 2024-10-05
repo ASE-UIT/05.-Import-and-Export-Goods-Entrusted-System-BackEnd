@@ -1,8 +1,19 @@
-import { Controller, Get, NotFoundException, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  NotFoundException,
+  Post,
+  Query,
+} from '@nestjs/common';
 import { CustomersService } from './customers.service';
 import { FindCustomerStrategy } from './strategies/find-customer/find-customer-strategy.enum';
 import { ZodValidationPipe } from '@/shared/pipes/zod.pipe';
 import { QueryCustomerDto, QueryCustomerSchema } from './dtos/QueryCustomerDto';
+import {
+  CreateCustomerDto,
+  CreateCustomerSchema,
+} from './dtos/CreateCustomerDto';
 
 @Controller({
   path: 'customers',
@@ -31,7 +42,8 @@ export class CustomersController {
           value,
         );
         if (customer.length > 0) {
-          if (strategy === FindCustomerStrategy.ALL) return customer;
+          if (strategy === FindCustomerStrategy.ALL || customer.length > 1)
+            return customer;
           else return customer[0];
         }
       }
@@ -44,5 +56,13 @@ export class CustomersController {
 
     // Cant find customer
     throw new NotFoundException('Customer not found');
+  }
+
+  @Post()
+  async createCustomer(
+    @Body(new ZodValidationPipe(CreateCustomerSchema)) body: CreateCustomerDto,
+  ) {
+    await this.customerService.createCustomer(body);
+    return { message: `Customer created` };
   }
 }

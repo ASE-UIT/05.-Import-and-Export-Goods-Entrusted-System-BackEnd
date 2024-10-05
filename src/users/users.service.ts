@@ -1,63 +1,66 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { User } from './models/user.model';
-import { FindUserByEmailStrategy } from './strategies/find-user/find-by-email.strategy';
+import { FindUserByIdStrategy } from './strategies/find-user/find-by-id.strategy';
 import { FindUserByUsernameStrategy } from './strategies/find-user/find-by-username.strategy';
 import { FindUserStrategy } from './strategies/find-user/find-user-strategy.enum';
 import { IFindUserStrategy } from './strategies/find-user/find-user-strategy.interface';
+import { CreateUserDto } from './dtos/CreateUserDto';
+import * as argon2 from 'argon2';
+import { Role } from '@/roles/models/role.model';
+import { Employee } from '@/employees/models/employee.model';
 
 @Injectable()
 export class UsersService {
   constructor(
     private findUserByUsernameStrategy: FindUserByUsernameStrategy,
-    private findUserByEmailStrategy: FindUserByEmailStrategy,
+    private findUserByIdStrategy: FindUserByIdStrategy,
   ) {}
 
-  private async checkDuplicate(
-    username: string,
-    email: string,
-  ): Promise<{ username: boolean; email: boolean }> {
-    // Check if the username is already taken
+  private async checkDuplicate(username: string): Promise<boolean> {
     const nameExists = await this.findUser(FindUserStrategy.USERNAME, username);
-    if (nameExists) {
-      return { username: true, email: false };
-    }
 
-    // Check if the email is already taken
-    const emailExists = await this.findUser(FindUserStrategy.EMAIL, email);
-    if (emailExists) {
-      return { username: false, email: true };
-    }
-
-    return { username: false, email: false };
+    return nameExists ? true : false;
   }
 
   private getFindStrategy(strategy: FindUserStrategy): IFindUserStrategy {
     switch (strategy) {
       case FindUserStrategy.USERNAME:
         return this.findUserByUsernameStrategy;
-      case FindUserStrategy.USERNAME:
-        return this.findUserByEmailStrategy;
+      case FindUserStrategy.ID:
+        return this.findUserByIdStrategy;
       default:
         throw new Error('Invalid strategy');
     }
   }
 
-  // This is for demonstration purposes only
-  async createUser(): Promise<void> {
-    const { username, email } = await this.checkDuplicate(
-      'testuser',
-      'testuser@email.com',
-    );
+  async createUser({
+    username,
+    password,
+    employeeId,
+  }: CreateUserDto): Promise<void> {
+    const usernameTaken = await this.checkDuplicate(username);
+    if (usernameTaken) throw new ConflictException('Username already exists');
 
-    if (username) throw new ConflictException('Username already exists');
-    if (email) throw new ConflictException('Email already exists');
+    // Get default role
+    const defaultRole = await Role.findOne({ where: { name: 'USER' } });
+
+    // Check employee exists
+    const employee = await Employee.findOne({ where: { id: employeeId } });
+    if (!employee)
+      throw new NotFoundException(`Employee (ID: ${employeeId}) not found`);
 
     // Create a new user
     const user = new User();
-    user.username = 'testuser';
-    user.name = 'Test User';
-    user.email = 'testuser@email.com';
-    user.hashedPassword = 'password';
+    const passwordHash = await argon2.hash(password);
+
+    user.username = username;
+    user.roleId = defaultRole.id;
+    user.hashedPassword = passwordHash;
+    user.employeeId = employee.id;
 
     await user.save();
   }

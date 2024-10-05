@@ -4,7 +4,7 @@ import { Customer } from '@/customers/models/customer.model';
 
 @Injectable()
 export class FindCustomerByPhoneStrategy implements IFindCustomerStrategy {
-  find(customerPhone: string): Promise<Customer[] | null> {
+  async find(customerPhone: string): Promise<Customer[] | null> {
     return Customer.findAll({ where: { phone: customerPhone } });
   }
 }
