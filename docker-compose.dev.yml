@@ -23,6 +23,7 @@ services:
     environment:
       - NODE_ENV=development
       - POSTGRES_HOST=exim-db
+      - REDIS_HOST=exim-redis
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.exim-api.rule=Host(`exim-api.localhost`)"
@@ -41,6 +42,13 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.exim-db.rule=Host(`exim-db.localhost`)"
 
+  exim-redis:
+    image: redis:7.4.0
+    container_name: whiteboard-redis-dev
+    command: redis-server --requirepass ${REDIS_PASSWORD}
+    volumes:
+      - redis-session:/data
 
 volumes:
   postgres-data:
+  redis-session:
