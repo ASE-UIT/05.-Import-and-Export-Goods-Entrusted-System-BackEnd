@@ -6,6 +6,8 @@ import {
 import { FindProviderByNameStrategy } from './strategies/find-provider/find-by-name.strategy';
 import { FindProviderByEmailStrategy } from './strategies/find-provider/find-by-email.strategy';
 import { FindProviderByPhoneStrategy } from './strategies/find-provider/find-by-phone.strategy';
+import { FindProviderByCountryStrategy } from './strategies/find-provider/find-by-country.strategy'; 
+import { FindProviderByAddressStrategy } from './strategies/find-provider/find-by-address.strategy'; 
 import { FindProviderStrategy } from './strategies/find-provider/find-provider-strategy.enum';
 import { IFindProviderStrategy } from './strategies/find-provider/find-provider-strategy.interface';
 import { Provider } from './models/provider.model';
@@ -21,6 +23,8 @@ export class ProvidersService {
     private findProviderByNameStrategy: FindProviderByNameStrategy,
     private findProviderByEmailStrategy: FindProviderByEmailStrategy,
     private findProviderByPhoneStrategy: FindProviderByPhoneStrategy,
+    private findProviderByCountryStrategy: FindProviderByCountryStrategy,
+    private findProviderByAddressStrategy: FindProviderByAddressStrategy,
     private findAllProviderStrategy: FindAllProviderStrategy,
     private createProviderStrategy: CreateProviderStrategy,
     private updateProviderStrategy: UpdateProviderStrategy, 
@@ -45,6 +49,10 @@ export class ProvidersService {
         return this.findProviderByNameStrategy;
       case FindProviderStrategy.PHONE:
         return this.findProviderByPhoneStrategy;
+      case FindProviderStrategy.COUNTRY:
+        return this.findProviderByCountryStrategy;
+      case FindProviderStrategy.ADDRESS:
+        return this.findProviderByAddressStrategy;
     }
   }
 
