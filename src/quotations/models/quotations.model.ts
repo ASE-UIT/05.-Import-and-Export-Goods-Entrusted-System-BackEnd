@@ -1,4 +1,5 @@
 import { QuotationService } from '@/quotation-services/models/quotation-services.model';
+import sequelize from 'sequelize';
 import {
   Column,
   Model,
@@ -7,38 +8,60 @@ import {
   AutoIncrement,
   ForeignKey,
   HasMany,
+  DataType,
+  Default,
 } from 'sequelize-typescript';
 
-@Table({ tableName: 'Quotation', timestamps: false })
+@Table({ tableName: 'quotations', timestamps: true })
 export class Quotation extends Model<Quotation> {
   @PrimaryKey
-  @AutoIncrement
+  @Default(sequelize.UUIDV4)
   @Column
-  quotation_id: number;
+  quotationId: string;
+
+  // Thuộc tính id của bảng quotationsReps
+  @Default(sequelize.UUIDV4)
+  @Column
+  quoteRequestId: string;
+
+  // Thuộc tính id của bảng employee
+  @Default(sequelize.UUIDV4)
+  @Column
+  employeeId: string;
+
+  // Thuộc tính id của bảng freight
+  @Default(sequelize.UUIDV4)
+  @Column
+  freightId: string;
 
   @Column
-  quote_request_id: number;
+  totalPrice: number;
 
   @Column
-  employee_id: number;
+  pickupDate: string;
 
   @Column
-  total_price: number;
+  deliveryDate: string;
 
   @Column
-  pickup_date: Date;
+  quotationDate: string;
 
   @Column
-  delivery_date: Date;
+  expiredDate: string;
 
-  @Column
-  quotation_date: Date;
+  @Column({
+    type: DataType.DATE,
+    allowNull: false,
+    defaultValue: DataType.NOW, // Đảm bảo giá trị mặc định cho createdAt
+  })
+  createdAt: Date;
 
-  @Column
-  expired_date: Date;
-
-  @Column
-  freight_id: number;
+  @Column({
+    type: DataType.DATE,
+    allowNull: false,
+    defaultValue: DataType.NOW, // Đảm bảo giá trị mặc định cho updatedAt
+  })
+  updatedAt: Date;
 
   @HasMany(() => QuotationService)
   quotationServices: QuotationService[];
