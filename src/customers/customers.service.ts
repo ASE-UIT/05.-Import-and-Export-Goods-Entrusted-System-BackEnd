@@ -12,6 +12,8 @@ import { Customer } from './models/customer.model';
 import { FindAllCustomerStrategy } from './strategies/find-customer/find-all.strategy';
 import { CreateCustomerStrategy } from './strategies/create-customer/create-customer.strategy';
 import { CreateCustomerDto } from './dtos/CreateCustomerDto';
+import { UpdateCustomerStrategy } from './strategies/update-customer/update-customer.strategy';
+import { User } from '@/users/models/user.model';
 
 @Injectable()
 export class CustomersService {
@@ -21,6 +23,7 @@ export class CustomersService {
     private findCustomerByPhoneStrategy: FindCustomerByPhoneStrategy,
     private findAllCustomerStrategy: FindAllCustomerStrategy,
     private createCustomerStrategy: CreateCustomerStrategy,
+    private updateCustomerStrategy: UpdateCustomerStrategy,
   ) {}
 
   // finding services
@@ -62,9 +65,25 @@ export class CustomersService {
   }
 
   async checkDuplicate(name: string): Promise<boolean> {
-    const exists = await Customer.findOne({ where: { name } });
-    if (exists !== null) {
-      return true;
-    } else return false;
+    const exists = await this.findCustomer(FindCustomerStrategy.NAME, name);
+    return exists.length > 0 ? true : false;
+  }
+
+  // updating services
+  async updateCustomer(
+    customerID: string,
+    udpateInfo: Partial<CreateCustomerDto>,
+  ): Promise<{ message: string; updatedData: Customer }> {
+    const customerExists = await Customer.findOne({
+      where: { id: customerID },
+    });
+    if (!customerExists) {
+      throw new NotFoundException('Customer does not exist');
+    }
+    const updatedResponse = await this.updateCustomerStrategy.update(
+      customerID,
+      udpateInfo,
+    );
+    return { message: 'Customer updated', updatedData: updatedResponse };
   }
 }

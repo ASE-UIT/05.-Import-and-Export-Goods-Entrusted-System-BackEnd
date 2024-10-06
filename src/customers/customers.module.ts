@@ -8,6 +8,7 @@ import { FindCustomerByNameStrategy } from './strategies/find-customer/find-by-n
 import { FindCustomerByPhoneStrategy } from './strategies/find-customer/find-by-phone.strategy';
 import { FindAllCustomerStrategy } from './strategies/find-customer/find-all.strategy';
 import { CreateCustomerStrategy } from './strategies/create-customer/create-customer.strategy';
+import { UpdateCustomerStrategy } from './strategies/update-customer/update-customer.strategy';
 
 @Module({
   imports: [SequelizeModule.forFeature([Customer])],
@@ -19,6 +20,7 @@ import { CreateCustomerStrategy } from './strategies/create-customer/create-cust
     FindCustomerByPhoneStrategy,
     FindAllCustomerStrategy,
     CreateCustomerStrategy,
+    UpdateCustomerStrategy,
   ],
 })
 export class CustomersModule {}

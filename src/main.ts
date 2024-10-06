@@ -5,7 +5,6 @@ import { ConfigService } from '@nestjs/config';
 import * as passport from 'passport';
 import * as session from 'express-session';
 import RedisStore from 'connect-redis';
-import e from 'express';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);

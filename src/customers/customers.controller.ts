@@ -3,7 +3,10 @@ import {
   Controller,
   Get,
   NotFoundException,
+  Param,
+  Patch,
   Post,
+  Put,
   Query,
 } from '@nestjs/common';
 import { CustomersService } from './customers.service';
@@ -14,6 +17,8 @@ import {
   CreateCustomerDto,
   CreateCustomerSchema,
 } from './dtos/CreateCustomerDto';
+import { UpdateCustomerSchema } from './dtos/UpdateUserDto';
+import { Customer } from './models/customer.model';
 
 @Controller({
   path: 'customers',
@@ -64,5 +69,14 @@ export class CustomersController {
   ) {
     await this.customerService.createCustomer(body);
     return { message: `Customer created` };
+  }
+
+  @Patch(':id')
+  async updateCustomer(
+    @Param('id') id: string,
+    @Body(new ZodValidationPipe(UpdateCustomerSchema.partial()))
+    body: Partial<Customer>,
+  ) {
+    return await this.customerService.updateCustomer(id, body);
   }
 }
