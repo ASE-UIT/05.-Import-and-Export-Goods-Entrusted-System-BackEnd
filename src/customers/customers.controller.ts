@@ -17,7 +17,7 @@ import {
   CreateCustomerDto,
   CreateCustomerSchema,
 } from './dtos/CreateCustomerDto';
-import { UpdateCustomerSchema } from './dtos/UpdateUserDto';
+import { UpdateCustomerDto, UpdateCustomerSchema } from './dtos/UpdateUserDto';
 import { Customer } from './models/customer.model';
 
 @Controller({
@@ -75,8 +75,12 @@ export class CustomersController {
   async updateCustomer(
     @Param('id') id: string,
     @Body(new ZodValidationPipe(UpdateCustomerSchema.partial()))
-    body: Partial<Customer>,
+    body: Partial<UpdateCustomerDto>,
   ) {
-    return await this.customerService.updateCustomer(id, body);
+    const updateResponse = await this.customerService.updateCustomer(id, body);
+    return {
+      message: 'Customer updated successfully',
+      updatedData: updateResponse,
+    };
   }
 }

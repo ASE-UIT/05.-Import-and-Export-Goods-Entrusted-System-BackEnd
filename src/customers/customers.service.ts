@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ConflictException,
   Injectable,
   NotFoundException,
@@ -72,8 +73,10 @@ export class CustomersService {
   // updating services
   async updateCustomer(
     customerID: string,
-    udpateInfo: Partial<CreateCustomerDto>,
+    updateInfo: Partial<CreateCustomerDto>,
   ): Promise<{ message: string; updatedData: Customer }> {
+    if (Object.keys(updateInfo).length < 1)
+      throw new BadRequestException('Body is empty');
     const customerExists = await Customer.findOne({
       where: { id: customerID },
     });
@@ -82,7 +85,7 @@ export class CustomersService {
     }
     const updatedResponse = await this.updateCustomerStrategy.update(
       customerID,
-      udpateInfo,
+      updateInfo,
     );
     return { message: 'Customer updated', updatedData: updatedResponse };
   }
