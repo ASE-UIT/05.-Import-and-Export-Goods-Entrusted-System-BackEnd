@@ -5,7 +5,7 @@ import { PackageDetail } from '@/packageDetails/models/packageDetails.model';
 
 @Injectable()
 export class CreatePackageDetailStrategy implements ICreatePackageDetailStrategy {
-    async create(packageDetailInfo: CreatePackageDetailDto): Promise<void> {
+    async create(packageDetailInfo: CreatePackageDetailDto): Promise<PackageDetail> {
 
         const packageDetail = new PackageDetail()
         packageDetail.detailId = packageDetailInfo.detailId
@@ -14,6 +14,7 @@ export class CreatePackageDetailStrategy implements ICreatePackageDetailStrategy
         packageDetail.length = packageDetailInfo.length
         packageDetail.width = packageDetailInfo.width
         packageDetail.height = packageDetailInfo.height
-        await packageDetail.save();
+        await packageDetail.save()
+        return packageDetail
     }
 }

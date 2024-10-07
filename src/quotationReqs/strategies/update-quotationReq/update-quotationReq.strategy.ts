@@ -1,22 +1,20 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { QuotationReq } from '../../models/quotationReq.model';
-import { InjectModel } from '@nestjs/sequelize';
 import { UpdateQuotationReqDto } from '@/quotationReqs/dtos/UpdateQuotationReqDto';
+import { CreateQuotationReqDto } from '@/quotationReqs/dtos/CreateQuotationReqDto';
 
 @Injectable()
 export class UpdateQuotationReqStrategy {
-    constructor(
-        @InjectModel(QuotationReq)
-        private quotationReqModel: typeof QuotationReq,
-    ) { }
+    constructor() { }
 
-    async update(id: string, quotationReqInfo: UpdateQuotationReqDto): Promise<void> {
-        const quotationReq = await this.quotationReqModel.findByPk(id)
-
-        if (!quotationReq) {
-            throw new NotFoundException(`QuotationReq with id ${id} not found`)
+    async update(id: string, quotationReqInfo: Partial<CreateQuotationReqDto>): Promise<QuotationReq> {
+        const [affectedRows, [updateData]] = await QuotationReq.update(
+            { ...quotationReqInfo },
+            { where: { id: id }, returning: true },
+        )
+        if (affectedRows == 0) {
+            throw new NotFoundException('Quote request id does not exists in database')
         }
-
-        await quotationReq.update(quotationReqInfo)
+        return updateData.dataValues as QuotationReq
     }
 }

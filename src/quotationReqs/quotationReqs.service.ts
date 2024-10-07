@@ -45,7 +45,7 @@ export class QuotationReqsService {
     }
   }
 
-  async createQuotationReq(quotationReqInfo: CreateQuotationReqDto): Promise<void> {
+  async createQuotationReq(quotationReqInfo: CreateQuotationReqDto): Promise<QuotationReq> {
     try {
       return await this.createQuotationReqStrategy.create(quotationReqInfo)
     } catch (error) {
@@ -53,11 +53,11 @@ export class QuotationReqsService {
     }
   }
 
-  async updateQuotationReq(id: string, quotationReqInfo: UpdateQuotationReqDto): Promise<void> {
-    try {
-      return await this.updateQuotationReqStrategy.update(id, quotationReqInfo)
-    } catch (error) {
-      throw new Error('Error when create quotation request')
-    }
+  async updateQuotationReq(id: string, quotationReqInfo: Partial<CreateQuotationReqDto>): Promise<{
+    message: string,
+    data: QuotationReq
+  }> {
+    const updatedResponse = await this.updateQuotationReqStrategy.update(id, quotationReqInfo)
+    return { message: 'Quote Request updated successfully', data: updatedResponse }
   }
 }

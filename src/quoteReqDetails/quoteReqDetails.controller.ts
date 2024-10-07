@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Patch, Post, Put, Query } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Get, Param, Patch, Post, Put, Query } from '@nestjs/common';
 import { QuoteReqDetailsService } from './quoteReqDetails.service';
 import { ZodValidationPipe } from '@/shared/pipes/zod.pipe';
 import { CreateQuoteReqDetailDto, CreateQuoteReqDetailSchema } from './dtos/CreateQuoteReqDetailDto';
@@ -48,14 +48,18 @@ export class QuoteReqDetailsController {
     async createQuoteReqDetail(
         @Body(new ZodValidationPipe(CreateQuoteReqDetailSchema)) body: CreateQuoteReqDetailDto
     ) {
-        await this.quoteReqDetailsSerivce.createQuoteReqDetail(body)
-        return { message: "Quote Request Detail Created" }
+        const quoteReqDetail = await this.quoteReqDetailsSerivce.createQuoteReqDetail(body)
+        return { message: "Quote Request Detail Created", data: quoteReqDetail }
     }
 
     @Patch(':id')
     async updateQuoteReqDetail(
-        @Param('id') id: string, @Body(new ZodValidationPipe(UpdateQuoteReqDetailSchema.partial())) body: Partial<UpdateQuoteReqDetailDto>) {
-        await this.quoteReqDetailsSerivce.updateQuoteReqDetail(id, body)
-        return { message: 'Quote Request Detail Updated' }
+        @Param('id') id: string,
+        @Body(new ZodValidationPipe(CreateQuoteReqDetailSchema.partial())) body: Partial<CreateQuoteReqDetailDto>) {
+        //check if body is empty 
+        if (Object.keys(body).length === 0) {
+            throw new BadRequestException('Body cannot be empty')
+        }
+        return await this.quoteReqDetailsSerivce.updateQuoteReqDetail(id, body)
     }
 }

@@ -40,7 +40,7 @@ export class PackageDetailsService {
         }
     }
 
-    async createPackageDetail(packageDetailInfo: CreatePackageDetailDto): Promise<void> {
+    async createPackageDetail(packageDetailInfo: CreatePackageDetailDto): Promise<PackageDetail> {
         try {
             return await this.createPackageDetailStrategy.create(packageDetailInfo)
         } catch (error) {
@@ -48,12 +48,15 @@ export class PackageDetailsService {
         }
     }
 
-    async updatePackageDetail(id: string, packageDetailInfo: UpdatePackageDetailDto): Promise<void> {
-        try {
-            return await this.updatePackageDetailStrategy.update(id, packageDetailInfo)
-        } catch (error) {
-            throw new Error('Error when update quote request detail')
-        }
+    async updatePackageDetail(
+        id: string,
+        packageDetailInfo: Partial<CreatePackageDetailDto>)
+        : Promise<{
+            message: string,
+            data: PackageDetail
+        }> {
+        const updatedResponse = await this.updatePackageDetailStrategy.update(id, packageDetailInfo)
+        return { message: 'Package detail updated successfully', data: updatedResponse }
     }
 
 }

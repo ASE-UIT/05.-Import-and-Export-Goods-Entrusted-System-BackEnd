@@ -5,7 +5,7 @@ import { QuoteReqDetail } from '@/quoteReqDetails/models/quoteReqDetail.model';
 
 @Injectable()
 export class CreateQuoteReqDetailStrategy implements ICreateQuoteReqDetailStrategy {
-    async create(quoteReqDetailInfo: CreateQuoteReqDetailDto): Promise<void> {
+    async create(quoteReqDetailInfo: CreateQuoteReqDetailDto): Promise<QuoteReqDetail> {
 
         const quoteReqDetail = new QuoteReqDetail()
         quoteReqDetail.origin = quoteReqDetailInfo.origin
@@ -14,6 +14,7 @@ export class CreateQuoteReqDetailStrategy implements ICreateQuoteReqDetailStrate
         quoteReqDetail.shipmentDeadline = quoteReqDetailInfo.shipmentDeadline
         quoteReqDetail.cargoInsurance = quoteReqDetailInfo.cargoInsurance
         quoteReqDetail.quoteReqId = quoteReqDetailInfo.quoteReqId
-        await quoteReqDetail.save();
+        await quoteReqDetail.save()
+        return quoteReqDetail
     }
 }

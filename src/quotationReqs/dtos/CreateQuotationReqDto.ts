@@ -3,7 +3,7 @@ import { QuotationReqStatus } from '../models/quotationReq.model';
 
 export const CreateQuotationReqSchema = z.object({
     requestDate: z.coerce.date(),
-    status: z.nativeEnum(QuotationReqStatus),
+    status: z.nativeEnum(QuotationReqStatus).default(QuotationReqStatus.PENDING),
     customerId: z.string(),
 });
 

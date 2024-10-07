@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateQuoteReqDetailDto } from './dtos/CreateQuoteReqDetailDto';
 import { CreateQuoteReqDetailStrategy } from './strategies/create-quoteReqDetail/create-quoteReqDetail.strategy';
 import { UpdateQuoteReqDetailDto } from './dtos/UpdateQuoteReqDetailDto';
@@ -14,6 +14,7 @@ import { FindQuoteReqDetailByShipmentDeadlineStrategy } from './strategies/find_
 import { FindQuoteReqDetailByCargoInsuranceStrategy } from './strategies/find_quoteReqDetail/find-by-cargoInsurance.strategy';
 import { FindQuoteReqDetailByQuoteReqIdStrategy } from './strategies/find_quoteReqDetail/find-by-quoteReqId.strategy';
 import { FindAllQuoteReqDetailStrategy } from './strategies/find_quoteReqDetail/find-all.strategy';
+import { BaseError, HostNotFoundError } from 'sequelize';
 
 @Injectable()
 export class QuoteReqDetailsService {
@@ -57,7 +58,7 @@ export class QuoteReqDetailsService {
         }
     }
 
-    async createQuoteReqDetail(quoteReqDetailInfo: CreateQuoteReqDetailDto): Promise<void> {
+    async createQuoteReqDetail(quoteReqDetailInfo: CreateQuoteReqDetailDto): Promise<QuoteReqDetail> {
         try {
             return await this.createQuoteReqDetailStrategy.create(quoteReqDetailInfo)
         } catch (error) {
@@ -65,11 +66,11 @@ export class QuoteReqDetailsService {
         }
     }
 
-    async updateQuoteReqDetail(id: string, quoteReqDetailInfo: UpdateQuoteReqDetailDto): Promise<void> {
-        try {
-            return await this.updateQuoteReqDetailStrategy.update(id, quoteReqDetailInfo)
-        } catch (error) {
-            throw new Error('Error when update quote request detail')
-        }
+    async updateQuoteReqDetail(id: string, quoteReqDetailInfo: Partial<CreateQuoteReqDetailDto>): Promise<{
+        message: string,
+        data: QuoteReqDetail
+    }> {
+        const updatedResponse = await this.updateQuoteReqDetailStrategy.update(id, quoteReqDetailInfo)
+        return { message: 'Quote Request Detail updated successfully', data: updatedResponse }
     }
 }

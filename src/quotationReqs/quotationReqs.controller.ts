@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Patch, Post, Put, Query, UseGuards } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Get, Param, Patch, Post, Put, Query, UseGuards } from '@nestjs/common';
 import { QuotationReqsService } from './quotationReqs.service';
 import { ZodValidationPipe } from '@/shared/pipes/zod.pipe';
 import { QueryQuotationReqDto, QueryQuotationReqSchema } from './dtos/QueryQuotationReqDto';
@@ -49,14 +49,19 @@ export class QuotationReqsController {
   async createQuotationReq(
     @Body(new ZodValidationPipe(CreateQuotationReqSchema)) body: CreateQuotationReqDto
   ) {
-    await this.quotationReqsService.createQuotationReq(body)
-    return { message: 'Quotation Request Created' }
+    const quoteReq = await this.quotationReqsService.createQuotationReq(body)
+    return { message: 'Quotate request created', data: quoteReq }
   }
   //update quotation request
   @Patch(':id')
   async updateQuotationReq(
-    @Param('id') id: string, @Body(new ZodValidationPipe(UpdateQuotationReqSchema.partial())) body: Partial<UpdateQuotationReqDto>) {
-    await this.quotationReqsService.updateQuotationReq(id, body)
-    return { message: 'Quotation Request Updated' }
+    @Param('id') id: string,
+    @Body(new ZodValidationPipe(CreateQuotationReqSchema.partial())) body: Partial<CreateQuotationReqDto>
+  ) {
+    //check if body is empty 
+    if (Object.keys(body).length === 0) {
+      throw new BadRequestException('Body cannot be empty')
+    }
+    return await this.quotationReqsService.updateQuotationReq(id, body)
   }
 }

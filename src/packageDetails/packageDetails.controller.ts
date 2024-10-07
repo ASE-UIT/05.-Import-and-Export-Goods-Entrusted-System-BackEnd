@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Patch, Post, Put, Query } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Get, Param, Patch, Post, Put, Query } from '@nestjs/common';
 import { PackageDetailsService } from './packageDetails.service';
 import { ZodValidationPipe } from '@/shared/pipes/zod.pipe';
 import { CreatePackageDetailDto, CreatePackageDetailSchema } from './dtos/CreatePackageDetailDto';
@@ -46,14 +46,18 @@ export class PackageDetailsController {
     async createPackageDetail(
         @Body(new ZodValidationPipe(CreatePackageDetailSchema)) body: CreatePackageDetailDto
     ) {
-        await this.packageDetailsService.createPackageDetail(body)
-        return { message: "Package Detail Created" }
+        const packageDetail = await this.packageDetailsService.createPackageDetail(body)
+        return { message: "Package Detail Created", data: packageDetail }
     }
 
     @Patch(':id')
     async updatePackageDetail(
-        @Param('id') id: string, @Body(new ZodValidationPipe(UpdatePackageDetailSchema.partial())) body: Partial<UpdatePackageDetailDto>) {
-        await this.packageDetailsService.updatePackageDetail(id, body)
-        return { message: 'Package Detail Updated' }
+        @Param('id') id: string,
+        @Body(new ZodValidationPipe(CreatePackageDetailSchema.partial())) body: Partial<CreatePackageDetailDto>) {
+        //check if body is empty 
+        if (Object.keys(body).length === 0) {
+            throw new BadRequestException('Body cannot be empty')
+        }
+        return await this.packageDetailsService.updatePackageDetail(id, body)
     }
 }

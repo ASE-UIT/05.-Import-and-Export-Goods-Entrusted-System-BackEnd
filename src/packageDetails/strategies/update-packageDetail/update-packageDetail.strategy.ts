@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { PackageDetail } from '@/packageDetails/models/packageDetails.model';
 import { UpdatePackageDetailDto } from '@/packageDetails/dtos/UpdatePackageDetailDto';
+import { CreatePackageDetailDto } from '@/packageDetails/dtos/CreatePackageDetailDto';
 
 @Injectable()
 export class UpdatePackageDetailStrategy {
@@ -10,13 +11,14 @@ export class UpdatePackageDetailStrategy {
         private packageDetailModel: typeof PackageDetail,
     ) { }
 
-    async update(id: string, packageDetailInfo: UpdatePackageDetailDto): Promise<void> {
-        const packageDetail = await this.packageDetailModel.findByPk(id)
-
-        if (!packageDetail) {
-            throw new NotFoundException(`Package detail with id ${id} not found`)
+    async update(id: string, packageDetailInfo: Partial<CreatePackageDetailDto>): Promise<PackageDetail> {
+        const [affectedRows, [updateData]] = await PackageDetail.update(
+            { ...packageDetailInfo },
+            { where: { id: id }, returning: true },
+        )
+        if (affectedRows == 0) {
+            throw new NotFoundException('Package detail id does not exists in database')
         }
-
-        await packageDetail.update(packageDetailInfo)
+        return updateData.dataValues as PackageDetail
     }
 }
