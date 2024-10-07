@@ -1,4 +1,5 @@
 import { Customer } from '@/customers/models/customer.model';
+import { QuoteReqDetail } from '@/quoteReqDetails/models/quoteReqDetail.model';
 import sequelize from 'sequelize';
 import {
   AllowNull,
@@ -6,6 +7,7 @@ import {
   Column,
   Default,
   ForeignKey,
+  HasMany,
   Model,
   PrimaryKey,
   Table,
@@ -42,4 +44,7 @@ export class QuotationReq extends Model {
 
   @BelongsTo(() => Customer)
   customer: Customer;
+
+  @HasMany(() => QuoteReqDetail)
+  quoteReqDetails: QuoteReqDetail[]
 }

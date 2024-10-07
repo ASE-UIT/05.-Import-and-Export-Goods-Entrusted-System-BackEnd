@@ -11,6 +11,7 @@ import { CustomersModule } from './customers/customers.module';
 import { ProvidersModule } from './providers/providers.module';
 import { QuotationReqsModule } from './quotationReqs/quotationReqs.module';
 import { SessionModule } from './session/session.module';
+import { QuoteReqDetailsModule } from './quoteReqDetails/quoteReqDetails.module';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { SessionModule } from './session/session.module';
     CustomersModule,
     ProvidersModule,
     QuotationReqsModule,
+    QuoteReqDetailsModule,
     SessionModule,
   ],
   controllers: [AppController],

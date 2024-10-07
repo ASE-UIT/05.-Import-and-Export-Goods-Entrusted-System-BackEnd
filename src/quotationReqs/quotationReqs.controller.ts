@@ -1,7 +1,7 @@
 import { Body, Controller, Get, Param, Post, Put, Query, UseGuards } from '@nestjs/common';
 import { QuotationReqsService } from './quotationReqs.service';
 import { ZodValidationPipe } from '@/shared/pipes/zod.pipe';
-import { QueryQuotationDto, QueryQuotationSchema } from './dtos/QueryQuotationReqDto';
+import { QueryQuotationReqDto, QueryQuotationReqSchema } from './dtos/QueryQuotationReqDto';
 import { CreateQuotationReqDto, CreateQuotationReqSchema } from './dtos/CreateQuotationReqDto';
 import { FindQuotationReqStrategy } from './strategies/find-quotationReq/find-quotationReq-strategy.enum';
 import { UpdateQuotationReqDto, UpdateQuotationReqSchema } from './dtos/UpdateQuotationReqDto';
@@ -16,7 +16,7 @@ export class QuotationReqsController {
 
   @Get()
   async getQuotationReqs(
-    @Query(new ZodValidationPipe(QueryQuotationSchema)) query: QueryQuotationDto,
+    @Query(new ZodValidationPipe(QueryQuotationReqSchema)) query: QueryQuotationReqDto,
   ) {
 
     // Get query fields
@@ -29,7 +29,7 @@ export class QuotationReqsController {
 
     // Assign corrisponding strategy to query fields
     for (const [key, strategy] of Object.entries(queryFields)) {
-      const value = query[key as keyof QueryQuotationDto];
+      const value = query[key as keyof QueryQuotationReqDto];
       if (value) {
         const quotationReq = await this.quotationReqsService.findQuotationReq(
           strategy,
