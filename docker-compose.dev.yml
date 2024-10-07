@@ -3,8 +3,8 @@ services:
     image: traefik:v3.1
     command: --api.insecure=true --providers.docker --providers.docker.exposedByDefault=false
     ports:
-      - "3000:80"
-      - "8080:8080"
+      - '80:80'
+      - '8080:8080'
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
 
@@ -15,7 +15,7 @@ services:
     volumes:
       - .:/app
     expose:
-      - "3000"
+      - '3000'
     depends_on:
       - exim-db
     env_file:
@@ -25,13 +25,13 @@ services:
       - POSTGRES_HOST=exim-db
       - REDIS_HOST=exim-redis
     labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.exim-api.rule=Host(`exim-api.localhost`)"
+      - 'traefik.enable=true'
+      - 'traefik.http.routers.exim-api.rule=Host(`exim-api.localhost`)'
 
   exim-db:
     image: postgres:16.4
     ports:
-      - "5432:5432"
+      - '5432:5432'
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
@@ -39,8 +39,8 @@ services:
     volumes:
       - postgres-data:/var/lib/postgresql/data
     labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.exim-db.rule=Host(`exim-db.localhost`)"
+      - 'traefik.enable=true'
+      - 'traefik.http.routers.exim-db.rule=Host(`exim-db.localhost`)'
 
   exim-redis:
     image: redis:7.4.0
