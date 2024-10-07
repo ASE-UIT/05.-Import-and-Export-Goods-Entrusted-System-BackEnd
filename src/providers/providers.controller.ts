@@ -7,6 +7,7 @@ import {
   Patch,
   Post,
   Query,
+  BadRequestException,
 } from '@nestjs/common';
 import { ProvidersService } from './providers.service';
 import { FindProviderStrategy } from './strategies/find-provider/find-provider-strategy.enum';
@@ -40,8 +41,15 @@ export class ProvidersController {
       country: FindProviderStrategy.COUNTRY,
       address: FindProviderStrategy.ADDRESS,
     };
+    if (Object.keys(query).length === 0) {
+      throw new BadRequestException('Query cannot be empty');
+    }
 
     for (const [key, strategy] of Object.entries(queryFields)) {
+      if (!(key in query)) {
+        throw new BadRequestException(`Invalid query parameter: ${key}`);
+      }
+      
       const value = query[key as keyof QueryProviderDto];
       if (value) {
         const provider = await this.providerService.findProvider(strategy, value);
@@ -60,6 +68,15 @@ export class ProvidersController {
   async createProvider(
     @Body(new ZodValidationPipe(CreateProviderSchema)) body: CreateProviderDto,
   ) {
+    if (!body || Object.keys(body).length === 0) {
+      throw new BadRequestException('Data cannot be empty');
+    }
+
+    const hasNonEmptyField = Object.values(body).some((value) => value !== null && value !== '');
+    if (!hasNonEmptyField) {
+      throw new BadRequestException('At least one field must be provided');
+    }
+    
     await this.providerService.createProvider(body);
     return { message: `Provider created` };
   }
@@ -69,10 +86,19 @@ export class ProvidersController {
     @Param('id') id: string,
     @Body(new ZodValidationPipe(UpdateProviderSchema.partial())) body: Partial<UpdateProviderDto>,
   ) {
+    if (!body || Object.keys(body).length === 0) {
+      throw new BadRequestException('Data cannot be empty');
+    }
+
+    const hasNonEmptyField = Object.values(body).some((value) => value !== null && value !== '');
+    if (!hasNonEmptyField) {
+      throw new BadRequestException('At least one field must be provided for update');
+    }
+
     const updatedProvider = await this.providerService.updateProvider(id, body);
     return {
       message: 'Provider updated successfully',
-      updatedData: updatedProvider,
+      data: updatedProvider,
     };
   }
 }

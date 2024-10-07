@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { ICreateProviderStrategy } from './create-provider-strategy.interface';
 import { CreateProviderDto } from '@/providers/dtos/CreateProviderDto';
-import { Provider, ProviderStatus } from '@/providers/models/provider.model';
+import { Provider } from '@/providers/models/provider.model';
 
 @Injectable()
 export class CreateProviderStrategy implements ICreateProviderStrategy {
@@ -12,12 +12,10 @@ export class CreateProviderStrategy implements ICreateProviderStrategy {
     provider.phone = providerInfo.phone;
     provider.address = providerInfo.address;
     provider.country = providerInfo.country;
-
-    provider.status = providerInfo.status === 'active' 
-      ? ProviderStatus.ACTIVE 
-      : ProviderStatus.INACTIVE;
+    provider.status = providerInfo.status;
 
     await provider.save();
   }
 }
+
 

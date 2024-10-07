@@ -2,6 +2,7 @@ import {
   ConflictException,
   Injectable,
   NotFoundException,
+  BadRequestException,
 } from '@nestjs/common';
 import { FindProviderByNameStrategy } from './strategies/find-provider/find-by-name.strategy';
 import { FindProviderByEmailStrategy } from './strategies/find-provider/find-by-email.strategy';
@@ -34,8 +35,16 @@ export class ProvidersService {
     strategy: FindProviderStrategy,
     providerInfo: string,
   ): Promise<Provider[] | null> {
+    if (!providerInfo || providerInfo.trim().length === 0) {
+      throw new BadRequestException('Provider information cannot be empty');
+    }
+
     const findStrategy = this.getFindStrategy(strategy);
-    const provider: Provider[] | null = await findStrategy.find(providerInfo);
+    const provider: Provider[] = await findStrategy.find(providerInfo);
+    if (!provider || provider.length === 0) {
+      throw new NotFoundException('No providers found with the given information');
+    }
+
     return provider;
   }
 
@@ -53,10 +62,16 @@ export class ProvidersService {
         return this.findProviderByCountryStrategy;
       case FindProviderStrategy.ADDRESS:
         return this.findProviderByAddressStrategy;
+      default:
+        throw new BadRequestException(`Invalid provider strategy: ${strategy}`);
     }
   }
 
   async createProvider(providerInfo: CreateProviderDto): Promise<void> {
+    if (!providerInfo || Object.keys(providerInfo).length === 0) {
+      throw new BadRequestException('Provider data cannot be empty');
+    }
+
     const providerExists = await this.checkDuplicate(providerInfo.name);
     if (!providerExists) {
       return await this.createProviderStrategy.create(providerInfo);
@@ -74,6 +89,15 @@ export class ProvidersService {
     providerId: string,
     updateInfo: UpdateProviderDto,
   ): Promise<Provider> {
+    if (!updateInfo || Object.keys(updateInfo).length === 0) {
+      throw new BadRequestException('Update data cannot be empty');
+    }
+
+    const providerExists = await Provider.findByPk(providerId);
+    if (!providerExists) {
+      throw new NotFoundException(`Provider with ID ${providerId} not found`);
+    }
+
     return await this.updateProviderStrategy.update(providerId, updateInfo);
   }
 }
