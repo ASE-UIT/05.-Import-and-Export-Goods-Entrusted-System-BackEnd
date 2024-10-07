@@ -12,6 +12,8 @@ import { ProvidersModule } from './providers/providers.module';
 import { QuotationReqsModule } from './quotationReqs/quotationReqs.module';
 import { SessionModule } from './session/session.module';
 import { QuoteReqDetailsModule } from './quoteReqDetails/quoteReqDetails.module';
+import { PackageDetail } from './packageDetails/models/packageDetails.model';
+import { PackageDetailModule } from './packageDetails/packageDetails.module';
 
 @Module({
   imports: [
@@ -38,6 +40,7 @@ import { QuoteReqDetailsModule } from './quoteReqDetails/quoteReqDetails.module'
     ProvidersModule,
     QuotationReqsModule,
     QuoteReqDetailsModule,
+    PackageDetailModule,
     SessionModule,
   ],
   controllers: [AppController],
