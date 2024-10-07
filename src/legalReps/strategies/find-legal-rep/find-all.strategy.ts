@@ -4,7 +4,7 @@ import { LegalRep } from '@/legalReps/models/legalReps.model';
 
 @Injectable()
 export class FindAllLegalRepsStrategy implements IFindLegalRepsStrategy {
-  async find(legalRepInfo: string): Promise<LegalRep[] | null> {
-    return legalRepInfo === 'true' && LegalRep.findAll();
+  async find(): Promise<LegalRep[] | null> {
+    return LegalRep.findAll();
   }
 }

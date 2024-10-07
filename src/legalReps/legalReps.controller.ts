@@ -36,9 +36,13 @@ export class LegalRepsController {
   async createLegalReps(
     @Body(new ZodValidationPipe(CreateLegalRepSchema))
     legalRepsData: CreateLegalRepDto,
-  ): Promise<string> {
-    await this.legalRepsService.createLegalReps(legalRepsData);
-    return 'Legal representative created successfully';
+  ) {
+    const createRes =
+      await this.legalRepsService.createLegalReps(legalRepsData);
+    return {
+      message: 'Legal representative created successfully',
+      data: createRes,
+    };
   }
 
   @Patch(':id')
@@ -53,7 +57,7 @@ export class LegalRepsController {
     );
     return {
       message: 'Legal representative updated successfully',
-      updateResponse,
+      data: updateResponse,
     };
   }
 
@@ -62,8 +66,13 @@ export class LegalRepsController {
     @Query(new ZodValidationPipe(QueryLegalRepsSchema))
     query: QueryLegalRepsDto,
   ) {
+    if (Object.keys(query).length === 0)
+      return await this.legalRepsService.findLegalReps(
+        FindLegalRepsStrategy.ALL,
+        '',
+      );
+
     const queryFields: { [key: string]: FindLegalRepsStrategy } = {
-      all: FindLegalRepsStrategy.ALL,
       name: FindLegalRepsStrategy.NAME,
       customerId: FindLegalRepsStrategy.CUSTOMER_ID,
       phone: FindLegalRepsStrategy.PHONE,

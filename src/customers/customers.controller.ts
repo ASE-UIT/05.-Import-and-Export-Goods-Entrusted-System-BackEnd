@@ -8,6 +8,7 @@ import {
   Post,
   Put,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { CustomersService } from './customers.service';
 import { FindCustomerStrategy } from './strategies/find-customer/find-customer-strategy.enum';
@@ -19,6 +20,7 @@ import {
 } from './dtos/CreateCustomerDto';
 import { UpdateCustomerDto, UpdateCustomerSchema } from './dtos/UpdateUserDto';
 import { Customer } from './models/customer.model';
+import { AuthenticatedGuard } from '@/session/guards/authenticated.guard';
 
 @Controller({
   path: 'customers',
@@ -26,13 +28,20 @@ import { Customer } from './models/customer.model';
 })
 export class CustomersController {
   constructor(private customerService: CustomersService) {}
+
   @Get()
   async getCustomers(
     @Query(new ZodValidationPipe(QueryCustomerSchema)) query: QueryCustomerDto,
   ) {
+    if (Object.keys(query).length === 0)
+      return await this.customerService.findCustomer(
+        FindCustomerStrategy.ALL,
+        '',
+      );
+
     // Get query fields
+
     const queryFields: { [key: string]: FindCustomerStrategy } = {
-      all: FindCustomerStrategy.ALL,
       name: FindCustomerStrategy.NAME,
       phone: FindCustomerStrategy.PHONE,
       email: FindCustomerStrategy.EMAIL,
@@ -67,8 +76,8 @@ export class CustomersController {
   async createCustomer(
     @Body(new ZodValidationPipe(CreateCustomerSchema)) body: CreateCustomerDto,
   ) {
-    await this.customerService.createCustomer(body);
-    return { message: `Customer created` };
+    const createRes = await this.customerService.createCustomer(body);
+    return { message: `Customer created`, data: createRes };
   }
 
   @Patch(':id')
@@ -78,9 +87,6 @@ export class CustomersController {
     body: Partial<UpdateCustomerDto>,
   ) {
     const updateResponse = await this.customerService.updateCustomer(id, body);
-    return {
-      message: 'Customer updated successfully',
-      updatedData: updateResponse,
-    };
+    return updateResponse;
   }
 }

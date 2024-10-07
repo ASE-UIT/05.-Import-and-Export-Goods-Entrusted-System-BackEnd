@@ -34,11 +34,7 @@ export class CustomersService {
   ): Promise<Customer[] | null> {
     const findStrategy = this.getFindStrategy(strategy);
     const customer: Customer[] | null = await findStrategy.find(customerInfo);
-    // if (customer.length === 0)
-    //   throw new NotFoundException('Customer does not exits'); // if customer is not found
-    // if (customer.length > 1)
-    //   return customer; // if multiple customers are found
-    // else return customer[0]; // if only one customer is found
+
     return customer;
   }
 
@@ -56,7 +52,7 @@ export class CustomersService {
   }
 
   // creating services
-  async createCustomer(customerInfo: CreateCustomerDto): Promise<void> {
+  async createCustomer(customerInfo: CreateCustomerDto): Promise<Customer> {
     const customerExists = await this.checkDuplicate(customerInfo.name);
     if (!customerExists) {
       return await this.createCustomerStrategy.create(customerInfo);
@@ -74,7 +70,7 @@ export class CustomersService {
   async updateCustomer(
     customerID: string,
     updateInfo: Partial<CreateCustomerDto>,
-  ): Promise<{ message: string; updatedData: Customer }> {
+  ): Promise<{ message: string; data: Customer }> {
     if (Object.keys(updateInfo).length < 1)
       throw new BadRequestException('Body is empty');
     const customerExists = await Customer.findOne({
@@ -87,6 +83,6 @@ export class CustomersService {
       customerID,
       updateInfo,
     );
-    return { message: 'Customer updated', updatedData: updatedResponse };
+    return { message: 'Customer updated', data: updatedResponse };
   }
 }

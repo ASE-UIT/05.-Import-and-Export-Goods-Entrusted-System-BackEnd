@@ -30,7 +30,7 @@ export class LegalRepsService {
   ) {}
 
   //creating services
-  async createLegalReps(legalRepData: CreateLegalRepDto): Promise<void> {
+  async createLegalReps(legalRepData: CreateLegalRepDto): Promise<LegalRep> {
     const customerExists = await this.checkCustomer(legalRepData.customerId);
     const legalRepExists = await this.checkDuplicate(legalRepData.name);
     if (!customerExists) {

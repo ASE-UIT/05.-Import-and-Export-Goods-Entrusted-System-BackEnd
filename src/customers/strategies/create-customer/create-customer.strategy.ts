@@ -5,7 +5,7 @@ import { Customer } from '@/customers/models/customer.model';
 
 @Injectable()
 export class CreateCustomerStrategy implements ICreateCustomerStrategy {
-  async create(customerInfo: CreateCustomerDto): Promise<void> {
+  async create(customerInfo: CreateCustomerDto): Promise<Customer> {
     // Create a new customer
     const customer = new Customer();
     customer.name = customerInfo.name;
@@ -15,5 +15,6 @@ export class CreateCustomerStrategy implements ICreateCustomerStrategy {
     customer.address = customerInfo.address;
     customer.taxId = customerInfo.taxId;
     await customer.save();
+    return customer;
   }
 }

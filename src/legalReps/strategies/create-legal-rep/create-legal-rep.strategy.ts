@@ -5,12 +5,13 @@ import { LegalRep } from '@/legalReps/models/legalReps.model';
 
 @Injectable()
 export class CreateLegalRepsStrategy implements ICreateLegalRepsStrategy {
-  async create(legalRepData: CreateLegalRepDto): Promise<void> {
+  async create(legalRepData: CreateLegalRepDto): Promise<LegalRep> {
     const legalRep = new LegalRep();
     legalRep.name = legalRepData.name;
     legalRep.email = legalRepData.email;
     legalRep.phone = legalRepData.phone;
     legalRep.customerId = legalRepData.customerId;
     await legalRep.save();
+    return legalRep;
   }
 }

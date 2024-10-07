@@ -8,18 +8,15 @@ import { QuotationReq } from '@/quotationReqs/models/quotationReq.model';
 
 @Injectable()
 export class FindAllCustomerStrategy {
-  async find(customerInfo: string): Promise<Customer[] | null> {
-    return (
-      customerInfo === 'true' &&
-      Customer.findAll({
-        include: [
-          {
-            model: LegalRep,
-            attributes: ['name', 'phone', 'email'],
-          },
-          { model: QuotationReq },
-        ],
-      })
-    );
+  async find(): Promise<Customer[] | null> {
+    return Customer.findAll({
+      include: [
+        {
+          model: LegalRep,
+          attributes: ['name', 'phone', 'email'],
+        },
+        { model: QuotationReq },
+      ],
+    });
   }
 }
