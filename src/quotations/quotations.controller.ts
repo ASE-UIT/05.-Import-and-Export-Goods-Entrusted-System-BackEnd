@@ -1,4 +1,15 @@
-import { Body, Controller, Get, Param, Patch, Post, Put } from '@nestjs/common';
+import {
+  BadRequestException,
+  Body,
+  Controller,
+  Get,
+  NotFoundException,
+  Param,
+  Patch,
+  Post,
+  Put,
+  Query,
+} from '@nestjs/common';
 import { Quotation } from './models/quotations.model';
 import { QuotationsService } from './quotations.service';
 import { ZodValidationPipe } from '@/shared/pipes/zod.pipe';
@@ -10,6 +21,10 @@ import {
   UpdateQuotationDto,
   UpdateQuotationSchema,
 } from './dtos/UpdateQuotationDto';
+import {
+  QueryQuotationDto,
+  QueryQuotationSchema,
+} from './dtos/QueryQuotationDto';
 
 @Controller({
   path: 'quotations',
@@ -28,45 +43,12 @@ export class QuotationsController {
     return { message: `Quotation created` };
   }
 
-  // Lấy quotation
   @Get()
-  findAll(): Promise<Quotation[]> {
-    return this.quotationService.findAll();
-  }
-
-  @Get('totalPrice/:totalPrice')
-  getQuotationByTotalPrice(
-    @Param('totalPrice') totalPrice: number,
-  ): Promise<Quotation> {
-    return this.quotationService.getQuotationByTotalPrice(totalPrice);
-  }
-
-  @Get('deliveryDate/:deliveryDate')
-  getQuotationByDeliveryDate(
-    @Param('deliveryDate') deliveryDate: string,
-  ): Promise<Quotation> {
-    return this.quotationService.getQuotationByDeliveryDate(deliveryDate);
-  }
-
-  @Get('pickupDate/:pickupDate')
-  getQuotationByPickupDate(
-    @Param('pickupDate') pickupDate: string,
-  ): Promise<Quotation> {
-    return this.quotationService.getQuotationByPickupDate(pickupDate);
-  }
-
-  @Get('quotationDate/:quotationDate')
-  getQuotationByQuotationDate(
-    @Param('quotationDate') quotationDate: string,
-  ): Promise<Quotation> {
-    return this.quotationService.getQuotationByQuotationDate(quotationDate);
-  }
-
-  @Get('expiredDate/:expiredDate')
-  getQuotationByExpiredDate(
-    @Param('expiredDate') expiredDate: string,
-  ): Promise<Quotation> {
-    return this.quotationService.getQuotationByExpiredDate(expiredDate);
+  async getQuotations(
+    @Query(new ZodValidationPipe(QueryQuotationSchema))
+    query: QueryQuotationDto,
+  ) {
+    return this.quotationService.findQuotations(query);
   }
 
   // Cập nhật quotation theo id
@@ -76,7 +58,7 @@ export class QuotationsController {
     @Body(new ZodValidationPipe(UpdateQuotationSchema))
     body: UpdateQuotationDto,
   ) {
-    await this.quotationService.update(id, body);
-    return { message: `Quotation with ID ${id} was updated` };
+    const updateResponse = await this.quotationService.update(id, body);
+    return updateResponse;
   }
 }

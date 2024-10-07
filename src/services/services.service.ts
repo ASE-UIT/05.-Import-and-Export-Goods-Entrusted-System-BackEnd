@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ConflictException,
   Injectable,
   NotFoundException,
@@ -7,6 +8,7 @@ import { InjectModel } from '@nestjs/sequelize';
 import { Service } from './models/service.model';
 import { CreateServiceDto } from './dtos/CreateServiceDto';
 import { UpdateServiceDto } from './dtos/UpdateServiceDto';
+import { QueryServiceDto } from './dtos/QueryServiceDto';
 
 @Injectable()
 export class ServicesService {
@@ -36,35 +38,36 @@ export class ServicesService {
       throw new ConflictException('Service already exists');
     }
   }
-  // Lấy service theo tên
-  getServiceByName(name: string): Promise<Service> {
-    return this.serviceModel.findOne({
-      where: {
-        name,
-      },
-    });
-  }
 
-  // Lấy service theo short name
-  getServiceByShortName(shortName: string): Promise<Service> {
-    return this.serviceModel.findOne({
-      where: {
-        shortName,
-      },
-    });
-  }
+  async findServices(query: QueryServiceDto): Promise<Service[]> {
+    const whereClause = Object.entries(query).reduce((acc, [key, value]) => {
+      if (value !== undefined && value !== null) {
+        acc[key] = value;
+      }
+      return acc;
+    }, {});
 
-  // Lấy service theo fee
-  getServiceByFee(fee: number): Promise<Service> {
-    return this.serviceModel.findOne({
-      where: {
-        fee,
-      },
+    if (Object.keys(whereClause).length === 0) {
+      return this.serviceModel.findAll();
+    }
+
+    const services = await this.serviceModel.findAll({
+      where: whereClause,
     });
+
+    if (!services.length) {
+      throw new NotFoundException('No services found');
+    }
+
+    return services;
   }
 
   // Cập nhật service theo id
   async update(id: string, updateServiceDto: UpdateServiceDto) {
+    // Check if body is empty
+    if (!Object.keys(updateServiceDto).length) {
+      throw new BadRequestException('Body is empty');
+    }
     const [numberOfAffectedRows, [updatedService]] =
       await this.serviceModel.update(
         {
@@ -83,6 +86,6 @@ export class ServicesService {
       throw new NotFoundException(`Service with ID ${id} not found`);
     }
 
-    return updatedService; // Trả về người dùng đã cập nhật
+    return { message: 'Service updated', data: updatedService }; // Trả về người dùng đã cập nhật
   }
 }

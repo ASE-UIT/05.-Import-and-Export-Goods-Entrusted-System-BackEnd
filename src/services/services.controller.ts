@@ -1,9 +1,20 @@
-import { Body, Controller, Get, Param, Patch, Post, Put } from '@nestjs/common';
+import {
+  BadRequestException,
+  Body,
+  Controller,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Put,
+  Query,
+} from '@nestjs/common';
 import { ServicesService } from './services.service';
 import { Service } from './models/service.model';
 import { ZodValidationPipe } from '@/shared/pipes/zod.pipe';
 import { CreateServiceDto, CreateServiceSchema } from './dtos/CreateServiceDto';
 import { UpdateServiceDto, UpdateServiceSchema } from './dtos/UpdateServiceDto';
+import { QueryServiceDto, QueryServiceSchema } from './dtos/QueryServiceDto';
 
 @Controller({
   path: 'services',
@@ -21,30 +32,12 @@ export class ServicesController {
     return { message: `Service created` };
   }
 
-  // Lấy service
   @Get()
-  findAll(): Promise<Service[]> {
-    return this.serviceService.findAll();
-  }
-
-  // Lấy service theo tên
-  @Get('name/:name')
-  getServiceByName(@Param('name') name: string): Promise<Service> {
-    return this.serviceService.getServiceByName(name);
-  }
-
-  // Lấy service theo shortName
-  @Get('shortName/:shortName')
-  getServiceByShortName(
-    @Param('shortName') shortName: string,
-  ): Promise<Service> {
-    return this.serviceService.getServiceByShortName(shortName);
-  }
-
-  // Lấy service theo fee
-  @Get('fee/:fee')
-  getServiceByFee(@Param('fee') fee: number): Promise<Service> {
-    return this.serviceService.getServiceByFee(fee);
+  async getQuotations(
+    @Query(new ZodValidationPipe(QueryServiceSchema))
+    query: QueryServiceDto,
+  ) {
+    return this.serviceService.findServices(query);
   }
 
   // Cập nhật service theo id
@@ -53,7 +46,7 @@ export class ServicesController {
     @Param('id') id: string,
     @Body(new ZodValidationPipe(UpdateServiceSchema)) body: UpdateServiceDto,
   ) {
-    await this.serviceService.update(id, body);
-    return { message: `Service with ID ${id} was updated` };
+    const updateResponse = await this.serviceService.update(id, body);
+    return updateResponse;
   }
 }

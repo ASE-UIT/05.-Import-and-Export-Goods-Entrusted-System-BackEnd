@@ -1,8 +1,19 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Get,
+  Injectable,
+  NotFoundException,
+  Query,
+} from '@nestjs/common';
 import { Quotation } from './models/quotations.model';
 import { InjectModel } from '@nestjs/sequelize';
 import { CreateQuotationDto } from './dtos/CreateQuotationDto';
 import { UpdateQuotationDto } from './dtos/UpdateQuotationDto';
+import {
+  QueryQuotationDto,
+  QueryQuotationSchema,
+} from './dtos/QueryQuotationDto';
+import { ZodValidationPipe } from '@/shared/pipes/zod.pipe';
 
 @Injectable()
 export class QuotationsService {
@@ -28,47 +39,33 @@ export class QuotationsService {
     return await this.quotationModel.create(quotationInfo);
   }
 
-  getQuotationByTotalPrice(totalPrice: number): Promise<Quotation> {
-    return this.quotationModel.findOne({
-      where: {
-        totalPrice,
-      },
-    });
-  }
+  async findQuotations(query: QueryQuotationDto): Promise<Quotation[]> {
+    const whereClause = Object.entries(query).reduce((acc, [key, value]) => {
+      if (value !== undefined && value !== null) {
+        acc[key] = value;
+      }
+      return acc;
+    }, {});
 
-  getQuotationByDeliveryDate(deliveryDate: string): Promise<Quotation> {
-    return this.quotationModel.findOne({
-      where: {
-        deliveryDate,
-      },
-    });
-  }
+    if (Object.keys(whereClause).length === 0) {
+      return this.quotationModel.findAll();
+    }
 
-  getQuotationByPickupDate(pickupDate: string): Promise<Quotation> {
-    return this.quotationModel.findOne({
-      where: {
-        pickupDate,
-      },
+    const quotations = await this.quotationModel.findAll({
+      where: whereClause,
     });
-  }
 
-  getQuotationByQuotationDate(quotationDate: string): Promise<Quotation> {
-    return this.quotationModel.findOne({
-      where: {
-        quotationDate,
-      },
-    });
-  }
+    if (!quotations.length) {
+      throw new NotFoundException('No quotations found');
+    }
 
-  getQuotationByExpiredDate(expiredDate: string): Promise<Quotation> {
-    return this.quotationModel.findOne({
-      where: {
-        expiredDate,
-      },
-    });
+    return quotations;
   }
 
   async update(id: string, updateQuotationDto: UpdateQuotationDto) {
+    if (!Object.keys(updateQuotationDto).length) {
+      throw new BadRequestException('Body is empty');
+    }
     const [numberOfAffectedRows, [updatedQuotation]] =
       await this.quotationModel.update(
         {
@@ -89,6 +86,6 @@ export class QuotationsService {
       throw new NotFoundException(`Quotation with ID ${id} not found`);
     }
 
-    return updatedQuotation; // Trả về người dùng đã cập nhật
+    return { message: 'Quotation updated', data: updatedQuotation };
   }
 }

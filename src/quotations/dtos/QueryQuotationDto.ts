@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-export const UpdateQuotationSchema = z.object({
+export const QueryQuotationSchema = z.object({
   totalPrice: z.coerce.number().min(0).optional(),
   pickupDate: z.string().date().optional(),
   deliveryDate: z.string().date().optional(),
@@ -9,4 +9,4 @@ export const UpdateQuotationSchema = z.object({
 });
 
 // Xuất kiểu dữ liệu tương ứng
-export type UpdateQuotationDto = z.infer<typeof UpdateQuotationSchema>;
+export type QueryQuotationDto = z.infer<typeof QueryQuotationSchema>;
