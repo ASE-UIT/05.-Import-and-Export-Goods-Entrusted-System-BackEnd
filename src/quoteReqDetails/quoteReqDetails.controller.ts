@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, Put, Query } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Post, Put, Query } from '@nestjs/common';
 import { QuoteReqDetailsService } from './quoteReqDetails.service';
 import { ZodValidationPipe } from '@/shared/pipes/zod.pipe';
 import { CreateQuoteReqDetailDto, CreateQuoteReqDetailSchema } from './dtos/CreateQuoteReqDetailDto';
@@ -52,9 +52,9 @@ export class QuoteReqDetailsController {
         return { message: "Quote Request Detail Created" }
     }
 
-    @Put(':id')
+    @Patch(':id')
     async updateQuoteReqDetail(
-        @Param('id') id: string, @Body(new ZodValidationPipe(UpdateQuoteReqDetailSchema)) body: UpdateQuoteReqDetailDto) {
+        @Param('id') id: string, @Body(new ZodValidationPipe(UpdateQuoteReqDetailSchema.partial())) body: Partial<UpdateQuoteReqDetailDto>) {
         await this.quoteReqDetailsSerivce.updateQuoteReqDetail(id, body)
         return { message: 'Quote Request Detail Updated' }
     }

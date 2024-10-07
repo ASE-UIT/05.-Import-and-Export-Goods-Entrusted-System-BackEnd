@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, Put, Query } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Post, Put, Query } from '@nestjs/common';
 import { PackageDetailsService } from './packageDetails.service';
 import { ZodValidationPipe } from '@/shared/pipes/zod.pipe';
 import { CreatePackageDetailDto, CreatePackageDetailSchema } from './dtos/CreatePackageDetailDto';
@@ -50,9 +50,9 @@ export class PackageDetailsController {
         return { message: "Package Detail Created" }
     }
 
-    @Put(':id')
+    @Patch(':id')
     async updatePackageDetail(
-        @Param('id') id: string, @Body(new ZodValidationPipe(UpdatePackageDetailSchema)) body: UpdatePackageDetailDto) {
+        @Param('id') id: string, @Body(new ZodValidationPipe(UpdatePackageDetailSchema.partial())) body: Partial<UpdatePackageDetailDto>) {
         await this.packageDetailsService.updatePackageDetail(id, body)
         return { message: 'Package Detail Updated' }
     }
