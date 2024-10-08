@@ -22,7 +22,10 @@ export class User extends Model {
   @Column
   id: string;
 
-  @Unique
+  @Unique({
+    name: 'username_conflict',
+    msg: 'This username is already is already taken',
+  })
   @AllowNull(false)
   @Column
   username: string;
