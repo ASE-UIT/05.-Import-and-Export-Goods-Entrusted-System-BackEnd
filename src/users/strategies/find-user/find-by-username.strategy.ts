@@ -14,8 +14,6 @@ export class FindUserByUsernameStrategy implements IFindUserStrategy {
       nest: true,
     });
 
-    console.log(result);
-
     return result;
   }
 }
