@@ -14,6 +14,9 @@ import { ServicesModule } from './services/services.module';
 import { QuotationsModule } from './quotations/quotations.module';
 import { QuotationServicesModule } from './quotation-services/quotation-services.module';
 import { SessionModule } from './session/session.module';
+import { QuoteReqDetailsModule } from './quoteReqDetails/quoteReqDetails.module';
+import { PackageDetail } from './packageDetails/models/packageDetails.model';
+import { PackageDetailModule } from './packageDetails/packageDetails.module';
 
 @Module({
   imports: [
@@ -45,10 +48,11 @@ import { SessionModule } from './session/session.module';
     ServicesModule,
     QuotationsModule,
     QuotationServicesModule,
-    ServicesModule,
+    QuoteReqDetailsModule,
+    PackageDetailModule,
     SessionModule,
   ],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule { }
