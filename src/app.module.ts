@@ -10,6 +10,9 @@ import { LegalRepsModule } from './legalReps/legalReps.module';
 import { CustomersModule } from './customers/customers.module';
 import { ProvidersModule } from './providers/providers.module';
 import { QuotationReqsModule } from './quotationReqs/quotationReqs.module';
+import { ServicesModule } from './services/services.module';
+import { QuotationsModule } from './quotations/quotations.module';
+import { QuotationServicesModule } from './quotation-services/quotation-services.module';
 import { SessionModule } from './session/session.module';
 import { QuoteReqDetailsModule } from './quoteReqDetails/quoteReqDetails.module';
 import { PackageDetail } from './packageDetails/models/packageDetails.model';
@@ -18,9 +21,11 @@ import { PackageDetailModule } from './packageDetails/packageDetails.module';
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
+
     SequelizeModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
+
       useFactory: (configService: ConfigService) => ({
         dialect: 'postgres',
         port: 5432,
@@ -32,6 +37,7 @@ import { PackageDetailModule } from './packageDetails/packageDetails.module';
         sync: { alter: true },
       }),
     }),
+
     UsersModule,
     RolesModule,
     EmployeesModule,
@@ -39,6 +45,9 @@ import { PackageDetailModule } from './packageDetails/packageDetails.module';
     CustomersModule,
     ProvidersModule,
     QuotationReqsModule,
+    ServicesModule,
+    QuotationsModule,
+    QuotationServicesModule,
     QuoteReqDetailsModule,
     PackageDetailModule,
     SessionModule,
