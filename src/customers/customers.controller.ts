@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Get,
@@ -6,9 +7,7 @@ import {
   Param,
   Patch,
   Post,
-  Put,
   Query,
-  UseGuards,
 } from '@nestjs/common';
 import { CustomersService } from './customers.service';
 import { FindCustomerStrategy } from './strategies/find-customer/find-customer-strategy.enum';
@@ -18,9 +17,6 @@ import {
   CreateCustomerDto,
   CreateCustomerSchema,
 } from './dtos/CreateCustomerDto';
-import { UpdateCustomerDto, UpdateCustomerSchema } from './dtos/UpdateUserDto';
-import { Customer } from './models/customer.model';
-import { AuthenticatedGuard } from '@/session/guards/authenticated.guard';
 
 @Controller({
   path: 'customers',
@@ -63,11 +59,6 @@ export class CustomersController {
       }
     }
 
-    // const customers = await this.customerService.getAllCustomers(query);
-    // if (customers && customers.length > 0) {
-    //   return customers;
-    // }
-
     // Cant find customer
     throw new NotFoundException('Customer not found');
   }
@@ -83,9 +74,11 @@ export class CustomersController {
   @Patch(':id')
   async updateCustomer(
     @Param('id') id: string,
-    @Body(new ZodValidationPipe(UpdateCustomerSchema.partial()))
-    body: Partial<UpdateCustomerDto>,
+    @Body(new ZodValidationPipe(CreateCustomerSchema.partial()))
+    body: Partial<CreateCustomerDto>,
   ) {
+    if (Object.keys(body).length === 0)
+      throw new BadRequestException('Body is empty');
     const updateResponse = await this.customerService.updateCustomer(id, body);
     return updateResponse;
   }

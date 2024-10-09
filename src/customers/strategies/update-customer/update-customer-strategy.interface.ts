@@ -1,7 +1,9 @@
-import { UpdateCustomerDto } from '@/customers/dtos/UpdateUserDto';
+import { CreateCustomerDto } from '@/customers/dtos/CreateCustomerDto';
 import { Customer } from '@/customers/models/customer.model';
-import { User } from '@/users/models/user.model';
 
 export interface IUpdateCustomerStrategy {
-  update(customerId: string, udpateInfo: UpdateCustomerDto): Promise<Customer>;
+  update(
+    customerId: string,
+    udpateInfo: Partial<CreateCustomerDto>,
+  ): Promise<Customer>;
 }
