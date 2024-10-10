@@ -53,11 +53,8 @@ export class QuotationReqsService {
     }
   }
 
-  async updateQuotationReq(id: string, quotationReqInfo: Partial<CreateQuotationReqDto>): Promise<{
-    message: string,
-    data: QuotationReq
-  }> {
+  async updateQuotationReq(id: string, quotationReqInfo: Partial<CreateQuotationReqDto>): Promise<QuotationReq> {
     const updatedResponse = await this.updateQuotationReqStrategy.update(id, quotationReqInfo)
-    return { message: 'Quote Request updated successfully', data: updatedResponse }
+    return updatedResponse
   }
 }

@@ -4,7 +4,7 @@ import { PackageDetail } from '@/packageDetails/models/packageDetails.model';
 
 @Injectable()
 export class FindAllPackageDetailStrategy {
-    async find(packageDetailInfo: string): Promise<PackageDetail[] | null> {
-        return packageDetailInfo === 'true' && PackageDetail.findAll();
+    async find(): Promise<PackageDetail[] | null> {
+        return PackageDetail.findAll();
     }
 }

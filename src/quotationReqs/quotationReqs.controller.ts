@@ -18,10 +18,14 @@ export class QuotationReqsController {
   async getQuotationReqs(
     @Query(new ZodValidationPipe(QueryQuotationReqSchema)) query: QueryQuotationReqDto,
   ) {
-
+    if (Object.keys(query).length === 0) {
+      return await this.quotationReqsService.findQuotationReq(
+        FindQuotationReqStrategy.ALL,
+        ''
+      )
+    }
     // Get query fields
     const queryFields: { [key: string]: FindQuotationReqStrategy } = {
-      all: FindQuotationReqStrategy.ALL,
       requestDate: FindQuotationReqStrategy.REQUESTDATE,
       status: FindQuotationReqStrategy.STATUS,
       customerId: FindQuotationReqStrategy.CUSTOMERID
@@ -62,6 +66,7 @@ export class QuotationReqsController {
     if (Object.keys(body).length === 0) {
       throw new BadRequestException('Body cannot be empty')
     }
-    return await this.quotationReqsService.updateQuotationReq(id, body)
+    const updatedResponse = await this.quotationReqsService.updateQuotationReq(id, body)
+    return { message: "Quote Request updated successfully", data: updatedResponse }
   }
 }

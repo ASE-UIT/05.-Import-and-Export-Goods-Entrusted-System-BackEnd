@@ -4,7 +4,7 @@ import { QuoteReqDetail } from '@/quoteReqDetails/models/quoteReqDetail.model';
 
 @Injectable()
 export class FindAllQuotationReqStrategy {
-    async find(quotationReqInfo: string): Promise<QuotationReq[] | null> {
-        return quotationReqInfo === 'true' && QuotationReq.findAll({ include: QuoteReqDetail });
+    async find(): Promise<QuotationReq[] | null> {
+        return QuotationReq.findAll()
     }
 }

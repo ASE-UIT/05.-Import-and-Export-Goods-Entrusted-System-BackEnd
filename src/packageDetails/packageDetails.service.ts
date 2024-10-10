@@ -51,12 +51,9 @@ export class PackageDetailsService {
     async updatePackageDetail(
         id: string,
         packageDetailInfo: Partial<CreatePackageDetailDto>)
-        : Promise<{
-            message: string,
-            data: PackageDetail
-        }> {
+        : Promise<PackageDetail> {
         const updatedResponse = await this.updatePackageDetailStrategy.update(id, packageDetailInfo)
-        return { message: 'Package detail updated successfully', data: updatedResponse }
+        return updatedResponse
     }
 
 }

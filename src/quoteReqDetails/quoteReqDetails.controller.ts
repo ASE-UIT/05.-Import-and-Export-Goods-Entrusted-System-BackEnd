@@ -17,8 +17,14 @@ export class QuoteReqDetailsController {
     async getQuoteReqDetail(
         @Query(new ZodValidationPipe(QueryQuoteReqDetailSchema)) query: QueryQuoteReqDetailDto
     ) {
+        if (Object.keys(query).length === 0) {
+            return await this.quoteReqDetailsSerivce.findQuoteReqDetail(
+                FindQuoteReqDetailStrategy.ALL,
+                ''
+            )
+        }
+
         const queryFields: { [key: string]: FindQuoteReqDetailStrategy } = {
-            all: FindQuoteReqDetailStrategy.ALL,
             origin: FindQuoteReqDetailStrategy.ORIGIN,
             destination: FindQuoteReqDetailStrategy.DESTINATION,
             shipmentReadyDate: FindQuoteReqDetailStrategy.SHIPMENTREADYDATE,
@@ -60,6 +66,7 @@ export class QuoteReqDetailsController {
         if (Object.keys(body).length === 0) {
             throw new BadRequestException('Body cannot be empty')
         }
-        return await this.quoteReqDetailsSerivce.updateQuoteReqDetail(id, body)
+        const updatedData = await this.quoteReqDetailsSerivce.updateQuoteReqDetail(id, body)
+        return { message: "Quote Request Detail updated successfully", data: updatedData }
     }
 }

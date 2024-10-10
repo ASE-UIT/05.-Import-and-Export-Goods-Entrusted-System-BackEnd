@@ -66,11 +66,8 @@ export class QuoteReqDetailsService {
         }
     }
 
-    async updateQuoteReqDetail(id: string, quoteReqDetailInfo: Partial<CreateQuoteReqDetailDto>): Promise<{
-        message: string,
-        data: QuoteReqDetail
-    }> {
+    async updateQuoteReqDetail(id: string, quoteReqDetailInfo: Partial<CreateQuoteReqDetailDto>): Promise<QuoteReqDetail> {
         const updatedResponse = await this.updateQuoteReqDetailStrategy.update(id, quoteReqDetailInfo)
-        return { message: 'Quote Request Detail updated successfully', data: updatedResponse }
+        return updatedResponse
     }
 }

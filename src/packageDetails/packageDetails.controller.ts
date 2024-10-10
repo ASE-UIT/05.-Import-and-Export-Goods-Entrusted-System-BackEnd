@@ -19,8 +19,14 @@ export class PackageDetailsController {
     async getQuoteReqDetail(
         @Query(new ZodValidationPipe(QueryPackageDetailSchema)) query: QueryPackageDetailDto
     ) {
+        if (Object.keys(query).length === 0) {
+            return await this.packageDetailsService.findPackageDetail(
+                FindPackageDetailStrategy.ALL,
+                ''
+            )
+        }
+
         const queryFields: { [key: string]: FindPackageDetailStrategy } = {
-            all: FindPackageDetailStrategy.ALL,
             detailId: FindPackageDetailStrategy.DETAILID,
             packageType: FindPackageDetailStrategy.PACKAGETYPE
         }
@@ -58,6 +64,7 @@ export class PackageDetailsController {
         if (Object.keys(body).length === 0) {
             throw new BadRequestException('Body cannot be empty')
         }
-        return await this.packageDetailsService.updatePackageDetail(id, body)
+        const updatedData = await this.packageDetailsService.updatePackageDetail(id, body)
+        return { message: "Package detail updated successfully", data: updatedData }
     }
 }
