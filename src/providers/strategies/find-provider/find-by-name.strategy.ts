@@ -4,7 +4,9 @@ import { Provider } from '@/providers/models/provider.model';
 
 @Injectable()
 export class FindProviderByNameStrategy implements IFindProviderStrategy {
-  async find(name: string): Promise<Provider[]> {
-    return await Provider.findAll({ where: { name } });
+  async find(providerName: string): Promise<Provider[] | null> {
+    return Provider.findAll({ 
+      where: { name: providerName},
+    });
   }
 }
