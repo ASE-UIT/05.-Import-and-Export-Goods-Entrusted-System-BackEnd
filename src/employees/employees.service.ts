@@ -2,22 +2,16 @@ import {
   BadRequestException,
   ConflictException,
   Injectable,
+  InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
 import { CreateEmployeeDto } from './dtos/CreateEmployeeDto';
 import { Employee } from './models/employee.model';
+import { UniqueConstraintError } from 'sequelize';
 
 @Injectable()
 export class EmployeesService {
   async createEmployee(employeeInfo: CreateEmployeeDto) {
-    // Check employee email
-    const existingEmail = await Employee.findOne({
-      where: { email: employeeInfo.email },
-    });
-
-    if (existingEmail)
-      throw new ConflictException('Email already bounded to another employee');
-
     const employee = new Employee();
     employee.name = employeeInfo.name;
     employee.email = employeeInfo.email;
@@ -28,16 +22,36 @@ export class EmployeesService {
     employee.position = employeeInfo.position;
     employee.phone = employeeInfo.phone;
 
-    return await employee.save();
+    try {
+      await employee.save();
+    } catch (err) {
+      if (err instanceof UniqueConstraintError) {
+        throw new ConflictException(err.errors[0].message);
+      }
+
+      throw new InternalServerErrorException();
+    }
+
+    return;
   }
 
   async updateEmployee(
     employeeId: string,
     updateInfo: Partial<CreateEmployeeDto>,
   ) {
-    const employee = await Employee.findOne({ where: { id: employeeId } });
-    if (!employee) throw new NotFoundException('Employee does not exist');
+    const [affectedRows, [updatedEmployees]] = await Employee.update(
+      updateInfo,
+      {
+        where: { id: employeeId },
+        returning: true,
+      },
+    );
 
-    return await employee.update({ ...updateInfo });
+    if (affectedRows === 0) throw new NotFoundException('Employee not found');
+
+    return {
+      message: 'Employee updated successfully',
+      data: updatedEmployees[0],
+    };
   }
 }
