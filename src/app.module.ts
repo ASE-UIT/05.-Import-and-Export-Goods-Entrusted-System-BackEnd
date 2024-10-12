@@ -14,6 +14,7 @@ import { ServicesModule } from './services/services.module';
 import { QuotationsModule } from './quotations/quotations.module';
 import { QuotationServicesModule } from './quotation-services/quotation-services.module';
 import { SessionModule } from './session/session.module';
+import { InvoicesModule } from './invoices/invoices.module';
 
 @Module({
   imports: [
@@ -47,6 +48,7 @@ import { SessionModule } from './session/session.module';
     QuotationServicesModule,
     ServicesModule,
     SessionModule,
+    InvoicesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

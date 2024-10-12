@@ -1,91 +1,83 @@
 import {
   BadRequestException,
-  Get,
   Injectable,
   NotFoundException,
-  Query,
 } from '@nestjs/common';
 import { Quotation } from './models/quotations.model';
-import { InjectModel } from '@nestjs/sequelize';
 import { CreateQuotationDto } from './dtos/CreateQuotationDto';
-import { UpdateQuotationDto } from './dtos/UpdateQuotationDto';
-import {
-  QueryQuotationDto,
-  QueryQuotationSchema,
-} from './dtos/QueryQuotationDto';
-import { ZodValidationPipe } from '@/shared/pipes/zod.pipe';
+import { FindQuotationByStatus } from './strategies/find-quotation/find-by-status';
+import { FindQuotationByDeliveryDate } from './strategies/find-quotation/find-by-delivery-date';
+import { FindQuotationByExpiredDate } from './strategies/find-quotation/find-by-expired-date';
+import { FindQuotationByPickupDate } from './strategies/find-quotation/find-by-pickup-date';
+import { FindQuotationByQuotationDate } from './strategies/find-quotation/find-by-quotation-date';
+import { FindQuotationByTotalPrice } from './strategies/find-quotation/find-by-total-price';
+import { FindAllQuotationStrategy } from './strategies/find-quotation/find-all.strategy';
+import { FindQuotationStrategy } from './strategies/find-quotation/find-quotation-strategy.enum';
+import { IFindQuotationStrategy } from './strategies/find-quotation/find-quotation-strategy.interface';
+import { CreateQuotationStrategy } from './strategies/create-quotation/create-quotation.strategy';
+import { UpdateQuotationStrategy } from './strategies/update-quotation/update-quotation.strategy';
 
 @Injectable()
 export class QuotationsService {
   constructor(
-    @InjectModel(Quotation)
-    private quotationModel: typeof Quotation,
+    private findAllQuotationStrategy: FindAllQuotationStrategy,
+    private findQuotationByPickupDate: FindQuotationByPickupDate,
+    private findQuotationByStatus: FindQuotationByStatus,
+    private findQuotationByDeliveryDate: FindQuotationByDeliveryDate,
+    private findQuotationByExpiredDate: FindQuotationByExpiredDate,
+    private findQuotationByQuotationDate: FindQuotationByQuotationDate,
+    private findQuotationByTotalPrice: FindQuotationByTotalPrice,
+    private createQuotationStrategy: CreateQuotationStrategy,
+    private updateQuotationStrategy: UpdateQuotationStrategy,
   ) {}
 
-  findAll(): Promise<Quotation[]> {
-    return this.quotationModel.findAll();
+  async create(
+    quotationInfo: CreateQuotationDto,
+  ): Promise<{ message: string; data: Quotation }> {
+    const createdQuotation =
+      await this.createQuotationStrategy.create(quotationInfo);
+    return { message: 'Quotation created', data: createdQuotation };
   }
 
-  findOne(id: string): Promise<Quotation> {
-    return this.quotationModel.findOne({
-      where: {
-        id,
-      },
-    });
+  find(
+    strategy: FindQuotationStrategy,
+    quotationInfo: any,
+  ): Promise<Quotation[] | null> {
+    const findStrategy = this.getFindStrategy(strategy);
+    const quotation = findStrategy.find(quotationInfo);
+    return quotation;
   }
 
-  // Tạo Quotation mới
-  async create(quotationInfo: CreateQuotationDto): Promise<Quotation> {
-    return await this.quotationModel.create(quotationInfo);
-  }
-
-  async findQuotations(query: QueryQuotationDto): Promise<Quotation[]> {
-    const whereClause = Object.entries(query).reduce((acc, [key, value]) => {
-      if (value !== undefined && value !== null) {
-        acc[key] = value;
-      }
-      return acc;
-    }, {});
-
-    if (Object.keys(whereClause).length === 0) {
-      return this.quotationModel.findAll();
+  getFindStrategy(strategy: FindQuotationStrategy): IFindQuotationStrategy {
+    switch (strategy) {
+      case FindQuotationStrategy.ALL:
+        return this.findAllQuotationStrategy;
+      case FindQuotationStrategy.DELIVERY_DATE:
+        return this.findQuotationByDeliveryDate;
+      case FindQuotationStrategy.EXPIRED_DATE:
+        return this.findQuotationByExpiredDate;
+      case FindQuotationStrategy.PICKUP_DATE:
+        return this.findQuotationByPickupDate;
+      case FindQuotationStrategy.QUOTATION_DATE:
+        return this.findQuotationByQuotationDate;
+      case FindQuotationStrategy.STATUS:
+        return this.findQuotationByStatus;
+      case FindQuotationStrategy.TOTAL_PRICE:
+        return this.findQuotationByTotalPrice;
     }
-
-    const quotations = await this.quotationModel.findAll({
-      where: whereClause,
-    });
-
-    if (!quotations.length) {
-      throw new NotFoundException('No quotations found');
-    }
-
-    return quotations;
   }
 
-  async update(id: string, updateQuotationDto: UpdateQuotationDto) {
-    if (!Object.keys(updateQuotationDto).length) {
+  async update(
+    quotationID: string,
+    updateInfo: Partial<CreateQuotationDto>,
+  ): Promise<{ message: string; data: Quotation }> {
+    if (Object.keys(updateInfo).length < 1) {
       throw new BadRequestException('Body is empty');
     }
-    const [numberOfAffectedRows, [updatedQuotation]] =
-      await this.quotationModel.update(
-        {
-          totalPrice: updateQuotationDto.totalPrice,
-          pickupDate: updateQuotationDto.pickupDate,
-          deliveryDate: updateQuotationDto.deliveryDate,
-          quotationDate: updateQuotationDto.quotationDate,
-          expiredDate: updateQuotationDto.expiredDate,
-        },
-        {
-          where: { quotationId: id },
-          returning: true, // Trả về bản ghi đã cập nhật
-        },
-      );
-
-    // Kiểm tra xem có bản ghi nào bị ảnh hưởng không
-    if (numberOfAffectedRows === 0) {
-      throw new NotFoundException(`Quotation with ID ${id} not found`);
-    }
-
-    return { message: 'Quotation updated', data: updatedQuotation };
+    const updatedResponse = await this.updateQuotationStrategy.update(
+      quotationID,
+      updateInfo,
+    );
+    return { message: 'Quotation updated', data: updatedResponse };
   }
 }
