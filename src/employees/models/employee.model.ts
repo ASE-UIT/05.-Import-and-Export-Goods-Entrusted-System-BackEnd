@@ -36,6 +36,10 @@ export class Employee extends Model {
   name: string;
 
   @AllowNull(false)
+  @Unique({
+    name: 'email_conflict',
+    msg: 'This email is already is already taken',
+  })
   @Column
   email: string;
 

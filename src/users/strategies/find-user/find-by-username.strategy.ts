@@ -10,12 +10,10 @@ export class FindUserByUsernameStrategy implements IFindUserStrategy {
     const result = await User.findOne({
       where: { username: userInfo },
       attributes: { exclude: ['employeeId', 'roleId'] },
-      include: [
-        { model: Employee, as: 'employee' },
-        { model: Role, as: 'role' },
-      ],
+      raw: true,
+      nest: true,
     });
 
-    return result.get({ plain: true });
+    return result;
   }
 }
