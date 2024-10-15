@@ -7,7 +7,7 @@ import { QuotationStatus } from '@/shared/enums/quotation-status.enum';
 export class FindQuotationByStatus implements IFindQuotationStrategy {
   find(quotationStatus: QuotationStatus): Promise<Quotation[] | null> {
     return Quotation.findAll({
-      where: { quotationDate: quotationStatus },
+      where: { status: quotationStatus },
     });
   }
 }

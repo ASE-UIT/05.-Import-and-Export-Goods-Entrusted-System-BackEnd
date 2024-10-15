@@ -4,6 +4,7 @@ import sequelize from 'sequelize';
 import {
   AllowNull,
   Column,
+  DataType,
   Default,
   HasMany,
   Model,
@@ -31,11 +32,11 @@ export class Invoice extends Model {
   status: InvoiceStatus;
 
   @AllowNull(false)
-  @Column
+  @Column({ type: DataType.FLOAT })
   taxAmount: number;
 
   @AllowNull(false)
-  @Column
+  @Column({ type: DataType.FLOAT })
   totalAmount: number;
 
   /*
