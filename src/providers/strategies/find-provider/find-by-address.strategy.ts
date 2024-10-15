@@ -4,7 +4,9 @@ import { IFindProviderStrategy } from './find-provider-strategy.interface';
 
 @Injectable()
 export class FindProviderByAddressStrategy implements IFindProviderStrategy {
-  async find(address: string): Promise<Provider[]> {
-    return await Provider.findAll({ where: { address } });
+  async find(providerAddress: string): Promise<Provider[] | null> {
+    return Provider.findAll({
+      where: {address: providerAddress},
+    });
   }
 }
