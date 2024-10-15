@@ -2,6 +2,7 @@ import {
   ConflictException,
   Injectable,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { User } from './models/user.model';
 import { FindUserByIdStrategy } from './strategies/find-user/find-by-id.strategy';
@@ -11,7 +12,8 @@ import { IFindUserStrategy } from './strategies/find-user/find-user-strategy.int
 import { CreateUserDto } from './dtos/CreateUserDto';
 import * as argon2 from 'argon2';
 import { Role } from '@/roles/models/role.model';
-import { Employee } from '@/employees/models/employee.model';
+import { ForeignKeyConstraintError, UniqueConstraintError } from 'sequelize';
+import { UpdatePasswordDto } from './dtos/UpdatePasswordDto';
 
 @Injectable()
 export class UsersService {
@@ -42,16 +44,8 @@ export class UsersService {
     password,
     employeeId,
   }: CreateUserDto): Promise<void> {
-    const usernameTaken = await this.checkDuplicate(username);
-    if (usernameTaken) throw new ConflictException('Username already exists');
-
     // Get default role
     const defaultRole = await Role.findOne({ where: { name: 'USER' } });
-
-    // Check employee exists
-    const employee = await Employee.findOne({ where: { id: employeeId } });
-    if (!employee)
-      throw new NotFoundException(`Employee (ID: ${employeeId}) not found`);
 
     // Create a new user
     const user = new User();
@@ -60,9 +54,17 @@ export class UsersService {
     user.username = username;
     user.roleId = defaultRole.id;
     user.hashedPassword = passwordHash;
-    user.employeeId = employee.id;
+    user.employeeId = employeeId;
 
-    await user.save();
+    try {
+      await user.save();
+    } catch (err) {
+      if (err instanceof ForeignKeyConstraintError) {
+        throw new NotFoundException("Employee doesn't exist");
+      } else if (err instanceof UniqueConstraintError) {
+        throw new ConflictException(err.errors[0].message);
+      }
+    }
   }
 
   async findUser(
@@ -72,5 +74,23 @@ export class UsersService {
     const findStrategy = this.getFindStrategy(strategy);
     const user: User | null = await findStrategy.find(userInfo);
     return user;
+  }
+
+  async updateUser(
+    userId: string,
+    hashedPassword: string,
+    body: UpdatePasswordDto,
+  ) {
+    const oldPasswordCorrect = await argon2.verify(
+      hashedPassword,
+      body.oldPassword,
+    );
+    if (!oldPasswordCorrect)
+      throw new UnauthorizedException('Incorrect password');
+    const newHashedPassword = await argon2.hash(body.newPassword);
+    await User.update(
+      { hashedPassword: newHashedPassword },
+      { where: { id: userId } },
+    );
   }
 }

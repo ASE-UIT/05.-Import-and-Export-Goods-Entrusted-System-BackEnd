@@ -6,6 +6,7 @@ import {
   Model,
   PrimaryKey,
   Table,
+  Unique,
 } from 'sequelize-typescript';
 
 export enum ProviderStatus {
@@ -23,14 +24,26 @@ export class Provider extends Model {
   id: string;
 
   @AllowNull(false)
+  @Unique({
+    name: 'name_conflict',
+    msg: "Provider's name already exist",
+  })
   @Column
   name: string;
 
   @AllowNull(false)
+  @Unique({
+    name: 'email_conflict',
+    msg: 'Email is already taken',
+  })
   @Column
   email: string;
 
   @AllowNull(false)
+  @Unique({
+    name: 'phone_conflict',
+    msg: 'Phone number is already taken'
+  })
   @Column
   phone: string;
 

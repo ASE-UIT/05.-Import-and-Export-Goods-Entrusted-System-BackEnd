@@ -9,6 +9,7 @@ import {
   Model,
   PrimaryKey,
   Table,
+  Unique,
 } from 'sequelize-typescript';
 
 @Table({
@@ -21,14 +22,26 @@ export class LegalRep extends Model {
   id: string;
 
   @AllowNull(false)
+  @Unique({
+    name: 'name_conflict',
+    msg: 'This name is already exist',
+  })
   @Column
   name: string;
 
   @AllowNull(false)
+  @Unique({
+    name: 'email_conflict',
+    msg: 'This email address is already taken',
+  })
   @Column
   email: string;
 
   @AllowNull(false)
+  @Unique({
+    name: 'name_conflict',
+    msg: 'This phone number is already taken',
+  })
   @Column
   phone: string;
 

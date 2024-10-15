@@ -15,6 +15,11 @@ import { QuotationsModule } from './quotations/quotations.module';
 import { QuotationServicesModule } from './quotation-services/quotation-services.module';
 import { SessionModule } from './session/session.module';
 import { InvoicesModule } from './invoices/invoices.module';
+import { InvoicesModule } from './invoices/invoices.module';
+import { QuoteReqDetailsModule } from './quoteReqDetails/quoteReqDetails.module';
+import { PackageDetail } from './packageDetails/models/packageDetails.model';
+import { PackageDetailModule } from './packageDetails/packageDetails.module';
+
 
 @Module({
   imports: [
@@ -33,6 +38,7 @@ import { InvoicesModule } from './invoices/invoices.module';
         database: configService.getOrThrow<string>('POSTGRES_DB'),
         autoLoadModels: true,
         sync: { alter: true },
+        logging: false,
       }),
     }),
 
@@ -46,7 +52,8 @@ import { InvoicesModule } from './invoices/invoices.module';
     ServicesModule,
     QuotationsModule,
     QuotationServicesModule,
-    ServicesModule,
+    QuoteReqDetailsModule,
+    PackageDetailModule,
     SessionModule,
     InvoicesModule,
   ],
