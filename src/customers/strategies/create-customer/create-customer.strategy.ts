@@ -1,7 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import { ConflictException, Injectable } from '@nestjs/common';
 import { ICreateCustomerStrategy } from './create-customer-strategy.interface';
 import { CreateCustomerDto } from '@/customers/dtos/CreateCustomerDto';
 import { Customer } from '@/customers/models/customer.model';
+import { UniqueConstraintError } from 'sequelize';
 
 @Injectable()
 export class CreateCustomerStrategy implements ICreateCustomerStrategy {
@@ -14,7 +15,13 @@ export class CreateCustomerStrategy implements ICreateCustomerStrategy {
     customer.phone = customerInfo.phone;
     customer.address = customerInfo.address;
     customer.taxId = customerInfo.taxId;
-    await customer.save();
-    return customer;
+    try {
+      await customer.save();
+      return customer;
+    } catch (err) {
+      if (err instanceof UniqueConstraintError) {
+        throw new ConflictException(err.errors[0].message);
+      }
+    }
   }
 }

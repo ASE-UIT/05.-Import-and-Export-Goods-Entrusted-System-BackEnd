@@ -1,6 +1,9 @@
-import { UpdateLegalRepDto } from '@/legalReps/dtos/UpdateLegalRepDto';
+import { CreateLegalRepDto } from '@/legalReps/dtos/CreateLegalRepDto';
 import { LegalRep } from '@/legalReps/models/legalReps.model';
 
 export interface IUpdateLegalRepsStrategy {
-  update(legalRepId: string, updateData: UpdateLegalRepDto): Promise<LegalRep>;
+  update(
+    legalRepId: string,
+    updateData: Partial<CreateLegalRepDto>,
+  ): Promise<LegalRep>;
 }

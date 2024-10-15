@@ -35,6 +35,7 @@ import { PackageDetailModule } from './packageDetails/packageDetails.module';
         database: configService.getOrThrow<string>('POSTGRES_DB'),
         autoLoadModels: true,
         sync: { alter: true },
+        logging: false,
       }),
     }),
 
@@ -55,4 +56,4 @@ import { PackageDetailModule } from './packageDetails/packageDetails.module';
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule { }
+export class AppModule {}
