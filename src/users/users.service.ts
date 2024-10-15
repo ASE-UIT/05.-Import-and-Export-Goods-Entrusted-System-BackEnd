@@ -2,6 +2,7 @@ import {
   ConflictException,
   Injectable,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { User } from './models/user.model';
 import { FindUserByIdStrategy } from './strategies/find-user/find-by-id.strategy';
@@ -12,6 +13,7 @@ import { CreateUserDto } from './dtos/CreateUserDto';
 import * as argon2 from 'argon2';
 import { Role } from '@/roles/models/role.model';
 import { ForeignKeyConstraintError, UniqueConstraintError } from 'sequelize';
+import { UpdatePasswordDto } from './dtos/UpdatePasswordDto';
 
 @Injectable()
 export class UsersService {
@@ -72,5 +74,23 @@ export class UsersService {
     const findStrategy = this.getFindStrategy(strategy);
     const user: User | null = await findStrategy.find(userInfo);
     return user;
+  }
+
+  async updateUser(
+    userId: string,
+    hashedPassword: string,
+    body: UpdatePasswordDto,
+  ) {
+    const oldPasswordCorrect = await argon2.verify(
+      hashedPassword,
+      body.oldPassword,
+    );
+    if (!oldPasswordCorrect)
+      throw new UnauthorizedException('Incorrect password');
+    const newHashedPassword = await argon2.hash(body.newPassword);
+    await User.update(
+      { hashedPassword: newHashedPassword },
+      { where: { id: userId } },
+    );
   }
 }

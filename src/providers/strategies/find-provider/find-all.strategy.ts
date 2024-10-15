@@ -1,10 +1,9 @@
-import { Injectable } from '@nestjs/common';
-import { IFindProviderStrategy } from './find-provider-strategy.interface';
+import { Injectable, NotFoundException} from '@nestjs/common';
 import { Provider } from '../../models/provider.model';
 
 @Injectable()
-export class FindAllProviderStrategy implements IFindProviderStrategy {
-  async find(): Promise<Provider[]> {
-    return await Provider.findAll();
+export class FindAllProviderStrategy {
+  async find(): Promise<Provider[] | null> {
+    return Provider.findAll();
   }
 }

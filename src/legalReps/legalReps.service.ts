@@ -1,13 +1,6 @@
-import {
-  BadRequestException,
-  ConflictException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { CreateLegalRepsStrategy } from './strategies/create-legal-rep/create-legal-rep.strategy';
 import { CreateLegalRepDto } from './dtos/CreateLegalRepDto';
-import { Customer } from '@/customers/models/customer.model';
-import { Not } from 'sequelize-typescript';
 import { LegalRep } from './models/legalReps.model';
 import { UpdateLegalRepsStrategy } from './strategies/update-legal-rep/update-legal-rep.strategy';
 import { FindLegalRepsByCustomerIdStrategy } from './strategies/find-legal-rep/find-by-customer-id.strategy';
@@ -31,38 +24,12 @@ export class LegalRepsService {
 
   //creating services
   async createLegalReps(legalRepData: CreateLegalRepDto): Promise<LegalRep> {
-    const customerExists = await this.checkCustomer(legalRepData.customerId);
-    const legalRepExists = await this.checkDuplicate(legalRepData.name);
-    if (!customerExists) {
-      throw new NotFoundException('Customer not found');
-    }
-    if (legalRepExists) {
-      throw new ConflictException('Legal representative already exists');
-    }
     return await this.createLegalRepStrategy.create(legalRepData);
-  }
-  async checkCustomer(customerId: string): Promise<boolean> {
-    const exists = await Customer.findOne({ where: { id: customerId } });
-    return exists ? true : false;
-  }
-  async checkDuplicate(name: string): Promise<boolean> {
-    const exists = await LegalRep.findOne({ where: { name: name } });
-    return exists ? true : false;
   }
 
   //updating services
   async updateLegalReps(legalRepId: string, updateData: CreateLegalRepDto) {
-    if (Object.keys(updateData).length < 1)
-      throw new BadRequestException('Body is empty');
-    const legalRepExists = await this.checkLegalRep(legalRepId);
-    if (!legalRepExists) {
-      throw new NotFoundException('Legal representative not found');
-    }
     return await this.updateLegalRepsStrategy.update(legalRepId, updateData);
-  }
-  async checkLegalRep(id: string): Promise<boolean> {
-    const exists = await LegalRep.findOne({ where: { id: id } });
-    return exists ? true : false;
   }
 
   //finding services

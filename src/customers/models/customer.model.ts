@@ -9,6 +9,7 @@ import {
   Model,
   PrimaryKey,
   Table,
+  Unique,
 } from 'sequelize-typescript';
 
 @Table({
@@ -21,6 +22,10 @@ export class Customer extends Model {
   id: string;
 
   @AllowNull(false)
+  @Unique({
+    name: 'name_conflict',
+    msg: "Customer's name already exist",
+  })
   @Column
   name: string;
 
@@ -29,10 +34,18 @@ export class Customer extends Model {
   shortName: string;
 
   @AllowNull(false)
+  @Unique({
+    name: 'email_conflict',
+    msg: 'Email is already taken',
+  })
   @Column
   email: string;
 
   @AllowNull(false)
+  @Unique({
+    name: 'phone_conflict',
+    msg: 'Phone number is already taken',
+  })
   @Column
   phone: string;
 
@@ -41,6 +54,10 @@ export class Customer extends Model {
   address: string;
 
   @AllowNull(false)
+  @Unique({
+    name: 'taxId_conflict',
+    msg: 'Tax ID already exist',
+  })
   @Column
   taxId: string;
 

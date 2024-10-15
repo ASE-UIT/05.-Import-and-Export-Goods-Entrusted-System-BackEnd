@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Get,
@@ -7,7 +8,6 @@ import {
   Patch,
   Post,
   Query,
-  BadRequestException,
 } from '@nestjs/common';
 import { ProvidersService } from './providers.service';
 import { FindProviderStrategy } from './strategies/find-provider/find-provider-strategy.enum';
@@ -17,10 +17,6 @@ import {
   CreateProviderDto,
   CreateProviderSchema,
 } from './dtos/CreateProviderDto';
-import {
-  UpdateProviderDto,
-  UpdateProviderSchema,
-} from './dtos/UpdateProviderDto';
 
 @Controller({
   path: 'providers',
@@ -33,6 +29,11 @@ export class ProvidersController {
   async getProviders(
     @Query(new ZodValidationPipe(QueryProviderSchema)) query: QueryProviderDto,
   ) {
+    if (Object.keys(query).length === 0)
+      return await this.providerService.findProvider(
+        FindProviderStrategy.ALL,
+        '',
+      );
     const queryFields: { [key: string]: FindProviderStrategy } = {
       all: FindProviderStrategy.ALL,
       name: FindProviderStrategy.NAME,
@@ -41,15 +42,8 @@ export class ProvidersController {
       country: FindProviderStrategy.COUNTRY,
       address: FindProviderStrategy.ADDRESS,
     };
-    if (Object.keys(query).length === 0) {
-      throw new BadRequestException('Query cannot be empty');
-    }
 
     for (const [key, strategy] of Object.entries(queryFields)) {
-      if (!(key in query)) {
-        throw new BadRequestException(`Invalid query parameter: ${key}`);
-      }
-      
       const value = query[key as keyof QueryProviderDto];
       if (value) {
         const provider = await this.providerService.findProvider(strategy, value);
@@ -68,38 +62,20 @@ export class ProvidersController {
   async createProvider(
     @Body(new ZodValidationPipe(CreateProviderSchema)) body: CreateProviderDto,
   ) {
-    if (!body || Object.keys(body).length === 0) {
-      throw new BadRequestException('Data cannot be empty');
-    }
-
-    const hasNonEmptyField = Object.values(body).some((value) => value !== null && value !== '');
-    if (!hasNonEmptyField) {
-      throw new BadRequestException('At least one field must be provided');
-    }
-    
-    await this.providerService.createProvider(body);
-    return { message: `Provider created` };
+    const createRes = await this.providerService.createProvider(body);
+    return { message: `Provider created`, data: createRes };
   }
 
   @Patch(':id')
   async updateProvider(
     @Param('id') id: string,
-    @Body(new ZodValidationPipe(UpdateProviderSchema.partial())) body: Partial<UpdateProviderDto>,
+    @Body(new ZodValidationPipe(CreateProviderSchema.partial())) 
+    body: Partial<CreateProviderDto>,
   ) {
-    if (!body || Object.keys(body).length === 0) {
-      throw new BadRequestException('Data cannot be empty');
-    }
-
-    const hasNonEmptyField = Object.values(body).some((value) => value !== null && value !== '');
-    if (!hasNonEmptyField) {
-      throw new BadRequestException('At least one field must be provided for update');
-    }
-
-    const updatedProvider = await this.providerService.updateProvider(id, body);
-    return {
-      message: 'Provider updated successfully',
-      data: updatedProvider,
-    };
+    if (Object.keys(body).length === 0)
+      throw new BadRequestException('Body is empty');
+    const updateResponse = await this.providerService.updateProvider(id, body);
+    return updateResponse;
   }
 }
 

@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Get,
@@ -14,12 +15,7 @@ import {
   CreateLegalRepSchema,
 } from './dtos/CreateLegalRepDto';
 import { ZodValidationPipe } from '@/shared/pipes/zod.pipe';
-import {
-  UpdateLegalRepDto,
-  UpdateLegalRepSchema,
-} from './dtos/UpdateLegalRepDto';
-import { UpdateCustomerDto } from '@/customers/dtos/UpdateUserDto';
-import { LegalRep } from './models/legalReps.model';
+
 import {
   QueryLegalRepsDto,
   QueryLegalRepsSchema,
@@ -48,9 +44,11 @@ export class LegalRepsController {
   @Patch(':id')
   async updateLegalReps(
     @Param('id') id: string,
-    @Body(new ZodValidationPipe(UpdateLegalRepSchema.partial()))
-    updateData: Partial<UpdateLegalRepDto>,
+    @Body(new ZodValidationPipe(CreateLegalRepSchema.partial()))
+    updateData: Partial<CreateLegalRepDto>,
   ) {
+    if (Object.keys(updateData).length === 0)
+      throw new BadRequestException('Body is empty');
     const updateResponse = await this.legalRepsService.updateLegalReps(
       id,
       updateData,

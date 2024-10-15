@@ -16,7 +16,6 @@ import { FindAllProviderStrategy } from './strategies/find-provider/find-all.str
 import { CreateProviderStrategy } from './strategies/create-provider/create-provider.strategy';
 import { CreateProviderDto } from './dtos/CreateProviderDto';
 import { UpdateProviderStrategy } from './strategies/update-provider/update-provider.strategy';
-import { UpdateProviderDto } from './dtos/UpdateProviderDto';
 
 @Injectable()
 export class ProvidersService {
@@ -35,16 +34,9 @@ export class ProvidersService {
     strategy: FindProviderStrategy,
     providerInfo: string,
   ): Promise<Provider[] | null> {
-    if (!providerInfo || providerInfo.trim().length === 0) {
-      throw new BadRequestException('Provider information cannot be empty');
-    }
-
     const findStrategy = this.getFindStrategy(strategy);
-    const provider: Provider[] = await findStrategy.find(providerInfo);
-    if (!provider || provider.length === 0) {
-      throw new NotFoundException('No providers found with the given information');
-    }
-
+    const provider: Provider[] | null = await findStrategy.find(providerInfo);
+    
     return provider;
   }
 
@@ -62,22 +54,11 @@ export class ProvidersService {
         return this.findProviderByCountryStrategy;
       case FindProviderStrategy.ADDRESS:
         return this.findProviderByAddressStrategy;
-      default:
-        throw new BadRequestException(`Invalid provider strategy: ${strategy}`);
     }
   }
 
-  async createProvider(providerInfo: CreateProviderDto): Promise<void> {
-    if (!providerInfo || Object.keys(providerInfo).length === 0) {
-      throw new BadRequestException('Provider data cannot be empty');
-    }
-
-    const providerExists = await this.checkDuplicate(providerInfo.name);
-    if (!providerExists) {
-      return await this.createProviderStrategy.create(providerInfo);
-    } else {
-      throw new ConflictException('Provider already exists');
-    }
+  async createProvider(providerInfo: CreateProviderDto): Promise<Provider> {
+    return await this.createProviderStrategy.create(providerInfo);
   }
 
   async checkDuplicate(name: string): Promise<boolean> {
@@ -87,17 +68,12 @@ export class ProvidersService {
 
   async updateProvider(
     providerId: string,
-    updateInfo: UpdateProviderDto,
-  ): Promise<Provider> {
-    if (!updateInfo || Object.keys(updateInfo).length === 0) {
-      throw new BadRequestException('Update data cannot be empty');
-    }
-
-    const providerExists = await Provider.findByPk(providerId);
-    if (!providerExists) {
-      throw new NotFoundException(`Provider with ID ${providerId} not found`);
-    }
-
-    return await this.updateProviderStrategy.update(providerId, updateInfo);
+    updateInfo: Partial<CreateProviderDto>,
+  ): Promise<{message: string; data: Provider}> {
+    const updateResponse = await this.updateProviderStrategy.update(
+      providerId,
+      updateInfo,
+    );
+    return { message: 'Provider created', data: updateResponse};
   }
 }
