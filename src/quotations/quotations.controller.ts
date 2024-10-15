@@ -7,58 +7,77 @@ import {
   Param,
   Patch,
   Post,
-  Put,
   Query,
 } from '@nestjs/common';
-import { Quotation } from './models/quotations.model';
-import { QuotationsService } from './quotations.service';
 import { ZodValidationPipe } from '@/shared/pipes/zod.pipe';
 import {
   CreateQuotationDto,
   CreateQuotationSchema,
 } from './dtos/CreateQuotationDto';
 import {
-  UpdateQuotationDto,
-  UpdateQuotationSchema,
-} from './dtos/UpdateQuotationDto';
-import {
   QueryQuotationDto,
   QueryQuotationSchema,
 } from './dtos/QueryQuotationDto';
+import { QuotationsService } from './quotations.service';
+import { Quotation } from './models/quotations.model';
+import { FindQuotationStrategy } from './strategies/find-quotation/find-quotation-strategy.enum';
 
 @Controller({
   path: 'quotations',
   version: '1',
 })
 export class QuotationsController {
-  constructor(private quotationService: QuotationsService) {}
+  constructor(private quotationsService: QuotationsService) {}
 
-  // Tạo quotatiom mới
   @Post()
-  async createQuotaton(
+  async createQuotation(
     @Body(new ZodValidationPipe(CreateQuotationSchema))
     body: CreateQuotationDto,
-  ) {
-    await this.quotationService.create(body);
-    return { message: `Quotation created` };
+  ): Promise<{ message: string; data: Quotation }> {
+    const createRes = await this.quotationsService.create(body);
+    return createRes;
   }
 
   @Get()
-  async getQuotations(
+  async findQuotation(
     @Query(new ZodValidationPipe(QueryQuotationSchema))
     query: QueryQuotationDto,
-  ) {
-    return this.quotationService.findQuotations(query);
+  ): Promise<Quotation[]> {
+    if (Object.keys(query).length === 0) {
+      return this.quotationsService.find(FindQuotationStrategy.ALL, '');
+    }
+    const queryFields: { [key: string]: FindQuotationStrategy } = {
+      deliveryDate: FindQuotationStrategy.DELIVERY_DATE,
+      expiredDate: FindQuotationStrategy.EXPIRED_DATE,
+      pickupDate: FindQuotationStrategy.PICKUP_DATE,
+      quotationDate: FindQuotationStrategy.QUOTATION_DATE,
+      status: FindQuotationStrategy.STATUS,
+      totalPrice: FindQuotationStrategy.TOTAL_PRICE,
+    };
+
+    for (const [key, strategy] of Object.entries(queryFields)) {
+      const value = query[key as keyof QueryQuotationDto];
+      if (value) {
+        const quotation = await this.quotationsService.find(strategy, value);
+
+        if (quotation.length > 0) {
+          if (strategy === FindQuotationStrategy.ALL || quotation.length > 1)
+            return quotation;
+          else return [quotation[0]];
+        }
+      }
+    }
+
+    throw new NotFoundException('Quotation not found');
   }
 
-  // Cập nhật quotation theo id
   @Patch(':id')
-  async update(
+  async updateQuotation(
     @Param('id') id: string,
-    @Body(new ZodValidationPipe(UpdateQuotationSchema))
-    body: UpdateQuotationDto,
-  ) {
-    const updateResponse = await this.quotationService.update(id, body);
-    return updateResponse;
+    @Body(new ZodValidationPipe(CreateQuotationSchema.partial()))
+    body: Partial<CreateQuotationDto>,
+  ): Promise<{ message: string; data: Quotation }> {
+    const updateRes = await this.quotationsService.update(id, body);
+    return updateRes;
   }
 }

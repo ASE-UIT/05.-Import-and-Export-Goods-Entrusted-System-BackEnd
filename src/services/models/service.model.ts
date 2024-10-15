@@ -5,10 +5,9 @@ import {
   Model,
   Table,
   PrimaryKey,
-  AutoIncrement,
   HasMany,
   Default,
-  DataType,
+  Unique,
 } from 'sequelize-typescript';
 
 @Table({ tableName: 'services', timestamps: true })
@@ -16,8 +15,12 @@ export class Service extends Model<Service> {
   @PrimaryKey
   @Default(sequelize.UUIDV4)
   @Column
-  serviceId: string;
+  id: string;
 
+  @Unique({
+    name: 'name_conflict',
+    msg: 'This service name is already existed',
+  })
   @Column
   name: string;
 
@@ -26,20 +29,6 @@ export class Service extends Model<Service> {
 
   @Column
   fee: number;
-
-  @Column({
-    type: DataType.DATE,
-    allowNull: false,
-    defaultValue: DataType.NOW, // Đảm bảo giá trị mặc định cho createdAt
-  })
-  createdAt: Date;
-
-  @Column({
-    type: DataType.DATE,
-    allowNull: false,
-    defaultValue: DataType.NOW, // Đảm bảo giá trị mặc định cho updatedAt
-  })
-  updatedAt: Date;
 
   @HasMany(() => QuotationService)
   quotationServices: QuotationService[];
