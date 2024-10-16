@@ -7,8 +7,6 @@ import { InjectModel } from '@nestjs/sequelize';
 import { Invoice } from './models/invoice.model';
 import { CreateInvoiceDto } from './dtos/CreateInvoiceDto';
 import { QueryInvoiceDto } from './dtos/QueryInvoiceDto';
-import { Invoice } from './models/invoice.model';
-import { CreateInvoiceDto } from './dtos/CreateInvoiceDto';
 import { CreateInvoiceStrategy } from './strategies/create-invoice/create-invoice.strategy';
 import { UpdateInvoiceStrategy } from './strategies/update-invoice/update-invoice.strategy';
 import { FindAllInvoiceStrategy } from './strategies/find-invoice/find-all.strategy';
@@ -31,7 +29,7 @@ export class InvoicesService {
     private findInvoiceByTotalAmount: FindInvoiceByTotalAmount,
     private createInvoiceStrategy: CreateInvoiceStrategy,
     private updateInvoiceStrategy: UpdateInvoiceStrategy,
-  ) {}
+  ) { }
 
   async create(
     invoiceInfo: CreateInvoiceDto,
@@ -41,10 +39,6 @@ export class InvoicesService {
   }
 
 
-  find(
-    strategy: FindInvoiceStrategy,
-    invoiceInfo: any,
-  ): Promise<Invoice[] | null> {
   find(strategy: FindInvoiceStrategy, invoiceInfo: any): Promise<Invoice[]> {
     const findStrategy = this.getFindStrategy(strategy);
     const invoice = findStrategy.find(invoiceInfo);
