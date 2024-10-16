@@ -8,6 +8,7 @@ import {
   HasMany,
   Default,
   Unique,
+  DataType,
 } from 'sequelize-typescript';
 
 @Table({ tableName: 'services', timestamps: true })
@@ -27,7 +28,7 @@ export class Service extends Model<Service> {
   @Column
   shortName: string;
 
-  @Column
+  @Column({ type: DataType.FLOAT })
   fee: number;
 
   @HasMany(() => QuotationService)

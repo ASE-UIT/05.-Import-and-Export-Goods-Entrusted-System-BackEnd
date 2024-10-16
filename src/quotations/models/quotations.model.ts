@@ -22,7 +22,7 @@ export class Quotation extends Model {
   id: string;
 
   @AllowNull(false)
-  @Column
+  @Column({ type: DataType.FLOAT })
   totalPrice: number;
 
   @AllowNull(false)
