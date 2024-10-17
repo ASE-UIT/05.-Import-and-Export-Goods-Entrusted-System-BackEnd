@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
-import { LandFreightController } from './landfreight.controller';
-import { LandFreightService } from './landfreight.service';
+import { LandFreightController } from './landFreight.controller';
+import { LandFreightService } from './landFreight.service';
 import { SequelizeModule } from '@nestjs/sequelize';
-import { LandFreight } from './models/landfreight.model';
+import { LandFreight } from './models/landFreight.model';
 import { FindLandFreightByWeightStrategy } from './strategies/find-land-freight/find-by-weight.strategy';
 import { FindLandFreightByPrice100_200Strategy } from './strategies/find-land-freight/find-by-price-100-200.strategy';
 import { FindLandFreightByPrice200_500Strategy } from './strategies/find-land-freight/find-by-price-200-500.strategy';

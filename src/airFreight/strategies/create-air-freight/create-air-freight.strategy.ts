@@ -8,15 +8,14 @@ import { UniqueConstraintError } from 'sequelize';
 export class CreateAirFreightStrategy implements ICreateAirFreightStrategy {
   async create(airFreightData: CreateAirFreightDto): Promise<AirFreight> {
     const airFreight = new AirFreight();
-    airFreight["45K"] = airFreightData["45K"];
-    airFreight["100K"] = airFreightData["100K"];
-    airFreight["300K"] = airFreightData["300K"];
-    airFreight["500K"] = airFreightData["500K"];
+    airFreight.price_45K = airFreightData.price_45K;
+    airFreight.price_100K = airFreightData.price_100K;
+    airFreight.price_300K = airFreightData.price_300K;
+    airFreight.price_500K = airFreightData.price_500K;
     airFreight.FSC = airFreightData.FSC;
     airFreight.AMS_Fees = airFreightData.AMS_Fees;
     airFreight.SCC = airFreightData.SCC;
     airFreight.routine = airFreightData.routine;
-    airFreight.freight_id = airFreightData.freight_id;
 
     try {
       await airFreight.save();

@@ -1,5 +1,5 @@
 import { CreateLandFreightDto } from '@/landFreight/dtos/CreateLandFreightDto';
-import { LandFreight } from '@/landFreight/models/landfreight.model';
+import { LandFreight } from '@/landFreight/models/landFreight.model';
 
 export interface IUpdateLandFreightStrategy {
   update(

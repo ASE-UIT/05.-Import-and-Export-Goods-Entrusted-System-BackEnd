@@ -18,6 +18,10 @@ import { QuoteReqDetailsModule } from './quoteReqDetails/quoteReqDetails.module'
 import { PackageDetail } from './packageDetails/models/packageDetails.model';
 import { PackageDetailModule } from './packageDetails/packageDetails.module';
 import { FreightModule } from './freight/freight.module';
+import { AirFreightModule } from './airFreight/airFreight.module';
+import { SeaFreightModule } from './seaFreight/seaFreight.module';
+import { LandFreightModule } from './landFreight/landFreight.module';
+import { ContactRepsModule } from './contactReps/contactReps.module';
 
 @Module({
   imports: [
@@ -35,7 +39,8 @@ import { FreightModule } from './freight/freight.module';
         password: configService.getOrThrow<string>('POSTGRES_PASSWORD'),
         database: configService.getOrThrow<string>('POSTGRES_DB'),
         autoLoadModels: true,
-        sync: { alter: true },
+        sync: { alter: true, force: true,},
+        logging: false,
       }),
     }),
 
@@ -53,6 +58,10 @@ import { FreightModule } from './freight/freight.module';
     QuoteReqDetailsModule,
     PackageDetailModule,
     SessionModule,
+    ContactRepsModule,
+    AirFreightModule,
+    SeaFreightModule,
+    LandFreightModule,
   ],
   controllers: [AppController],
   providers: [AppService],

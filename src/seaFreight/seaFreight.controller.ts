@@ -9,7 +9,7 @@ import {
   Post,
   Query,
 } from '@nestjs/common';
-import { SeaFreightService } from './seafreight.service';
+import { SeaFreightService } from './seaFreight.service';
 import { FindSeaFreightStrategy } from './strategies/find-sea-freight/find-sea-freight-strategy.enum';
 import { ZodValidationPipe } from '@/shared/pipes/zod.pipe';
 import { QuerySeaFreightDto, QuerySeaFreightSchema } from './dtos/QuerySeaFreightDto';
@@ -17,20 +17,21 @@ import {
   CreateSeaFreightDto,
   CreateSeaFreightSchema,
 } from './dtos/CreateSeaFreightDto';
+import { SeaFreight } from './models/seaFreight.model';
 
 @Controller({
-  path: 'seafreight',
+  path: 'seaFreight',
   version: '1',
 })
 export class SeaFreightController {
   constructor(private seaFreightService: SeaFreightService) {} 
 
   @Get()
-  async getSeaFreight(
+  async findSeaFreight(
     @Query(new ZodValidationPipe(QuerySeaFreightSchema)) query: QuerySeaFreightDto,
-  ) {
+  ): Promise<SeaFreight[]> {
     if (Object.keys(query).length === 0)
-      return await this.seaFreightService.findSeaFreight( 
+      return this.seaFreightService.find( 
         FindSeaFreightStrategy.ALL,
         '',
       );
@@ -41,17 +42,16 @@ export class SeaFreightController {
       price40dc: FindSeaFreightStrategy.PRICE_40DC,
       price40hc: FindSeaFreightStrategy.PRICE_40HC,
       price40rf: FindSeaFreightStrategy.PRICE_40RF,
-      provider_id: FindSeaFreightStrategy.FREIGHT_ID,
     };
 
     for (const [key, strategy] of Object.entries(queryFields)) {
       const value = query[key as keyof QuerySeaFreightDto];
       if (value) {
-        const seaFreight = await this.seaFreightService.findSeaFreight(strategy, value.toString());
+        const seaFreight = await this.seaFreightService.find(strategy, value);
         if (seaFreight.length > 0) {
           if (strategy === FindSeaFreightStrategy.ALL || seaFreight.length > 1)
             return seaFreight;
-          else return seaFreight[0];
+          else return [seaFreight[0]];
         }
       }
     }
@@ -62,9 +62,9 @@ export class SeaFreightController {
   @Post()
   async createSeaFreight(
     @Body(new ZodValidationPipe(CreateSeaFreightSchema)) body: CreateSeaFreightDto,
-  ) {
-    const createRes = await this.seaFreightService.createSeaFreight(body); 
-    return { message: `Sea Freight created`, data: createRes }; 
+  ): Promise<{ message: string; data: SeaFreight }>  {
+    const createRes = await this.seaFreightService.create(body); 
+    return createRes; 
   }
 
   @Patch(':id')
@@ -72,9 +72,8 @@ export class SeaFreightController {
     @Param('id') id: string,
     @Body(new ZodValidationPipe(CreateSeaFreightSchema.partial())) 
     body: Partial<CreateSeaFreightDto>,
-  ) {
-    if (Object.keys(body).length === 0)
-      throw new BadRequestException('Body is empty');
-    const updateResponse = await this.seaFreightService.updateSeaFreight(id, body);
+   ): Promise<{ message: string; data: SeaFreight }> {
+    const updateRes = await this.seaFreightService.update(id, body);
+    return updateRes;
   }
 }

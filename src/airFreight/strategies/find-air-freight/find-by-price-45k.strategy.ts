@@ -4,9 +4,9 @@ import { IFindAirFreightStrategy } from './find-air-freight-strategy.interface';
 
 @Injectable()
 export class FindAirFreightByPrice45kStrategy implements IFindAirFreightStrategy {
-  async find(airFreight40k: number): Promise<AirFreight[] | null> {
+  async find(airFreight45k: number): Promise<AirFreight[] | null> {
     return AirFreight.findAll({
-      where: {price_40k: airFreight40k},
+      where: {price_45k: airFreight45k},
     });
   }
 }

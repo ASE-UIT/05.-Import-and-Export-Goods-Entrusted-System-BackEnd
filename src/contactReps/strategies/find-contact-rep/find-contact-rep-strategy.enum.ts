@@ -3,5 +3,4 @@ export enum FindContactRepsStrategy {
   NAME = 'NAME',
   EMAIL = 'EMAIL',
   PHONE = 'PHONE',
-  PROVIDER_ID = 'PROVIDER_ID',
 }

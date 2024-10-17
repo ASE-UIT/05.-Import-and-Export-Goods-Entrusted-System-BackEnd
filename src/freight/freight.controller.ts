@@ -17,20 +17,21 @@ import {
   CreateFreightDto,
   CreateFreightSchema,
 } from './dtos/CreateFreightDto';
+import { Freight } from './models/freight.model';
 
 @Controller({
-  path: 'freight',
+  path: 'freights',
   version: '1',
 })
 export class FreightController {
   constructor(private freightService: FreightService) {}
 
   @Get()
-  async getFreight(
+  async findFreight(
     @Query(new ZodValidationPipe(QueryFreightSchema)) query: QueryFreightDto,
-  ) {
+  ): Promise<Freight[]> {
     if (Object.keys(query).length === 0)
-      return await this.freightService.findFreight(
+      return this.freightService.find(
         FindFreightStrategy.ALL,
         '',
       );
@@ -38,7 +39,6 @@ export class FreightController {
       all: FindFreightStrategy.ALL,
       destination: FindFreightStrategy.DESTINATION,
       origin: FindFreightStrategy.ORIGIN,
-      provider_id: FindFreightStrategy.PROVIDER_ID,
       transit: FindFreightStrategy.TRANSIT,
       transit_time: FindFreightStrategy.TRANSIT_TIME,
       freight_type: FindFreightStrategy.FREIGHT_TYPE,
@@ -49,11 +49,11 @@ export class FreightController {
     for (const [key, strategy] of Object.entries(queryFields)) {
       const value = query[key as keyof QueryFreightDto];
       if (value) {
-        const freight = await this.freightService.findFreight(strategy, value.toString());
+        const freight = await this.freightService.find(strategy, value);
         if (freight.length > 0) {
           if (strategy === FindFreightStrategy.ALL || freight.length > 1)
             return freight;
-          else return freight[0];
+          else return [freight[0]];
         }
       }
     }
@@ -64,9 +64,9 @@ export class FreightController {
   @Post()
   async createFreight(
     @Body(new ZodValidationPipe(CreateFreightSchema)) body: CreateFreightDto,
-  ) {
-    const createRes = await this.freightService.createFreight(body);
-    return { message: `Freight created`, data: createRes };
+  ): Promise<{message: string; data: Freight}> {
+    const createRes = await this.freightService.create(body);
+    return createRes;
   }
 
   @Patch(':id')
@@ -74,10 +74,10 @@ export class FreightController {
     @Param('id') id: string,
     @Body(new ZodValidationPipe(CreateFreightSchema.partial())) 
     body: Partial<CreateFreightDto>,
-  ) {
+  ): Promise<{ message: string; data: Freight }> {
     if (Object.keys(body).length === 0)
       throw new BadRequestException('Body is empty');
-    const updateResponse = await this.freightService.updateFreight(id, body);
+    const updateResponse = await this.freightService.update(id, body);
     return updateResponse;
   }
 }

@@ -1,12 +1,11 @@
 import { z } from 'zod';
 
 export const QuerySeaFreightSchema = z.object({
-  "20DC": z.number().optional(),
-  "40DC": z.number().optional(),
-  "40HC": z.number().optional(),
-  "20RF": z.number().optional(),
-  "40RF": z.number().optional(),
-  freight_id: z.string().optional(),
+  price_20dc: z.number().optional(),
+  price_40dc: z.number().optional(),
+  price_40hc: z.number().optional(),
+  price_20rf: z.number().optional(),
+  price_40rf: z.number().optional(),
 });
 
 export type QuerySeaFreightDto = z.infer<typeof QuerySeaFreightSchema>;

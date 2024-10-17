@@ -9,5 +9,4 @@ export enum FindFreightStrategy {
   VALID_UNTIL = 'VALID_UNTIL',
   EMAIL = 'EMAIL',
   PHONE = 'PHONE',
-  PROVIDER_ID = 'PROVIDER_ID',
 }

@@ -4,20 +4,21 @@ import {
   NotFoundException,
   BadRequestException,
 } from '@nestjs/common';
-
-import { SeaFreight } from './models/seafreight.model'; 
-import { FindSeaFreightByPrice20dcStrategy } from './strategies/find-sea-freight/find-by-price-20dc.strategy'; 
-import { FindSeaFreightByPrice20rfStrategy } from './strategies/find-sea-freight/find-by-price-20rf.strategy'; 
-import { FindSeaFreightByPrice40dcStrategy } from './strategies/find-sea-freight/find-by-price-40dc.strategy'; 
-import { FindSeaFreightByPrice40hcStrategy } from './strategies/find-sea-freight/find-by-price-40hc.strategy'; 
-import { FindSeaFreightByPrice40rfStrategy } from './strategies/find-sea-freight/find-by-price-40rf.strategy'; 
-import { FindSeaFreightByFreightIdStrategy } from './strategies/find-sea-freight/find-by-freight-id.strategy'; 
-import { FindAllSeaFreightStrategy } from './strategies/find-sea-freight/find-all.strategy'; 
+import { CreateSeaFreightDto } from './dtos/CreateSeaFreightDto';
+import { SeaFreight } from './models/seaFreight.model';
+import { CreateSeaFreightStrategy } from './strategies/create-sea-freight/create-sea-freight.strategy';
+import { FindAllSeaFreightStrategy } from './strategies/find-sea-freight/find-all.strategy';
+import { FindSeaFreightByFreightIdStrategy } from './strategies/find-sea-freight/find-by-freight-id.strategy';
+import { FindSeaFreightByPrice20dcStrategy } from './strategies/find-sea-freight/find-by-price-20dc.strategy';
+import { FindSeaFreightByPrice20rfStrategy } from './strategies/find-sea-freight/find-by-price-20rf.strategy';
+import { FindSeaFreightByPrice40dcStrategy } from './strategies/find-sea-freight/find-by-price-40dc.strategy';
+import { FindSeaFreightByPrice40hcStrategy } from './strategies/find-sea-freight/find-by-price-40hc.strategy';
+import { FindSeaFreightByPrice40rfStrategy } from './strategies/find-sea-freight/find-by-price-40rf.strategy';
 import { FindSeaFreightStrategy } from './strategies/find-sea-freight/find-sea-freight-strategy.enum';
 import { IFindSeaFreightStrategy } from './strategies/find-sea-freight/find-sea-freight-strategy.interface';
-import { CreateSeaFreightStrategy } from './strategies/create-sea-freight/create-sea-freight.strategy'; 
-import { CreateSeaFreightDto } from './dtos/CreateSeaFreightDto';
-import { UpdateSeaFreightStrategy } from './strategies/update-sea-freight/update-sea-freight.strategy'; 
+import { UpdateSeaFreightStrategy } from './strategies/update-sea-freight/update-sea-freight.strategy';
+
+
 @Injectable()
 export class SeaFreightService {
   constructor(
@@ -32,12 +33,12 @@ export class SeaFreightService {
     private updateSeaFreightStrategy: UpdateSeaFreightStrategy,
   ) {}
 
-  async findSeaFreight(
+  find(
     strategy: FindSeaFreightStrategy,
-    seaFreightInfo: string,
-  ): Promise<SeaFreight[] | null> {
+    seaFreightInfo: any,
+  ): Promise<SeaFreight[]> {
     const findStrategy = this.getFindStrategy(strategy);
-    const seaFreight: SeaFreight[] | null = await findStrategy.find(seaFreightInfo);
+    const seaFreight = findStrategy.find(seaFreightInfo);
     
     return seaFreight;
   }
@@ -52,8 +53,6 @@ export class SeaFreightService {
         return this.findSeaFreightByPrice40dcStrategy;
       case FindSeaFreightStrategy.PRICE_20RF:
         return this.findSeaFreightByPrice20rfStrategy;
-      case FindSeaFreightStrategy.FREIGHT_ID:
-        return this.findSeaFreightByFreightIdStrategy;
       case FindSeaFreightStrategy.PRICE_40HC:
         return this.findSeaFreightByPrice40hcStrategy;
       case FindSeaFreightStrategy.PRICE_40RF:
@@ -61,14 +60,18 @@ export class SeaFreightService {
     }
   }
 
-  async createSeaFreight(seaFreightInfo: CreateSeaFreightDto): Promise<SeaFreight> {
-    return await this.createSeaFreightStrategy.create(seaFreightInfo);
+  async create(seaFreightInfo: CreateSeaFreightDto): Promise<{message: string; data: SeaFreight}> {
+    const createdSeaFreight = await this.createSeaFreightStrategy.create(seaFreightInfo);
+    return { message: 'Sea freight created', data: createdSeaFreight };
   }
 
-  async updateSeaFreight(
+  async update(
     seaFreightId: string,
     updateInfo: Partial<CreateSeaFreightDto>, 
   ): Promise<{message: string; data: SeaFreight}> { 
+    if (Object.keys(updateInfo).length < 1) {
+      throw new BadRequestException('Body is empty');
+    }
     const updateResponse = await this.updateSeaFreightStrategy.update(
       seaFreightId,
       updateInfo,

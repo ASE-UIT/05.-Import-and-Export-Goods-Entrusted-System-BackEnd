@@ -19,21 +19,13 @@ export enum ShipmentType {
 }
 
 @Table({
-  tableName: 'freight',
+  tableName: 'freights',
 })
 export class Freight extends Model {
   @PrimaryKey
   @Default(sequelize.UUIDV4)
   @Column
   id: string;
-
-  @ForeignKey(() => Provider)
-  @AllowNull(false)
-  @Column
-  providerId: string;
-
-  @BelongsTo(() => Provider)
-  provider: Provider;
 
   @AllowNull(false)
   @Column
@@ -66,4 +58,12 @@ export class Freight extends Model {
 
   @Column
   freeTime: number;
+
+  // @ForeignKey(() => Provider)
+  // @AllowNull(false)
+  // @Column
+  // providerId: string;
+
+  // @BelongsTo(() => Provider)
+  // provider: Provider;
 }

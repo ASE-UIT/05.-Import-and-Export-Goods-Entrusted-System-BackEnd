@@ -1,8 +1,11 @@
+import { ContactRep } from '@/contactReps/models/contactReps.model';
 import sequelize from 'sequelize';
 import {
   AllowNull,
+  BelongsTo,
   Column,
   Default,
+  ForeignKey,
   Model,
   PrimaryKey,
   Table,
@@ -58,4 +61,12 @@ export class Provider extends Model {
   @Default(ProviderStatus.ACTIVE)
   @Column
   status: ProviderStatus;
+
+  @ForeignKey(() => ContactRep)
+  @AllowNull(false)
+  @Column
+  contactRepId: string;
+
+  @BelongsTo(() => ContactRep)
+  contactRep: ContactRep;
 }

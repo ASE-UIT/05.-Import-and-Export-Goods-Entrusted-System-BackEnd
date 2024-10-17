@@ -8,7 +8,6 @@ import {
 import { Freight } from './models/freight.model';
 import { FindFreightByDestinationStrategy } from './strategies/find-freight/find-by-destination.strategy';
 import { FindFreightByOriginStrategy } from './strategies/find-freight/find-by-origin.strategy';
-import { FindFreightByProviderIdStrategy } from './strategies/find-freight/find-by-provider-id.strategy';
 import { FindFreightByTransitTimeStrategy } from './strategies/find-freight/find-by-transit-time.strategy';
 import { FindFreightByTransitStrategy } from './strategies/find-freight/find-by-transit.strategy';
 import { FindFreightByTypeStrategy } from './strategies/find-freight/find-by-type.strategy';
@@ -25,7 +24,6 @@ export class FreightService {
   constructor(
     private findFreightByDestinationStrategy: FindFreightByDestinationStrategy,
     private findFreightByOriginStrategy: FindFreightByOriginStrategy,
-    private findFreightByProviderIdStrategy: FindFreightByProviderIdStrategy,
     private findFreightByTransitStrategy: FindFreightByTransitStrategy,
     private findFreightByTransitTimeStrategy: FindFreightByTransitTimeStrategy,
     private findFreightByTypeStrategy: FindFreightByTypeStrategy,
@@ -36,13 +34,12 @@ export class FreightService {
     private updateFreightStrategy: UpdateFreightStrategy,
   ) {}
 
-  async findFreight(
+  find(
     strategy: FindFreightStrategy,
-    freightInfo: string,
+    freightInfo: any,
   ): Promise<Freight[] | null> {
     const findStrategy = this.getFindStrategy(strategy);
-    const freight: Freight[] | null = await findStrategy.find(freightInfo);
-    
+    const freight = findStrategy.find(freightInfo);
     return freight;
   }
 
@@ -56,8 +53,6 @@ export class FreightService {
         return this.findFreightByOriginStrategy;
       case FindFreightStrategy.FREIGHT_TYPE:
         return this.findFreightByTypeStrategy;
-      case FindFreightStrategy.PROVIDER_ID:
-        return this.findFreightByProviderIdStrategy;
       case FindFreightStrategy.TRANSIT:
         return this.findFreightByTransitStrategy;
       case FindFreightStrategy.TRANSIT_TIME:
@@ -69,8 +64,9 @@ export class FreightService {
     }
   }
 
-  async createFreight(freightInfo: CreateFreightDto): Promise<Freight> {
-    return await this.createFreightStrategy.create(freightInfo);
+  async create(freightInfo: CreateFreightDto): Promise<{message: string; data: Freight}> {
+    const createdFreight = await this.createFreightStrategy.create(freightInfo);
+    return {message: 'Freight created', data: createdFreight};
   }
 
 //   async checkDuplicate(name: string): Promise<boolean> {
@@ -78,14 +74,17 @@ export class FreightService {
 //     return exists !== null;
 //   }
 
-  async updateFreight(
+  async update(
     freightId: string,
     updateInfo: Partial<CreateFreightDto>,
   ): Promise<{message: string; data: Freight}> {
-    const updateResponse = await this.updateFreightStrategy.update(
+    if (Object.keys(updateInfo).length < 1) {
+      throw new BadRequestException('Body is empty');
+    }
+    const updatedResponse = await this.updateFreightStrategy.update(
       freightId,
       updateInfo,
     );
-    return { message: 'Freight created', data: updateResponse};
+    return { message: 'Freight updated', data: updatedResponse };
   }
 }

@@ -6,7 +6,7 @@ import { IFindLandFreightStrategy } from './find-land-freight-strategy.interface
 export class FindLandFreightByPrice500_1500Strategy implements IFindLandFreightStrategy {
   async find(price: number): Promise<LandFreight[] | null> {
     return LandFreight.findAll({
-      where: { '500_1500': price },
+      where: { price_500_1500 : price },
     });
   }
 }

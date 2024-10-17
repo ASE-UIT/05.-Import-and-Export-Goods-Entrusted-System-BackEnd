@@ -46,11 +46,6 @@ export class ContactRep extends Model {
   @Column
   phone: string;
 
-  @ForeignKey(() => Provider)
-  @AllowNull(false)
-  @Column
-  providerId: string;
-
-  @BelongsTo(() => Provider)
-  provider: Provider;
+  @HasMany(() => Provider)
+  provider: Provider[];
 }

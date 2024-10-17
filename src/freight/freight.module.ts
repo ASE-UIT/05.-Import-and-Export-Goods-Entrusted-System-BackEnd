@@ -5,7 +5,6 @@ import { SequelizeModule } from '@nestjs/sequelize';
 import { Freight } from './models/freight.model';
 import { FindFreightByDestinationStrategy } from './strategies/find-freight/find-by-destination.strategy';
 import { FindFreightByOriginStrategy } from './strategies/find-freight/find-by-origin.strategy';
-import { FindFreightByProviderIdStrategy } from './strategies/find-freight/find-by-provider-id.strategy';
 import { FindFreightByTransitTimeStrategy } from './strategies/find-freight/find-by-transit-time.strategy';
 import { FindFreightByTransitStrategy } from './strategies/find-freight/find-by-transit.strategy';
 import { FindFreightByTypeStrategy } from './strategies/find-freight/find-by-type.strategy';
@@ -22,7 +21,6 @@ import { UpdateFreightStrategy } from './strategies/update-freight/update-freigh
     FreightService,
     FindFreightByDestinationStrategy,
     FindFreightByOriginStrategy,
-    FindFreightByProviderIdStrategy,
     FindFreightByTransitStrategy,
     FindFreightByTransitTimeStrategy,
     FindFreightByTypeStrategy,

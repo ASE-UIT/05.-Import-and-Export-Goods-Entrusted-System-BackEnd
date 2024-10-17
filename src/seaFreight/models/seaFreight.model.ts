@@ -21,31 +21,31 @@ export class SeaFreight extends Model {
   @Column
   sea_freight_id: string;
 
-  @ForeignKey(() => Freight)
   @AllowNull(false)
   @Column
-  freight_id: string;
-
-  @BelongsTo(() => Freight)
-  freight: Freight;
+  price_20dc: number;
 
   @AllowNull(false)
   @Column
-  '20DC': number;
+  price_40dc: number;
 
   @AllowNull(false)
   @Column
-  '40DC': number;
+  price_40hc: number;
 
   @AllowNull(false)
   @Column
-  '40HC': number;
+  price_20rf: number;
 
   @AllowNull(false)
   @Column
-  '20RF': number;
+  price_40rf: number;
 
-  @AllowNull(false)
-  @Column
-  '40RF': number;
+  // @ForeignKey(() => Freight)
+  // @AllowNull(false)
+  // @Column
+  // freight_id: string;
+
+  // @BelongsTo(() => Freight)
+  // freight: Freight;
 }

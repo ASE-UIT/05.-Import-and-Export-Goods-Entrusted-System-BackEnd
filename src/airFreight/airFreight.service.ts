@@ -5,7 +5,7 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 
-import { AirFreight } from './models/airfreight.model'; 
+import { AirFreight } from './models/airFreight.model'; 
 import { FindAirFreightByPrice45kStrategy } from './strategies/find-air-freight/find-by-price-45k.strategy'; 
 import { FindAirFreightByPrice100kStrategy } from './strategies/find-air-freight/find-by-price-100k.strategy'; 
 import { FindAirFreightByPrice300kStrategy } from './strategies/find-air-freight/find-by-price-300k.strategy'; 
@@ -14,7 +14,6 @@ import { FindAirFreightByFscStrategy } from './strategies/find-air-freight/find-
 import { FindAirFreightByAmsFeesStrategy } from './strategies/find-air-freight/find-by-ams-fees.strategy'; 
 import { FindAirFreightBySccStrategy } from './strategies/find-air-freight/find-by-scc.strategy'; 
 import { FindAirFreightByRoutineStrategy } from './strategies/find-air-freight/find-by-routine.strategy'; 
-import { FindAirFreightByFreightIdStrategy } from './strategies/find-air-freight/find-by-freight-id.strategy';
 import { FindAllAirFreightStrategy } from './strategies/find-air-freight/find-all.strategy'; 
 import { FindAirFreightStrategy } from './strategies/find-air-freight/find-air-freight-strategy.enum';
 import { IFindAirFreightStrategy } from './strategies/find-air-freight/find-air-freight-strategy.interface';
@@ -33,18 +32,17 @@ export class AirFreightService {
     private findAirFreightByAmsFeesStrategy: FindAirFreightByAmsFeesStrategy,
     private findAirFreightBySccStrategy: FindAirFreightBySccStrategy,
     private findAirFreightByRoutineStrategy: FindAirFreightByRoutineStrategy,
-    private findAirFreightByFreightIdStrategy: FindAirFreightByFreightIdStrategy,
     private findAllAirFreightStrategy: FindAllAirFreightStrategy,
     private createAirFreightStrategy: CreateAirFreightStrategy,
     private updateAirFreightStrategy: UpdateAirFreightStrategy,
   ) {}
 
-  async findAirFreight(
+  find(
     strategy: FindAirFreightStrategy,
-    airFreightInfo: string,
-  ): Promise<AirFreight[] | null> {
+    airFreightInfo: any,
+  ): Promise<AirFreight[]> {
     const findStrategy = this.getFindStrategy(strategy);
-    const airFreight: AirFreight[] | null = await findStrategy.find(airFreightInfo);
+    const airFreight = findStrategy.find(airFreightInfo);
     
     return airFreight;
   }
@@ -69,23 +67,25 @@ export class AirFreightService {
         return this.findAirFreightBySccStrategy;
       case FindAirFreightStrategy.ROUTINE:
         return this.findAirFreightByRoutineStrategy;
-      case FindAirFreightStrategy.FREIGHT_ID:
-        return this.findAirFreightByFreightIdStrategy;
     }
   }
 
-  async createAirFreight(airFreightInfo: CreateAirFreightDto): Promise<AirFreight> {
-    return await this.createAirFreightStrategy.create(airFreightInfo);
+  async create(airFreightInfo: CreateAirFreightDto): Promise<{message: string; data: AirFreight}> {
+    const createdAirFreight = await this.createAirFreightStrategy.create(airFreightInfo);
+    return { message: 'Air freight created', data: createdAirFreight };
   }
 
-  async updateAirFreight(
+  async update(
     airFreightId: string,
     updateInfo: Partial<CreateAirFreightDto>, 
   ): Promise<{message: string; data: AirFreight}> { 
+    if (Object.keys(updateInfo).length < 1) {
+      throw new BadRequestException('Body is empty');
+    }
     const updateResponse = await this.updateAirFreightStrategy.update(
       airFreightId,
       updateInfo,
     );
-    return { message: 'Air Freight updated', data: updateResponse}; 
+    return { message: 'Air freight updated', data: updateResponse}; 
   }
 }

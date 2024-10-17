@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { ICreateLegalRepsStrategy } from './create-legal-rep-strategy.interface';
 import { CreateLegalRepDto } from '@/legalReps/dtos/CreateLegalRepDto';
 import { LegalRep } from '@/legalReps/models/legalReps.model';
+import { UniqueConstraintError } from 'sequelize';
 
 @Injectable()
 export class CreateLegalRepsStrategy implements ICreateLegalRepsStrategy {

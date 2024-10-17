@@ -20,29 +20,21 @@ export class AirFreight extends Model {
   @Column
   air_freight_id: string;
 
-  @ForeignKey(() => Freight)
   @AllowNull(false)
   @Column
-  freight_id: string;
-
-  @BelongsTo(() => Freight)
-  freight: Freight;
+  price_45K: number;
 
   @AllowNull(false)
   @Column
-  '45K': number;
+  price_100K: number;
 
   @AllowNull(false)
   @Column
-  '100K': number;
+  price_300K: number;
 
   @AllowNull(false)
   @Column
-  '300K': number;
-
-  @AllowNull(false)
-  @Column
-  '500K': number;
+  price_500K: number;
 
   @AllowNull(false)
   @Column
@@ -59,4 +51,12 @@ export class AirFreight extends Model {
   @AllowNull(false)
   @Column
   routine: string;
+
+  // @ForeignKey(() => Freight)
+  // @AllowNull(false)
+  // @Column
+  // freight_id: string;
+
+  // @BelongsTo(() => Freight)
+  // freight: Freight;
 }

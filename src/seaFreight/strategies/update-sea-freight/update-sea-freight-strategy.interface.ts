@@ -1,5 +1,5 @@
 import { CreateSeaFreightDto } from '@/seaFreight/dtos/CreateSeaFreightDto';
-import { SeaFreight } from '@/seaFreight/models/seafreight.model';
+import { SeaFreight } from '@/seaFreight/models/seaFreight.model';
 
 export interface IUpdateSeaFreightStrategy {
   update(

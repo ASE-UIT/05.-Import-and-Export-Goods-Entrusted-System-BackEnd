@@ -4,7 +4,7 @@ import { IFindFreightStrategy } from './find-freight-strategy.interface';
 
 @Injectable()
 export class FindFreightByValidUntilStrategy implements IFindFreightStrategy {
-  async find(freightValidUntil: string): Promise<Freight[] | null> {
+  async find(freightValidUntil: Date): Promise<Freight[] | null> {
     return Freight.findAll({
       where: {validUntil: freightValidUntil},
     });

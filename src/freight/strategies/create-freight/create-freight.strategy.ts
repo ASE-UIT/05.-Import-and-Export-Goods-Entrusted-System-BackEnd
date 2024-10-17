@@ -8,7 +8,6 @@ import { UniqueConstraintError } from 'sequelize';
 export class CreateFreightStrategy implements ICreateFreightStrategy {
   async create(freightData: CreateFreightDto): Promise<Freight> {
     const freight = new Freight();
-    freight.providerId = freightData.providerId;
     freight.freightType = freightData.freightType;
     freight.origin = freightData.origin;
     freight.destination = freightData.destination;

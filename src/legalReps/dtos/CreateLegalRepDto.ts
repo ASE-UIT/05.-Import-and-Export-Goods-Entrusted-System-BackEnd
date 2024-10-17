@@ -7,4 +7,4 @@ export const CreateLegalRepSchema = z.object({
   customerId: z.string().min(1),
 });
 
-export type CreateLegalRepDto = z.infer<typeof CreateLegalRepSchema>;
+export type CreateLegalRepDto = z.infer<typeof CreateLegalRepSchema>

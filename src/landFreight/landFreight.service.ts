@@ -5,7 +5,7 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 
-import { LandFreight } from './models/landfreight.model';
+import { LandFreight } from './models/landFreight.model';
 import { FindLandFreightByPrice100_200Strategy } from './strategies/find-land-freight/find-by-price-100-200.strategy';
 import { FindLandFreightByPrice200_500Strategy } from './strategies/find-land-freight/find-by-price-200-500.strategy';
 import { FindLandFreightByPrice500_1500Strategy } from './strategies/find-land-freight/find-by-price-500-1500.strategy';
@@ -35,12 +35,12 @@ export class LandFreightService {
     private updateLandFreightStrategy: UpdateLandFreightStrategy,
   ) {}
 
-  async findLandFreight(
+  find(
     strategy: FindLandFreightStrategy,
-    landFreightInfo: string,
-  ): Promise<LandFreight[] | null> {
+    landFreightInfo: any,
+  ): Promise<LandFreight[]> {
     const findStrategy = this.getFindStrategy(strategy);
-    const landFreight: LandFreight[] | null = await findStrategy.find(landFreightInfo);
+    const landFreight = findStrategy.find(landFreightInfo);
     
     return landFreight;
   }
@@ -61,19 +61,21 @@ export class LandFreightService {
         return this.findLandFreightByPrice5000_10000Strategy;
       case FindLandFreightStrategy.PRICE_10000:
         return this.findLandFreightByPrice10000Strategy;
-      case FindLandFreightStrategy.FREIGHT_ID:
-        return this.findLandFreightByFreightIdStrategy;
     }
   }
 
-  async createLandFreight(landFreightInfo: CreateLandFreightDto): Promise<LandFreight> {
-    return await this.createLandFreightStrategy.create(landFreightInfo);
+  async create(landFreightInfo: CreateLandFreightDto): Promise<{message: string; data: LandFreight}> {
+    const createdLandFreight = await this.createLandFreightStrategy.create(landFreightInfo);
+    return { message: 'Land freight created', data: createdLandFreight };
   }
 
-  async updateLandFreight(
+  async update(
     landFreightId: string,
     updateInfo: Partial<CreateLandFreightDto>, 
   ): Promise<{ message: string; data: LandFreight }> { 
+    if (Object.keys(updateInfo).length < 1) {
+      throw new BadRequestException('Body is empty');
+    }
     const updateResponse = await this.updateLandFreightStrategy.update(
       landFreightId,
       updateInfo,
