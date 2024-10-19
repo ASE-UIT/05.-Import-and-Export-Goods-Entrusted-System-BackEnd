@@ -1,11 +1,15 @@
 import {
-  ConflictException,
   Injectable,
-  NotFoundException,
   BadRequestException,
 } from '@nestjs/common';
-
 import { Freight } from './models/freight.model';
+import { CreateFreightStrategy } from './strategies/create-freight/create-freight.strategy';
+import { CreateFreightDto } from './dtos/CreateFreightDto';
+import { UpdateFreightStrategy } from './strategies/update-freight/update-freight.strategy';
+import { UpdateFreightDto } from './dtos/UpdateFreightDto';
+import { FindFreightStrategy } from './strategies/find-freight/find-freight-strategy.enum';
+import { IFindFreightStrategy } from './strategies/find-freight/find-freight-strategy.interface';
+import { FindAllFreightStrategy } from './strategies/find-freight/find-all.strategy';
 import { FindFreightByDestinationStrategy } from './strategies/find-freight/find-by-destination.strategy';
 import { FindFreightByOriginStrategy } from './strategies/find-freight/find-by-origin.strategy';
 import { FindFreightByTransitTimeStrategy } from './strategies/find-freight/find-by-transit-time.strategy';
@@ -13,12 +17,7 @@ import { FindFreightByTransitStrategy } from './strategies/find-freight/find-by-
 import { FindFreightByTypeStrategy } from './strategies/find-freight/find-by-type.strategy';
 import { FindFreightByValidFromStrategy } from './strategies/find-freight/find-by-valid-from.strategy';
 import { FindFreightByValidUntilStrategy } from './strategies/find-freight/find-by-valid-until.strategy';
-import { FindAllFreightStrategy } from './strategies/find-freight/find-all.strategy';
-import { FindFreightStrategy } from './strategies/find-freight/find-freight-strategy.enum';
-import { IFindFreightStrategy } from './strategies/find-freight/find-freight-strategy.interface';
-import { CreateFreightStrategy } from './strategies/create-freight/create-freight.strategy';
-import { CreateFreightDto } from './dtos/CreateFreightDto';
-import { UpdateFreightStrategy } from './strategies/update-freight/update-freight.strategy';
+
 @Injectable()
 export class FreightService {
   constructor(
@@ -64,27 +63,27 @@ export class FreightService {
     }
   }
 
-  async create(freightInfo: CreateFreightDto): Promise<{message: string; data: Freight}> {
+  async create(freightInfo: CreateFreightDto): Promise<Freight> {
     const createdFreight = await this.createFreightStrategy.create(freightInfo);
-    return {message: 'Freight created', data: createdFreight};
+    return createdFreight;
   }
-
-//   async checkDuplicate(name: string): Promise<boolean> {
-//     const exists = await Freight.findOne({ where: { name } });
-//     return exists !== null;
-//   }
 
   async update(
     freightId: string,
-    updateInfo: Partial<CreateFreightDto>,
-  ): Promise<{message: string; data: Freight}> {
+    updateInfo: UpdateFreightDto,
+  ): Promise<Freight> {
     if (Object.keys(updateInfo).length < 1) {
       throw new BadRequestException('Body is empty');
     }
-    const updatedResponse = await this.updateFreightStrategy.update(
-      freightId,
-      updateInfo,
-    );
-    return { message: 'Freight updated', data: updatedResponse };
+
+    try {
+      const updatedResponse = await this.updateFreightStrategy.update(
+        freightId,
+        updateInfo,
+      );
+      return updatedResponse;
+    } catch (error) {
+      throw new BadRequestException('Invalid data provided');
+    }
   }
 }

@@ -7,6 +7,5 @@ export enum FindAirFreightStrategy {
   AMS_FEES = 'AMS_FEES',  
   SCC = 'SCC',           
   ROUTINE = 'ROUTINE',   
-  FREIGHT_ID = 'FREIGHT_ID',
   ALL = 'ALL',
 }

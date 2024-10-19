@@ -5,7 +5,6 @@ import { SeaFreightController } from "./seaFreight.controller";
 import { SeaFreightService } from "./seaFreight.service";
 import { CreateSeaFreightStrategy } from "./strategies/create-sea-freight/create-sea-freight.strategy";
 import { FindAllSeaFreightStrategy } from "./strategies/find-sea-freight/find-all.strategy";
-import { FindSeaFreightByFreightIdStrategy } from "./strategies/find-sea-freight/find-by-freight-id.strategy";
 import { FindSeaFreightByPrice20dcStrategy } from "./strategies/find-sea-freight/find-by-price-20dc.strategy";
 import { FindSeaFreightByPrice20rfStrategy } from "./strategies/find-sea-freight/find-by-price-20rf.strategy";
 import { FindSeaFreightByPrice40dcStrategy } from "./strategies/find-sea-freight/find-by-price-40dc.strategy";
@@ -23,7 +22,6 @@ import { UpdateSeaFreightStrategy } from "./strategies/update-sea-freight/update
     FindSeaFreightByPrice40hcStrategy,
     FindSeaFreightByPrice20rfStrategy,
     FindSeaFreightByPrice40rfStrategy,
-    FindSeaFreightByFreightIdStrategy,
     FindAllSeaFreightStrategy,
     CreateSeaFreightStrategy,
     UpdateSeaFreightStrategy,

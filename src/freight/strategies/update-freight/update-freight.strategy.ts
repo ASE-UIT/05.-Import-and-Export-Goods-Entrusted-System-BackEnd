@@ -2,12 +2,13 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { IUpdateFreightStrategy } from './update-freight-strategy.interface';
 import { CreateFreightDto } from '@/freight/dtos/CreateFreightDto';
 import { Freight } from '@/freight/models/freight.model';
+import { UpdateFreightDto } from '@/freight/dtos/UpdateFreightDto';
 
 @Injectable()
 export class UpdateFreightStrategy implements IUpdateFreightStrategy {
   async update(
     freightId: string,
-    updateInfo: Partial<CreateFreightDto>,
+    updateInfo: UpdateFreightDto,
   ): Promise<Freight> {
     const [affectedRows, [updatedData]] = await Freight.update(
       { ...updateInfo },

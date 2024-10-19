@@ -26,19 +26,23 @@ export class ContactRepsService {
     private findAllContactRepsStrategy: FindAllContactRepsStrategy,
   ) {}
 
-  async create(contactRepData: CreateContactRepDto): Promise<{message: string; data: ContactRep}> {
+  async create(contactRepData: CreateContactRepDto): Promise<ContactRep> {
     const createdContactRep = await this.createContactRepStrategy.create(contactRepData);
-    return {message: 'Contact representative created', data: createdContactRep};
+    
+    if (!createdContactRep) {
+      throw new Error('Failed to create contact representative');
+    }
+    
+    return createdContactRep;
   }
 
-  async update(contactRepId: string, updateData: CreateContactRepDto): Promise<{message: string, data: ContactRep}> {
+  async update(contactRepId: string, updateData: CreateContactRepDto): Promise<ContactRep> {
     if (Object.keys(updateData).length < 1)
       throw new BadRequestException('Body is empty');
-    const updatedResponse = await this.updateContactRepsStrategy.update(
-      contactRepId,
-      updateData,
-    );
-    return {message: 'Contact representative updated', data: updatedResponse};
+      
+    const updatedResponse = await this.updateContactRepsStrategy.update(contactRepId, updateData);
+    
+    return updatedResponse;
   }
 
   getFindStrategy(strategy: FindContactRepsStrategy): IFindContactRepsStrategy {
@@ -54,10 +58,7 @@ export class ContactRepsService {
     }
   }
 
-  find(
-    strategy: FindContactRepsStrategy,
-    contactRepInfo: string,
-  ): Promise<ContactRep[] | null> {
+  find(strategy: FindContactRepsStrategy, contactRepInfo: string): Promise<ContactRep[] | null> {
     const findStrategy = this.getFindStrategy(strategy);
     const contactRep = findStrategy.find(contactRepInfo);
     return contactRep;

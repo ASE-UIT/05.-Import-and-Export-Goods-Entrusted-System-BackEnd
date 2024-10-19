@@ -18,6 +18,7 @@ import {
   CreateFreightSchema,
 } from './dtos/CreateFreightDto';
 import { Freight } from './models/freight.model';
+import { UpdateFreightDto, UpdateFreightSchema } from './dtos/UpdateFreightDto';
 
 @Controller({
   path: 'freights',
@@ -29,12 +30,15 @@ export class FreightController {
   @Get()
   async findFreight(
     @Query(new ZodValidationPipe(QueryFreightSchema)) query: QueryFreightDto,
-  ): Promise<Freight[]> {
-    if (Object.keys(query).length === 0)
-      return this.freightService.find(
+  ): Promise<{ message: string; data: Freight[] }> {
+    if (Object.keys(query).length === 0) {
+      const data = await this.freightService.find(
         FindFreightStrategy.ALL,
         '',
       );
+      return { message: 'All freights retrieved successfully', data };
+    }
+
     const queryFields: { [key: string]: FindFreightStrategy } = {
       all: FindFreightStrategy.ALL,
       destination: FindFreightStrategy.DESTINATION,
@@ -49,11 +53,9 @@ export class FreightController {
     for (const [key, strategy] of Object.entries(queryFields)) {
       const value = query[key as keyof QueryFreightDto];
       if (value) {
-        const freight = await this.freightService.find(strategy, value);
-        if (freight.length > 0) {
-          if (strategy === FindFreightStrategy.ALL || freight.length > 1)
-            return freight;
-          else return [freight[0]];
+        const data = await this.freightService.find(strategy, value);
+        if (data.length > 0) {
+          return { message: 'Freight(s) found', data };
         }
       }
     }
@@ -64,20 +66,20 @@ export class FreightController {
   @Post()
   async createFreight(
     @Body(new ZodValidationPipe(CreateFreightSchema)) body: CreateFreightDto,
-  ): Promise<{message: string; data: Freight}> {
-    const createRes = await this.freightService.create(body);
-    return createRes;
+  ): Promise<{ message: string; data: Freight }> {
+    const data = await this.freightService.create(body);
+    return { message: 'Freight created successfully', data };
   }
 
   @Patch(':id')
   async updateFreight(
     @Param('id') id: string,
-    @Body(new ZodValidationPipe(CreateFreightSchema.partial())) 
-    body: Partial<CreateFreightDto>,
+    @Body(new ZodValidationPipe(UpdateFreightSchema)) body: UpdateFreightDto,
   ): Promise<{ message: string; data: Freight }> {
-    if (Object.keys(body).length === 0)
+    if (Object.keys(body).length === 0) {
       throw new BadRequestException('Body is empty');
-    const updateResponse = await this.freightService.update(id, body);
-    return updateResponse;
+    }
+    const data = await this.freightService.update(id, body);
+    return { message: 'Freight updated successfully', data };
   }
 }

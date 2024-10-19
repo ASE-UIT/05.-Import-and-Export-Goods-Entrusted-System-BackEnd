@@ -9,14 +9,10 @@ import {
   Post,
   Query,
 } from '@nestjs/common';
-import { LandFreightService } from './landFreight.service'; 
+import { LandFreightService } from './landFreight.service';
 import { FindLandFreightStrategy } from './strategies/find-land-freight/find-land-freight-strategy.enum';
 import { ZodValidationPipe } from '@/shared/pipes/zod.pipe';
-import { QueryLandFreightDto, QueryLandFreightSchema } from './dtos/QueryLandFreightDto';
-import {
-  CreateLandFreightDto,
-  CreateLandFreightSchema,
-} from './dtos/CreateLandFreightDto';
+import { CreateLandFreightDto, CreateLandFreightSchema } from './dtos/CreateLandFreightDto';
 import { LandFreight } from './models/landFreight.model';
 
 @Controller({
@@ -28,13 +24,12 @@ export class LandFreightController {
 
   @Get()
   async findLandFreight(
-    @Query(new ZodValidationPipe(QueryLandFreightSchema)) query: QueryLandFreightDto,
-  ): Promise<LandFreight[]> {
-    if (Object.keys(query).length === 0)
-      return this.landFreightService.find( 
-        FindLandFreightStrategy.ALL,
-        '',
-      );
+    @Query(new ZodValidationPipe(CreateLandFreightSchema.partial())) query: Partial<CreateLandFreightDto>, // Reuse the create schema with .partial()
+  ): Promise<{ message: string; data: LandFreight[] }> { // Return message and data
+    if (Object.keys(query).length === 0) {
+      const data = await this.landFreightService.find(FindLandFreightStrategy.ALL, '');
+      return { message: 'All land freights fetched', data };
+    }
 
     const queryFields: { [key: string]: FindLandFreightStrategy } = {
       all: FindLandFreightStrategy.ALL,
@@ -47,13 +42,11 @@ export class LandFreightController {
     };
 
     for (const [key, strategy] of Object.entries(queryFields)) {
-      const value = query[key as keyof QueryLandFreightDto];
+      const value = query[key as keyof CreateLandFreightDto];
       if (value) {
-        const landFreight = await this.landFreightService.find(strategy, value);
-        if (landFreight.length > 0) {
-          if (strategy === FindLandFreightStrategy.ALL || landFreight.length > 1)
-            return landFreight;
-          else return [landFreight[0]];
+        const data = await this.landFreightService.find(strategy, value);
+        if (data.length > 0) {
+          return { message: 'Land freights fetched', data };
         }
       }
     }
@@ -65,20 +58,19 @@ export class LandFreightController {
   async createLandFreight(
     @Body(new ZodValidationPipe(CreateLandFreightSchema)) body: CreateLandFreightDto,
   ): Promise<{ message: string; data: LandFreight }> {
-    const createRes = await this.landFreightService.create(body); 
-    return createRes ; 
+    const data = await this.landFreightService.create(body);
+    return { message: 'Land freight created', data };
   }
 
   @Patch(':id')
   async updateLandFreight(
     @Param('id') id: string,
-    @Body(new ZodValidationPipe(CreateLandFreightSchema.partial())) 
-    body: Partial<CreateLandFreightDto>,
+    @Body(new ZodValidationPipe(CreateLandFreightSchema.partial())) body: Partial<CreateLandFreightDto>,
   ): Promise<{ message: string; data: LandFreight }> {
-    if (Object.keys(body).length === 0)
+    if (Object.keys(body).length === 0) {
       throw new BadRequestException('Body is empty');
-      
-    const updateResponse = await this.landFreightService.update(id, body);
-    return updateResponse; 
+    }
+    const data = await this.landFreightService.update(id, body);
+    return { message: 'Land freight updated', data };
   }
 }

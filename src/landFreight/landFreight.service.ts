@@ -12,14 +12,12 @@ import { FindLandFreightByPrice500_1500Strategy } from './strategies/find-land-f
 import { FindLandFreightByPrice1500_5000Strategy } from './strategies/find-land-freight/find-by-price-1500-5000.strategy';
 import { FindLandFreightByPrice5000_10000Strategy } from './strategies/find-land-freight/find-by-price-5000-10000.strategy';
 import { FindLandFreightByPrice10000Strategy } from './strategies/find-land-freight/find-by-price-10000.strategy';
-import { FindLandFreightByFreightIdStrategy } from './strategies/find-land-freight/find-by-freight-id.strategy';
 import { FindAllLandFreightStrategy } from './strategies/find-land-freight/find-all.strategy';
 import { FindLandFreightStrategy } from './strategies/find-land-freight/find-land-freight-strategy.enum';
 import { IFindLandFreightStrategy } from './strategies/find-land-freight/find-land-freight-strategy.interface';
 import { CreateLandFreightStrategy } from './strategies/create-land-freight/create-land-freight.strategy';
 import { CreateLandFreightDto } from './dtos/CreateLandFreightDto';
 import { UpdateLandFreightStrategy } from './strategies/update-land-freight/update-land-freight.strategy';
-
 @Injectable()
 export class LandFreightService {
   constructor(
@@ -29,7 +27,6 @@ export class LandFreightService {
     private findLandFreightByPrice1500_5000Strategy: FindLandFreightByPrice1500_5000Strategy,
     private findLandFreightByPrice5000_10000Strategy: FindLandFreightByPrice5000_10000Strategy,
     private findLandFreightByPrice10000Strategy: FindLandFreightByPrice10000Strategy,
-    private findLandFreightByFreightIdStrategy: FindLandFreightByFreightIdStrategy,
     private findAllLandFreightStrategy: FindAllLandFreightStrategy,
     private createLandFreightStrategy: CreateLandFreightStrategy,
     private updateLandFreightStrategy: UpdateLandFreightStrategy,
@@ -38,10 +35,9 @@ export class LandFreightService {
   find(
     strategy: FindLandFreightStrategy,
     landFreightInfo: any,
-  ): Promise<LandFreight[]> {
+  ): Promise<LandFreight[] | null> {
     const findStrategy = this.getFindStrategy(strategy);
     const landFreight = findStrategy.find(landFreightInfo);
-    
     return landFreight;
   }
 
@@ -61,25 +57,32 @@ export class LandFreightService {
         return this.findLandFreightByPrice5000_10000Strategy;
       case FindLandFreightStrategy.PRICE_10000:
         return this.findLandFreightByPrice10000Strategy;
+      default:
+        throw new BadRequestException('Invalid strategy');
     }
   }
 
-  async create(landFreightInfo: CreateLandFreightDto): Promise<{message: string; data: LandFreight}> {
+  async create(landFreightInfo: CreateLandFreightDto): Promise<LandFreight> {
     const createdLandFreight = await this.createLandFreightStrategy.create(landFreightInfo);
-    return { message: 'Land freight created', data: createdLandFreight };
+    return createdLandFreight;
   }
 
   async update(
     landFreightId: string,
-    updateInfo: Partial<CreateLandFreightDto>, 
-  ): Promise<{ message: string; data: LandFreight }> { 
+    updateInfo: Partial<CreateLandFreightDto>,
+  ): Promise<LandFreight> {
     if (Object.keys(updateInfo).length < 1) {
       throw new BadRequestException('Body is empty');
     }
-    const updateResponse = await this.updateLandFreightStrategy.update(
-      landFreightId,
-      updateInfo,
-    );
-    return { message: 'Land Freight updated', data: updateResponse };
+
+    try {
+      const updatedResponse = await this.updateLandFreightStrategy.update(
+        landFreightId,
+        updateInfo,
+      );
+      return updatedResponse;
+    } catch (error) {
+      throw new BadRequestException('Invalid data provided');
+    }
   }
 }

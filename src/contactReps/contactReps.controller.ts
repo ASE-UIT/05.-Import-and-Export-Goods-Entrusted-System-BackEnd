@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Get,
@@ -30,37 +31,35 @@ export class ContactRepsController {
 
   @Post()
   async createContactReps(
-    @Body(new ZodValidationPipe(CreateContactRepSchema))
-    body: CreateContactRepDto,
-  ): Promise<{message: string; data: ContactRep}> {
-    const createRes =
-      await this.contactRepsService.create(body);
-      return createRes;
+    @Body(new ZodValidationPipe(CreateContactRepSchema)) body: CreateContactRepDto,
+  ): Promise<{ message: string; data: ContactRep }> {
+    try {
+      const createdContactRep = await this.contactRepsService.create(body);
+      return { message: 'Contact representative created', data: createdContactRep };
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
   }
 
   @Patch(':id')
   async updateContactReps(
     @Param('id') id: string,
-    @Body(new ZodValidationPipe(CreateContactRepSchema.partial()))
-    body: Partial<CreateContactRepDto>,
+    @Body(new ZodValidationPipe(CreateContactRepSchema.partial())) body: Partial<CreateContactRepDto>,
   ): Promise<{ message: string; data: ContactRep }> {
-    const updateResponse = await this.contactRepsService.update(
-      id,
-      body,
-    );
-    return updateResponse;
+    try {
+      const updatedContactRep = await this.contactRepsService.update(id, body);
+      return { message: 'Contact representative updated', data: updatedContactRep };
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
   }
 
   @Get()
   async findContactReps(
-    @Query(new ZodValidationPipe(QueryContactRepSchema))
-    query: QueryContactRepDto,
+    @Query(new ZodValidationPipe(QueryContactRepSchema)) query: QueryContactRepDto,
   ): Promise<ContactRep[]> {
     if (Object.keys(query).length === 0)
-      return this.contactRepsService.find(
-        FindContactRepsStrategy.ALL,
-        '',
-      );
+      return this.contactRepsService.find(FindContactRepsStrategy.ALL, '');
 
     const queryFields: { [key: string]: FindContactRepsStrategy } = {
       name: FindContactRepsStrategy.NAME,
@@ -71,10 +70,7 @@ export class ContactRepsController {
     for (const [key, strategy] of Object.entries(queryFields)) {
       const value = query[key as keyof QueryContactRepDto];
       if (value) {
-        const contactRep = await this.contactRepsService.find(
-          strategy,
-          value,
-        );
+        const contactRep = await this.contactRepsService.find(strategy, value);
         if (contactRep.length > 0) {
           if (strategy === FindContactRepsStrategy.ALL || contactRep.length > 1)
             return contactRep;

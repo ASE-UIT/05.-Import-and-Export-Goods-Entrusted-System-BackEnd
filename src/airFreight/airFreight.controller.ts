@@ -9,14 +9,10 @@ import {
   Post,
   Query,
 } from '@nestjs/common';
-import { AirFreightService } from './airFreight.service'; 
+import { AirFreightService } from './airFreight.service';
 import { FindAirFreightStrategy } from './strategies/find-air-freight/find-air-freight-strategy.enum';
 import { ZodValidationPipe } from '@/shared/pipes/zod.pipe';
-import { QueryAirFreightDto, QueryAirFreightSchema } from './dtos/QueryAirFreightDto';
-import {
-  CreateAirFreightDto,
-  CreateAirFreightSchema,
-} from './dtos/CreateAirFreightDto';
+import { CreateAirFreightDto, CreateAirFreightSchema } from './dtos/CreateAirFreightDto';
 import { AirFreight } from './models/airFreight.model';
 
 @Controller({
@@ -24,17 +20,16 @@ import { AirFreight } from './models/airFreight.model';
   version: '1',
 })
 export class AirFreightController {
-  constructor(private airFreightService: AirFreightService) {} 
+  constructor(private airFreightService: AirFreightService) {}
 
   @Get()
   async findAirFreight(
-    @Query(new ZodValidationPipe(QueryAirFreightSchema)) query: QueryAirFreightDto,
-  ): Promise<AirFreight[]> {
-    if (Object.keys(query).length === 0)
-      return this.airFreightService.find( 
-        FindAirFreightStrategy.ALL,
-        '',
-      );
+    @Query(new ZodValidationPipe(CreateAirFreightSchema.partial())) query: Partial<CreateAirFreightDto>, // Reuse the create schema with .partial()
+  ): Promise<{ message: string; data: AirFreight[] }> { // Controller returns both message and data
+    if (Object.keys(query).length === 0) {
+      const data = await this.airFreightService.find(FindAirFreightStrategy.ALL, '');
+      return { message: 'All air freights fetched', data };
+    }
 
     const queryFields: { [key: string]: FindAirFreightStrategy } = {
       all: FindAirFreightStrategy.ALL,
@@ -49,13 +44,11 @@ export class AirFreightController {
     };
 
     for (const [key, strategy] of Object.entries(queryFields)) {
-      const value = query[key as keyof QueryAirFreightDto];
+      const value = query[key as keyof CreateAirFreightDto];
       if (value) {
-        const airFreight = await this.airFreightService.find(strategy, value);
-        if (airFreight.length > 0) {
-          if (strategy === FindAirFreightStrategy.ALL || airFreight.length > 1)
-            return airFreight;
-          else return [airFreight[0]];
+        const data = await this.airFreightService.find(strategy, value);
+        if (data.length > 0) {
+          return { message: 'Air freights fetched', data };
         }
       }
     }
@@ -67,20 +60,19 @@ export class AirFreightController {
   async createAirFreight(
     @Body(new ZodValidationPipe(CreateAirFreightSchema)) body: CreateAirFreightDto,
   ): Promise<{ message: string; data: AirFreight }> {
-    const createRes = await this.airFreightService.create(body); 
-    return createRes; 
+    const data = await this.airFreightService.create(body);
+    return { message: 'Air freight created', data };
   }
 
   @Patch(':id')
   async updateAirFreight(
     @Param('id') id: string,
-    @Body(new ZodValidationPipe(CreateAirFreightSchema.partial())) 
-    body: Partial<CreateAirFreightDto>,
+    @Body(new ZodValidationPipe(CreateAirFreightSchema.partial())) body: Partial<CreateAirFreightDto>,
   ): Promise<{ message: string; data: AirFreight }> {
-    if (Object.keys(body).length === 0)
+    if (Object.keys(body).length === 0) {
       throw new BadRequestException('Body is empty');
-      
-    const updateResponse = await this.airFreightService.update(id, body);
-    return updateResponse; 
+    }
+    const data = await this.airFreightService.update(id, body);
+    return { message: 'Air freight updated', data };
   }
 }
