@@ -14,6 +14,7 @@ import { ServicesModule } from './services/services.module';
 import { QuotationsModule } from './quotations/quotations.module';
 import { QuotationServicesModule } from './quotation-services/quotation-services.module';
 import { SessionModule } from './session/session.module';
+import { InvoicesModule } from './invoices/invoices.module';
 import { QuoteReqDetailsModule } from './quoteReqDetails/quoteReqDetails.module';
 import { PackageDetail } from './packageDetails/models/packageDetails.model';
 import { PackageDetailModule } from './packageDetails/packageDetails.module';
@@ -22,6 +23,7 @@ import { AirFreightModule } from './airFreight/airFreight.module';
 import { SeaFreightModule } from './seaFreight/seaFreight.module';
 import { LandFreightModule } from './landFreight/landFreight.module';
 import { ContactRepsModule } from './contactReps/contactReps.module';
+
 
 @Module({
   imports: [
@@ -39,7 +41,7 @@ import { ContactRepsModule } from './contactReps/contactReps.module';
         password: configService.getOrThrow<string>('POSTGRES_PASSWORD'),
         database: configService.getOrThrow<string>('POSTGRES_DB'),
         autoLoadModels: true,
-        sync: { alter: true, force: true,},
+        sync: { alter: true },
         logging: false,
       }),
     }),
@@ -58,10 +60,7 @@ import { ContactRepsModule } from './contactReps/contactReps.module';
     QuoteReqDetailsModule,
     PackageDetailModule,
     SessionModule,
-    ContactRepsModule,
-    AirFreightModule,
-    SeaFreightModule,
-    LandFreightModule,
+    InvoicesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

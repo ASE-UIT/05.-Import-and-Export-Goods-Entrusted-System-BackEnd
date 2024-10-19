@@ -44,7 +44,7 @@ services:
 
   exim-redis:
     image: redis:7.4.0
-    container_name: whiteboard-redis-dev
+    container_name: exim-redis
     command: redis-server --requirepass ${REDIS_PASSWORD}
     volumes:
       - redis-session:/data

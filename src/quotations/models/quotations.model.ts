@@ -1,4 +1,5 @@
 import { QuotationService } from '@/quotation-services/models/quotation-services.model';
+import { QuotationStatus } from '@/shared/enums/quotation-status.enum';
 import sequelize from 'sequelize';
 import {
   Column,
@@ -10,58 +11,39 @@ import {
   HasMany,
   DataType,
   Default,
+  AllowNull,
 } from 'sequelize-typescript';
 
-@Table({ tableName: 'quotations', timestamps: true })
-export class Quotation extends Model<Quotation> {
+@Table({ tableName: 'quotations' })
+export class Quotation extends Model {
   @PrimaryKey
   @Default(sequelize.UUIDV4)
   @Column
-  quotationId: string;
+  id: string;
 
-  // Thuộc tính id của bảng quotationsReps
-  @Default(sequelize.UUIDV4)
-  @Column
-  quoteRequestId: string;
-
-  // Thuộc tính id của bảng employee
-  @Default(sequelize.UUIDV4)
-  @Column
-  employeeId: string;
-
-  // Thuộc tính id của bảng freight
-  @Default(sequelize.UUIDV4)
-  @Column
-  freightId: string;
-
-  @Column
+  @AllowNull(false)
+  @Column({ type: DataType.FLOAT })
   totalPrice: number;
 
+  @AllowNull(false)
   @Column
-  pickupDate: string;
+  pickupDate: Date;
 
+  @AllowNull(false)
   @Column
-  deliveryDate: string;
+  deliveryDate: Date;
 
+  @AllowNull(false)
   @Column
-  quotationDate: string;
+  quotationDate: Date;
 
+  @AllowNull(false)
   @Column
-  expiredDate: string;
+  expiredDate: Date;
 
-  @Column({
-    type: DataType.DATE,
-    allowNull: false,
-    defaultValue: DataType.NOW, // Đảm bảo giá trị mặc định cho createdAt
-  })
-  createdAt: Date;
-
-  @Column({
-    type: DataType.DATE,
-    allowNull: false,
-    defaultValue: DataType.NOW, // Đảm bảo giá trị mặc định cho updatedAt
-  })
-  updatedAt: Date;
+  @AllowNull(false)
+  @Column
+  status: QuotationStatus;
 
   @HasMany(() => QuotationService)
   quotationServices: QuotationService[];

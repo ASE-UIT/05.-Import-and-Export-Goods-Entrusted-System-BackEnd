@@ -1,12 +1,13 @@
+import { QuotationStatus } from '@/shared/enums/quotation-status.enum';
 import { z } from 'zod';
 
 export const QueryQuotationSchema = z.object({
-  totalPrice: z.coerce.number().min(0).optional(),
-  pickupDate: z.string().date().optional(),
-  deliveryDate: z.string().date().optional(),
-  quotationDate: z.string().date().optional(),
-  expiredDate: z.string().date().optional(),
+  totalPrice: z.coerce.number().optional(),
+  pickupDate: z.coerce.date().optional(),
+  deliveryDate: z.coerce.date().optional(),
+  quotationDate: z.coerce.date().optional(),
+  expiredDate: z.coerce.date().optional(),
+  status: z.enum([QuotationStatus.DRAFT, QuotationStatus.BOOKED]).optional(),
 });
 
-// Xuất kiểu dữ liệu tương ứng
 export type QueryQuotationDto = z.infer<typeof QueryQuotationSchema>;
