@@ -16,11 +16,11 @@ import { CreateAirFreightDto, CreateAirFreightSchema } from './dtos/CreateAirFre
 import { AirFreight } from './models/airFreight.model';
 
 @Controller({
-  path: 'airFreight',
+  path: 'air-freight',
   version: '1',
 })
 export class AirFreightController {
-  constructor(private airFreightService: AirFreightService) {}
+  constructor(private airFreightService: AirFreightService) { }
 
   @Get()
   async findAirFreight(

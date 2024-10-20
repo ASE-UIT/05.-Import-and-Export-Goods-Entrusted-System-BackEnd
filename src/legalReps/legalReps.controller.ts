@@ -23,11 +23,11 @@ import {
 import { FindLegalRepsStrategy } from './strategies/find-legal-rep/find-legal-rep-strategy.enum';
 
 @Controller({
-  path: 'legalreps',
+  path: 'legal-reps',
   version: '1',
 })
 export class LegalRepsController {
-  constructor(private legalRepsService: LegalRepsService) {}
+  constructor(private legalRepsService: LegalRepsService) { }
   @Post()
   async createLegalReps(
     @Body(new ZodValidationPipe(CreateLegalRepSchema))

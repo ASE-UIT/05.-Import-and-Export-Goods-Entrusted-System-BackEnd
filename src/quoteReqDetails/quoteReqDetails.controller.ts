@@ -7,7 +7,7 @@ import { QueryQuoteReqDetailDto, QueryQuoteReqDetailSchema } from './dtos/QueryQ
 import { FindQuoteReqDetailStrategy } from './strategies/find_quoteReqDetail/find-quoteReqDetail-strategy.enum';
 
 @Controller({
-    path: 'quoteReqDetails',
+    path: 'quote-req-details',
     version: '1',
 })
 export class QuoteReqDetailsController {

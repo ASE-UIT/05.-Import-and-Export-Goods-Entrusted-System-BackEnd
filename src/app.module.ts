@@ -23,6 +23,8 @@ import { AirFreightModule } from './airFreight/airFreight.module';
 import { SeaFreightModule } from './seaFreight/seaFreight.module';
 import { LandFreightModule } from './landFreight/landFreight.module';
 import { ContactRepsModule } from './contactReps/contactReps.module';
+import { PaymentModule } from './payment/payment.module';
+import { ContractsModule } from './contracts/contracts.module';
 
 
 @Module({
@@ -41,7 +43,7 @@ import { ContactRepsModule } from './contactReps/contactReps.module';
         password: configService.getOrThrow<string>('POSTGRES_PASSWORD'),
         database: configService.getOrThrow<string>('POSTGRES_DB'),
         autoLoadModels: true,
-        sync: { alter: true },
+        sync: { alter: false, force: true },
         logging: false,
       }),
     }),
@@ -61,6 +63,12 @@ import { ContactRepsModule } from './contactReps/contactReps.module';
     PackageDetailModule,
     SessionModule,
     InvoicesModule,
+    AirFreightModule,
+    SeaFreightModule,
+    LandFreightModule,
+    PaymentModule,
+    ContractsModule,
+    ContactRepsModule
   ],
   controllers: [AppController],
   providers: [AppService],

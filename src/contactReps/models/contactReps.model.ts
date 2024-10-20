@@ -14,7 +14,7 @@ import {
 } from 'sequelize-typescript';
 
 @Table({
-  tableName: 'contactReps',
+  tableName: 'contact_reps',
 })
 export class ContactRep extends Model {
   @PrimaryKey
@@ -46,6 +46,11 @@ export class ContactRep extends Model {
   @Column
   phone: string;
 
-  @HasMany(() => Provider)
-  provider: Provider[];
+  @ForeignKey(() => Provider)
+  @AllowNull(false)
+  @Column
+  providerId: string;
+
+  @BelongsTo(() => Provider)
+  provider: Provider;
 }

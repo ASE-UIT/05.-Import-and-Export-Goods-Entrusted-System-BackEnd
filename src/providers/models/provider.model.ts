@@ -6,6 +6,7 @@ import {
   Column,
   Default,
   ForeignKey,
+  HasMany,
   Model,
   PrimaryKey,
   Table,
@@ -62,11 +63,6 @@ export class Provider extends Model {
   @Column
   status: ProviderStatus;
 
-  @ForeignKey(() => ContactRep)
-  @AllowNull(false)
-  @Column
-  contactRepId: string;
-
-  @BelongsTo(() => ContactRep)
-  contactRep: ContactRep;
+  @HasMany(() => ContactRep)
+  contactReps: ContactRep[];
 }

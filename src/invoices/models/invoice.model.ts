@@ -1,11 +1,15 @@
+import { Contract } from '@/contracts/models/contract.model';
 import { Employee } from '@/employees/models/employee.model';
+import { Payment } from '@/payment/models/payment.model';
 import { InvoiceStatus } from '@/shared/enums/invoice-status.enum';
 import sequelize from 'sequelize';
 import {
   AllowNull,
+  BelongsTo,
   Column,
   DataType,
   Default,
+  ForeignKey,
   HasMany,
   Model,
   PrimaryKey,
@@ -39,12 +43,23 @@ export class Invoice extends Model {
   @Column({ type: DataType.FLOAT })
   totalAmount: number;
 
-  /*
-  //Associations
-  @HasMany(() => Contract)
-  contracts: Contract[];
 
-  @HasMany(() => Employee)
-  employees: Employee[];
-  */
+  @HasMany(() => Payment)
+  payments: Payment[];
+
+  @ForeignKey(() => Employee)
+  @AllowNull(false)
+  @Column
+  employeeId: string;
+
+  @BelongsTo(() => Employee)
+  employee: Employee;
+
+  @ForeignKey(() => Contract)
+  @AllowNull(false)
+  @Column
+  contractId: string;
+
+  @BelongsTo(() => Contract)
+  contract: Contract;
 }

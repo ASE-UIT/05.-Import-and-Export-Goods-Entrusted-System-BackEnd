@@ -1,6 +1,6 @@
 import sequelize from 'sequelize';
 import { Provider } from '@/providers/models/provider.model';
-import{
+import {
   AllowNull,
   BelongsTo,
   Column,
@@ -59,11 +59,11 @@ export class Freight extends Model {
   @Column
   freeTime: number;
 
-  // @ForeignKey(() => Provider)
-  // @AllowNull(false)
-  // @Column
-  // providerId: string;
+  @ForeignKey(() => Provider)
+  @AllowNull(false)
+  @Column
+  providerId: string;
 
-  // @BelongsTo(() => Provider)
-  // provider: Provider;
+  @BelongsTo(() => Provider)
+  provider: Provider;
 }

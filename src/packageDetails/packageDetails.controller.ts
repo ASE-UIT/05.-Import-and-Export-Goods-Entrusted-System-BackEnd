@@ -7,7 +7,7 @@ import { QueryPackageDetailDto, QueryPackageDetailSchema } from './dtos/QueryPac
 import { FindPackageDetailStrategy } from './strategies/find-packageDetail/find-packageDetail-strategy.enum';
 
 @Controller({
-    path: 'packageDetails',
+    path: 'package-details',
     version: '1',
 })
 export class PackageDetailsController {

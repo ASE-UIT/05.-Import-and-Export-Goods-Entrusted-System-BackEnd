@@ -8,7 +8,7 @@ import { UpdateQuotationReqDto, UpdateQuotationReqSchema } from './dtos/UpdateQu
 import { QuotationReq } from './models/quotationReq.model';
 
 @Controller({
-  path: 'quotationReqs',
+  path: 'quotation-reqs',
   version: '1',
 })
 export class QuotationReqsController {

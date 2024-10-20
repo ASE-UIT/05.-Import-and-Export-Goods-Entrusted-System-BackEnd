@@ -16,11 +16,11 @@ import { CreateLandFreightDto, CreateLandFreightSchema } from './dtos/CreateLand
 import { LandFreight } from './models/landFreight.model';
 
 @Controller({
-  path: 'landFreight',
+  path: 'land-freight',
   version: '1',
 })
 export class LandFreightController {
-  constructor(private landFreightService: LandFreightService) {}
+  constructor(private landFreightService: LandFreightService) { }
 
   @Get()
   async findLandFreight(

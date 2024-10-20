@@ -11,9 +11,10 @@ import { FindProviderByAddressStrategy } from './strategies/find-provider/find-b
 import { FindAllProviderStrategy } from './strategies/find-provider/find-all.strategy';
 import { CreateProviderStrategy } from './strategies/create-provider/create-provider.strategy';
 import { UpdateProviderStrategy } from './strategies/update-provider/update-provider.strategy';
+import { ContactRep } from '@/contactReps/models/contactReps.model';
 
 @Module({
-  imports: [SequelizeModule.forFeature([Provider])],
+  imports: [SequelizeModule.forFeature([Provider, ContactRep])],
   controllers: [ProvidersController],
   providers: [
     ProvidersService,
@@ -27,4 +28,4 @@ import { UpdateProviderStrategy } from './strategies/update-provider/update-prov
     UpdateProviderStrategy,
   ],
 })
-export class ProvidersModule {}
+export class ProvidersModule { }

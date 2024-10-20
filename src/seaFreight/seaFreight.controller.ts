@@ -18,11 +18,11 @@ import {
 } from './dtos/CreateSeaFreightDto';
 import { SeaFreight } from './models/seaFreight.model';
 @Controller({
-  path: 'seaFreight',
+  path: 'sea-freight',
   version: '1',
 })
 export class SeaFreightController {
-  constructor(private seaFreightService: SeaFreightService) {}
+  constructor(private seaFreightService: SeaFreightService) { }
 
   @Get()
   async findSeaFreight(

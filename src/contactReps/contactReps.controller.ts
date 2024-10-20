@@ -23,11 +23,11 @@ import { ZodValidationPipe } from '@/shared/pipes/zod.pipe';
 import { ContactRep } from './models/contactReps.model';
 
 @Controller({
-  path: 'contactReps',
+  path: 'contact-reps',
   version: '1',
 })
 export class ContactRepsController {
-  constructor(private contactRepsService: ContactRepsService) {}
+  constructor(private contactRepsService: ContactRepsService) { }
 
   @Post()
   async createContactReps(

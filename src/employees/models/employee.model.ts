@@ -1,3 +1,4 @@
+import { Contract } from '@/contracts/models/contract.model';
 import { User } from '@/users/models/user.model';
 import sequelize from 'sequelize';
 import {
@@ -69,4 +70,9 @@ export class Employee extends Model {
 
   @HasOne(() => User)
   user: User;
+
+
+  //one employee can make many contracts
+  @HasMany(() => Contract)
+  contracts: Contract[];
 }
