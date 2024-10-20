@@ -43,11 +43,10 @@ import { ContractsModule } from './contracts/contracts.module';
         password: configService.getOrThrow<string>('POSTGRES_PASSWORD'),
         database: configService.getOrThrow<string>('POSTGRES_DB'),
         autoLoadModels: true,
-        sync: { alter: false, force: true },
+        sync: { alter: true },
         logging: false,
       }),
     }),
-
     UsersModule,
     RolesModule,
     EmployeesModule,
