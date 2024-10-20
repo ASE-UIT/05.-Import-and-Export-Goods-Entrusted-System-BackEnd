@@ -11,17 +11,21 @@ import {
   UpdatePasswordDto,
   UpdatePasswordSchema,
 } from './dtos/UpdatePasswordDto';
+import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
+@ApiTags('users')
 @Controller({
   path: 'users',
   version: '1',
 })
 export class UsersController {
-  constructor(private usersService: UsersService) {}
+  constructor(private usersService: UsersService) { }
 
   @UseGuards(RoleGuard)
   @Roles([RoleEnum.ADMIN])
   @Post()
+  @ApiOperation({ summary: 'Create a new user' })
+  @ApiResponse({ status: 201, description: 'User successfully created' })
   async createUser(
     @Body(new ZodValidationPipe(CreateUserSchema)) reqBody: CreateUserDto,
   ) {
