@@ -18,6 +18,11 @@ import { InvoicesModule } from './invoices/invoices.module';
 import { QuoteReqDetailsModule } from './quoteReqDetails/quoteReqDetails.module';
 import { PackageDetail } from './packageDetails/models/packageDetails.model';
 import { PackageDetailModule } from './packageDetails/packageDetails.module';
+import { FreightModule } from './freight/freight.module';
+import { AirFreightModule } from './airFreight/airFreight.module';
+import { SeaFreightModule } from './seaFreight/seaFreight.module';
+import { LandFreightModule } from './landFreight/landFreight.module';
+import { ContactRepsModule } from './contactReps/contactReps.module';
 
 
 @Module({
@@ -44,6 +49,7 @@ import { PackageDetailModule } from './packageDetails/packageDetails.module';
     UsersModule,
     RolesModule,
     EmployeesModule,
+    FreightModule,
     LegalRepsModule,
     CustomersModule,
     ProvidersModule,
