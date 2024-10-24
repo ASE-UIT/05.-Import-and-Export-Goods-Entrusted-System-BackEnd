@@ -1,13 +1,15 @@
+import { createZodDto } from 'nestjs-zod';
 import { z } from 'zod';
 
 export const CreateUserSchema = z.object({
-  username: z.string().min(1).max(16),
-  password: z.string().min(1).max(64),
+  username: z.string().min(1).max(16).describe("The user's username"),
+  password: z.string().min(1).max(64).describe("The user's password"),
   employeeId: z
     .string({
       message: 'An employee association is needed to create an account',
     })
-    .uuid(),
+    .uuid()
+    .describe('The employee ID associated with the user'),
 });
 
-export type CreateUserDto = z.infer<typeof CreateUserSchema>;
+export class CreateUserDto extends createZodDto(CreateUserSchema) {}
