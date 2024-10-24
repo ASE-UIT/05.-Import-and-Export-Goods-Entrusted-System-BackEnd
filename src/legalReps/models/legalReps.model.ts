@@ -6,6 +6,7 @@ import {
   Column,
   Default,
   ForeignKey,
+  HasMany,
   Model,
   PrimaryKey,
   Table,
@@ -46,11 +47,6 @@ export class LegalRep extends Model {
   phone: string;
 
   //Associations
-  @ForeignKey(() => Customer)
-  @AllowNull(false)
-  @Column
-  customerId: string;
-
-  @BelongsTo(() => Customer)
-  customer: Customer;
+  @HasMany(() => Customer)
+  customers: Customer[];
 }

@@ -1,7 +1,12 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { IUpdateCustomerStrategy } from './update-customer-strategy.interface';
 import { Customer } from '@/customers/models/customer.model';
 import { CreateCustomerDto } from '@/customers/dtos/CreateCustomerDto';
+import { UniqueConstraintError } from 'sequelize';
 
 @Injectable()
 export class UpdateCustomerStrategy implements IUpdateCustomerStrategy {
@@ -9,12 +14,19 @@ export class UpdateCustomerStrategy implements IUpdateCustomerStrategy {
     customerId: string,
     updateInfo: Partial<CreateCustomerDto>,
   ): Promise<Customer> {
-    const [affectedRows, [updateData]] = await Customer.update(
-      { ...updateInfo },
-      { where: { id: customerId }, returning: true },
-    );
-    if (affectedRows === 0)
-      throw new BadRequestException("Customer doesn't exist");
-    return updateData.dataValues as Customer;
+    try {
+      const [affectedRows, [updateData]] = await Customer.update(
+        { ...updateInfo },
+        { where: { id: customerId }, returning: true },
+      );
+      return updateData.dataValues as Customer;
+    } catch (err) {
+      if (err instanceof TypeError) {
+        throw new NotFoundException('Customer not found');
+      }
+      if (err instanceof UniqueConstraintError) {
+        throw new ConflictException(err.errors[0].message);
+      }
+    }
   }
 }
