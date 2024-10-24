@@ -1,10 +1,12 @@
 import { LegalRep } from '@/legalReps/models/legalReps.model';
 import { QuotationReq } from '@/quotationReqs/models/quotationReq.model';
-import sequelize from 'sequelize';
-import{
+import sequelize, { HasOne } from 'sequelize';
+import {
   AllowNull,
+  BelongsTo,
   Column,
   Default,
+  ForeignKey,
   HasMany,
   Model,
   PrimaryKey,
@@ -62,9 +64,17 @@ export class Customer extends Model {
   taxId: string;
 
   //Associations
-  @HasMany(() => LegalRep)
-  legalReps: LegalRep[];
+  // @HasOne(() => LegalRep, 'id')
+  // legalReps: LegalRep;
 
   @HasMany(() => QuotationReq)
   quotationReqs: QuotationReq[];
+
+  @ForeignKey(() => LegalRep)
+  @AllowNull(true)
+  @Column
+  legalRepId: string;
+
+  @BelongsTo(() => LegalRep)
+  legalRep: LegalRep;
 }

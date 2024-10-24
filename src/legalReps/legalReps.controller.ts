@@ -8,11 +8,13 @@ import {
   Patch,
   Post,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { LegalRepsService } from './legalReps.service';
 import {
   CreateLegalRepDto,
   CreateLegalRepSchema,
+  UpdateLegalRepDto,
 } from './dtos/CreateLegalRepDto';
 import { ZodValidationPipe } from '@/shared/pipes/zod.pipe';
 
@@ -21,13 +23,47 @@ import {
   QueryLegalRepsSchema,
 } from './dtos/QueryLegalRepsDto';
 import { FindLegalRepsStrategy } from './strategies/find-legal-rep/find-legal-rep-strategy.enum';
+import { RoleGuard } from '@/shared/guards/role.guard';
+import { Roles } from '@/shared/decorators/role.decorator';
+import { RoleEnum } from '@/shared/enums/roles.enum';
+import {
+  ApiBadRequestResponse,
+  ApiBody,
+  ApiConflictResponse,
+  ApiCreatedResponse,
+  ApiInternalServerErrorResponse,
+  ApiNotFoundResponse,
+  ApiOkResponse,
+  ApiOperation,
+  ApiQuery,
+  ApiTags,
+  ApiUnauthorizedResponse,
+} from '@nestjs/swagger';
+import { UUIDV4 } from 'sequelize';
 
+@ApiTags('Legal representatives')
 @Controller({
   path: 'legal-reps',
   version: '1',
 })
 export class LegalRepsController {
-  constructor(private legalRepsService: LegalRepsService) { }
+  constructor(private legalRepsService: LegalRepsService) {}
+
+  @UseGuards(RoleGuard)
+  @Roles([RoleEnum.ADMIN, RoleEnum.MANAGER])
+  @ApiOperation({ summary: 'Create new customer' })
+  @ApiBody({
+    type: CreateLegalRepDto,
+  })
+  @ApiCreatedResponse({ description: 'New legalRep created' })
+  @ApiBadRequestResponse({ description: 'Invalid body' })
+  @ApiConflictResponse({ description: 'Unique information already exist' })
+  @ApiUnauthorizedResponse({
+    description: 'Not logged in or account has unappropriate role',
+  })
+  @ApiInternalServerErrorResponse({
+    description: 'Something went terribly wrong. Contact backend team at once',
+  })
   @Post()
   async createLegalReps(
     @Body(new ZodValidationPipe(CreateLegalRepSchema))
@@ -41,6 +77,31 @@ export class LegalRepsController {
     };
   }
 
+  // @UseGuards(RoleGuard)
+  // @Roles([RoleEnum.ADMIN, RoleEnum.MANAGER])
+  @ApiOperation({ summary: "Update customer's information" })
+  @ApiOkResponse({ description: 'New information updated' })
+  @ApiBadRequestResponse({ description: 'Empty body or misspelled property' })
+  @ApiNotFoundResponse({ description: 'Could not find customer to update' })
+  @ApiUnauthorizedResponse({
+    description: 'Not logged in or account has unappropriate role',
+  })
+  @ApiBody({
+    type: UpdateLegalRepDto,
+    examples: {
+      example: {
+        description: 'Able to update one or more fields in CreateCustomerDto',
+        value: {
+          name: 'Updated name',
+          phone: '123456',
+          email: 'UpdatedEmail@example.com',
+        },
+      },
+    },
+  })
+  @ApiInternalServerErrorResponse({
+    description: 'Something went terribly wrong. Contact backend team at once',
+  })
   @Patch(':id')
   async updateLegalReps(
     @Param('id') id: string,
@@ -59,6 +120,41 @@ export class LegalRepsController {
     };
   }
 
+  @UseGuards(RoleGuard)
+  @Roles([RoleEnum.ADMIN, RoleEnum.MANAGER])
+  @ApiOperation({ summary: 'Search for legal representatives' })
+  @ApiQuery({
+    name: 'name',
+    type: String,
+    required: false,
+    description: 'Search legalRep by name',
+  })
+  @ApiQuery({
+    name: 'phone',
+    type: String,
+    required: false,
+    description: 'Search legalRep by phone number',
+  })
+  @ApiQuery({
+    name: 'email',
+    type: String,
+    required: false,
+    description: 'Search legalRep by email',
+  })
+  @ApiQuery({
+    name: 'customerId',
+    type: String,
+    required: false,
+    description: "Search legalRep by their customer's id",
+  })
+  @ApiOkResponse({ description: 'legalRep found' })
+  @ApiNotFoundResponse({ description: 'legalRep not found' })
+  @ApiInternalServerErrorResponse({
+    description: 'Something went terribly wrong. Contact backend team at once',
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Not logged in or account has unappropriate role',
+  })
   @Get()
   async findLegalReps(
     @Query(new ZodValidationPipe(QueryLegalRepsSchema))

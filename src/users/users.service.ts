@@ -43,9 +43,10 @@ export class UsersService {
     username,
     password,
     employeeId,
+    role,
   }: CreateUserDto): Promise<void> {
-    // Get default role
-    const defaultRole = await Role.findOne({ where: { name: 'USER' } });
+    // Get role
+    const defaultRole = await Role.findOne({ where: { name: role } });
 
     // Create a new user
     const user = new User();
