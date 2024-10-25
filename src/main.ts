@@ -6,6 +6,7 @@ import * as passport from 'passport';
 import * as session from 'express-session';
 import RedisStore from 'connect-redis';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { patchNestJsSwagger } from 'nestjs-zod';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -29,11 +30,12 @@ async function bootstrap() {
     }),
   );
 
+  patchNestJsSwagger();
+
   app.use(passport.initialize());
   app.use(passport.session());
 
   app.enableVersioning();
-
 
   const options = new DocumentBuilder()
     .setTitle('Exim API')
