@@ -9,6 +9,7 @@ export const CreateAirFreightSchema = z.object({
   AMS_Fees: z.number().min(0),
   SCC: z.string().min(1),
   routine: z.string().min(1),
+  freight_id: z.string().min(0)
 });
 
 export type CreateAirFreightDto = z.infer<typeof CreateAirFreightSchema>;

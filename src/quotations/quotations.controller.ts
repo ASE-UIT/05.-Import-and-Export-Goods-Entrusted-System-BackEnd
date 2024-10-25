@@ -27,7 +27,7 @@ import { FindQuotationStrategy } from './strategies/find-quotation/find-quotatio
   version: '1',
 })
 export class QuotationsController {
-  constructor(private quotationsService: QuotationsService) {}
+  constructor(private quotationsService: QuotationsService) { }
 
   @Post()
   async createQuotation(
@@ -53,6 +53,7 @@ export class QuotationsController {
       quotationDate: FindQuotationStrategy.QUOTATION_DATE,
       status: FindQuotationStrategy.STATUS,
       totalPrice: FindQuotationStrategy.TOTAL_PRICE,
+      employeeId: FindQuotationStrategy.EMPLOYEE_ID,
     };
 
     for (const [key, strategy] of Object.entries(queryFields)) {

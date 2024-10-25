@@ -15,7 +15,7 @@ export class CreateLandFreightStrategy implements ICreateLandFreightStrategy {
     landFreight.price_1500_5000 = landFreightData.price_1500_5000;
     landFreight.price_5000_10000 = landFreightData.price_5000_10000;
     landFreight.price_10000 = landFreightData.price_10000;
-
+    landFreight.freight_id = landFreightData.freight_id;
     try {
       await landFreight.save();
       return landFreight;

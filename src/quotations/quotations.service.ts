@@ -16,6 +16,7 @@ import { FindQuotationStrategy } from './strategies/find-quotation/find-quotatio
 import { IFindQuotationStrategy } from './strategies/find-quotation/find-quotation-strategy.interface';
 import { CreateQuotationStrategy } from './strategies/create-quotation/create-quotation.strategy';
 import { UpdateQuotationStrategy } from './strategies/update-quotation/update-quotation.strategy';
+import { FindQuotationByEmployeeId } from './strategies/find-quotation/find-by-employee-id';
 
 @Injectable()
 export class QuotationsService {
@@ -27,9 +28,10 @@ export class QuotationsService {
     private findQuotationByExpiredDate: FindQuotationByExpiredDate,
     private findQuotationByQuotationDate: FindQuotationByQuotationDate,
     private findQuotationByTotalPrice: FindQuotationByTotalPrice,
+    private findQuotationByEmployeeId: FindQuotationByEmployeeId,
     private createQuotationStrategy: CreateQuotationStrategy,
     private updateQuotationStrategy: UpdateQuotationStrategy,
-  ) {}
+  ) { }
 
   async create(
     quotationInfo: CreateQuotationDto,
@@ -64,6 +66,8 @@ export class QuotationsService {
         return this.findQuotationByStatus;
       case FindQuotationStrategy.TOTAL_PRICE:
         return this.findQuotationByTotalPrice;
+      case FindQuotationStrategy.EMPLOYEE_ID:
+        return this.findQuotationByEmployeeId;
     }
   }
 

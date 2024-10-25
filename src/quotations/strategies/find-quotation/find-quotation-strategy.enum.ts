@@ -6,4 +6,5 @@ export enum FindQuotationStrategy {
   QUOTATION_DATE = ' QUOTATION_DATE',
   STATUS = 'STATUS',
   TOTAL_PRICE = 'TOTAL_PRICE',
+  EMPLOYEE_ID = 'EMPLOYEE_ID',
 }

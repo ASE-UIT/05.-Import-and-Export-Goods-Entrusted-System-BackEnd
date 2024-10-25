@@ -1,6 +1,6 @@
 import { ConflictException, Injectable } from '@nestjs/common';
 import { ICreateAirFreightStrategy } from './create-air-freight-strategy.interface';
-import { CreateAirFreightDto } from '@/airFreight/dtos/CreateAirFreightDto'; 
+import { CreateAirFreightDto } from '@/airFreight/dtos/CreateAirFreightDto';
 import { AirFreight } from '@/airFreight/models/airFreight.model';
 import { UniqueConstraintError } from 'sequelize';
 
@@ -16,7 +16,7 @@ export class CreateAirFreightStrategy implements ICreateAirFreightStrategy {
     airFreight.AMS_Fees = airFreightData.AMS_Fees;
     airFreight.SCC = airFreightData.SCC;
     airFreight.routine = airFreightData.routine;
-
+    airFreight.freight_id = airFreightData.freight_id;
     try {
       await airFreight.save();
       return airFreight;

@@ -12,8 +12,8 @@ export class CreateSeaFreightStrategy implements ICreateSeaFreightStrategy {
     seaFreight.price_20rf = seaFreightData.price_20rf;
     seaFreight.price_40dc = seaFreightData.price_40dc;
     seaFreight.price_40hc = seaFreightData.price_40hc;
-    seaFreight.price_40rf  =seaFreightData.price_40rf;
-
+    seaFreight.price_40rf = seaFreightData.price_40rf;
+    seaFreight.freight_id = seaFreightData.freight_id
     try {
       await seaFreight.save();
       return seaFreight;

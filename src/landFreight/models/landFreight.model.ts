@@ -48,11 +48,11 @@ export class LandFreight extends Model {
   @Column
   price_10000: number;
 
-  // @ForeignKey(() => Freight)
-  // @AllowNull(false)
-  // @Column
-  // freight_id: string;
+  @ForeignKey(() => Freight)
+  @AllowNull(false)
+  @Column
+  freight_id: string;
 
-  // @BelongsTo(() => Freight)
-  // freight: Freight;
+  @BelongsTo(() => Freight)
+  freight: Freight;
 }

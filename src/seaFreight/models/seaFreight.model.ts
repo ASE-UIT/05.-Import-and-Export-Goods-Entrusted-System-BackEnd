@@ -1,6 +1,6 @@
 import sequelize from 'sequelize';
 import { Freight } from '@/freight/models/freight.model';
-import{
+import {
   Column,
   BelongsTo,
   AllowNull,
@@ -41,11 +41,11 @@ export class SeaFreight extends Model {
   @Column
   price_40rf: number;
 
-  // @ForeignKey(() => Freight)
-  // @AllowNull(false)
-  // @Column
-  // freight_id: string;
+  @ForeignKey(() => Freight)
+  @AllowNull(false)
+  @Column
+  freight_id: string;
 
-  // @BelongsTo(() => Freight)
-  // freight: Freight;
+  @BelongsTo(() => Freight)
+  freight: Freight;
 }

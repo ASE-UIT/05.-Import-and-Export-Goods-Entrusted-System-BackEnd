@@ -8,7 +8,6 @@ import { FindAllQuotationReqStrategy } from './strategies/find-quotationReq/find
 import { FindQuotationReqByRequestDateStrategy } from './strategies/find-quotationReq/find-by-requestDate.strategy';
 import { FindQuotationReqByStatusStrategy } from './strategies/find-quotationReq/find-by-status.strategy';
 import { FindQuotationReqByCustomerIdStrategy } from './strategies/find-quotationReq/find-by-customerId.strategy';
-import { UpdateQuotationReqDto } from './dtos/UpdateQuotationReqDto';
 import { UpdateQuotationReqStrategy } from './strategies/update-quotationReq/update-quotationReq.strategy';
 
 @Injectable()

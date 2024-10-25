@@ -8,6 +8,7 @@ export const QueryQuotationSchema = z.object({
   quotationDate: z.coerce.date().optional(),
   expiredDate: z.coerce.date().optional(),
   status: z.enum([QuotationStatus.DRAFT, QuotationStatus.BOOKED]).optional(),
+  employeeId: z.string().optional()
 });
 
 export type QueryQuotationDto = z.infer<typeof QueryQuotationSchema>;

@@ -12,21 +12,23 @@ import { FindQuotationByQuotationDate } from './strategies/find-quotation/find-b
 import { FindQuotationByTotalPrice } from './strategies/find-quotation/find-by-total-price';
 import { CreateQuotationStrategy } from './strategies/create-quotation/create-quotation.strategy';
 import { UpdateQuotationStrategy } from './strategies/update-quotation/update-quotation.strategy';
+import { FindQuotationByEmployeeId } from './strategies/find-quotation/find-by-employee-id';
 
 @Module({
   imports: [SequelizeModule.forFeature([Quotation])],
   controllers: [QuotationsController],
   providers: [
     QuotationsService,
-    FindAllQuotationStrategy, 
+    FindAllQuotationStrategy,
     FindQuotationByPickupDate,
     FindQuotationByStatus,
     FindQuotationByDeliveryDate,
     FindQuotationByExpiredDate,
     FindQuotationByQuotationDate,
     FindQuotationByTotalPrice,
+    FindQuotationByEmployeeId,
     CreateQuotationStrategy,
     UpdateQuotationStrategy,
   ],
 })
-export class QuotationsModule {}
+export class QuotationsModule { }
