@@ -54,6 +54,7 @@ export class QuotationsController {
       status: FindQuotationStrategy.STATUS,
       totalPrice: FindQuotationStrategy.TOTAL_PRICE,
       employeeId: FindQuotationStrategy.EMPLOYEE_ID,
+      customerId: FindQuotationStrategy.CUSTOMER_ID,
     };
 
     for (const [key, strategy] of Object.entries(queryFields)) {

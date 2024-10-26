@@ -13,6 +13,8 @@ import { FindQuotationByTotalPrice } from './strategies/find-quotation/find-by-t
 import { CreateQuotationStrategy } from './strategies/create-quotation/create-quotation.strategy';
 import { UpdateQuotationStrategy } from './strategies/update-quotation/update-quotation.strategy';
 import { FindQuotationByEmployeeId } from './strategies/find-quotation/find-by-employee-id';
+import { FindQuotationByCustomerId } from './strategies/find-quotation/find-by-customer-id';
+import { FindQuotationReqByCustomerIdStrategy } from '@/quotationReqs/strategies/find-quotationReq/find-by-customerId.strategy';
 
 @Module({
   imports: [SequelizeModule.forFeature([Quotation])],
@@ -27,6 +29,8 @@ import { FindQuotationByEmployeeId } from './strategies/find-quotation/find-by-e
     FindQuotationByQuotationDate,
     FindQuotationByTotalPrice,
     FindQuotationByEmployeeId,
+    FindQuotationByCustomerId,
+    FindQuotationReqByCustomerIdStrategy,
     CreateQuotationStrategy,
     UpdateQuotationStrategy,
   ],

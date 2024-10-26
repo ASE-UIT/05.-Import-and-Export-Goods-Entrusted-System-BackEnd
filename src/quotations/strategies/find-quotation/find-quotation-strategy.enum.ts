@@ -7,4 +7,5 @@ export enum FindQuotationStrategy {
   STATUS = 'STATUS',
   TOTAL_PRICE = 'TOTAL_PRICE',
   EMPLOYEE_ID = 'EMPLOYEE_ID',
+  CUSTOMER_ID = 'CUSTOMER_ID',
 }

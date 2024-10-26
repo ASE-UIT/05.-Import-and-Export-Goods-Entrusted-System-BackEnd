@@ -17,6 +17,7 @@ import { IFindQuotationStrategy } from './strategies/find-quotation/find-quotati
 import { CreateQuotationStrategy } from './strategies/create-quotation/create-quotation.strategy';
 import { UpdateQuotationStrategy } from './strategies/update-quotation/update-quotation.strategy';
 import { FindQuotationByEmployeeId } from './strategies/find-quotation/find-by-employee-id';
+import { FindQuotationByCustomerId } from './strategies/find-quotation/find-by-customer-id';
 
 @Injectable()
 export class QuotationsService {
@@ -29,6 +30,7 @@ export class QuotationsService {
     private findQuotationByQuotationDate: FindQuotationByQuotationDate,
     private findQuotationByTotalPrice: FindQuotationByTotalPrice,
     private findQuotationByEmployeeId: FindQuotationByEmployeeId,
+    private findQuotationByCustomerId: FindQuotationByCustomerId,
     private createQuotationStrategy: CreateQuotationStrategy,
     private updateQuotationStrategy: UpdateQuotationStrategy,
   ) { }
@@ -68,6 +70,8 @@ export class QuotationsService {
         return this.findQuotationByTotalPrice;
       case FindQuotationStrategy.EMPLOYEE_ID:
         return this.findQuotationByEmployeeId;
+      case FindQuotationStrategy.CUSTOMER_ID:
+        return this.findQuotationByCustomerId
     }
   }
 
