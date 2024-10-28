@@ -52,6 +52,8 @@ export const CreateUserSchema = z
         }
         return true;
       }, 'Admin role cannot be assigned to users using the public API. Contact a system administrator for assistance.'),
+        return true;
+      }, 'Admin role cannot be assigned to users using the public API. Contact a system administrator for assistance.'),
     employeeId: z
       .string({
         required_error: 'Employee ID is required',

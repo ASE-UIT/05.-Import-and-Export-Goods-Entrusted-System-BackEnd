@@ -55,7 +55,6 @@ export class UsersService {
     // Create a new user
     const user = new User();
     const passwordHash = await argon2.hash(password);
-
     user.username = username;
     user.roleId = userRole.id;
     user.hashedPassword = passwordHash;
