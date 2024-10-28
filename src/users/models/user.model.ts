@@ -37,7 +37,9 @@ export class User extends Model {
   //Associations
   @ForeignKey(() => Role)
   @AllowNull(false)
-  @Column
+  @Column({
+    type: sequelize.DataTypes.UUID,
+  })
   roleId: string;
 
   @BelongsTo(() => Role)
