@@ -16,9 +16,11 @@ import {
   tableName: 'roles',
 })
 export class Role extends Model {
-  @PrimaryKey
-  @Default(sequelize.UUIDV4)
-  @Column
+  @Column({
+    type: sequelize.DataTypes.UUID,
+    primaryKey: true,
+    defaultValue: sequelize.DataTypes.UUIDV4,
+  })
   id: string;
 
   @Unique

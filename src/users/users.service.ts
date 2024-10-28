@@ -14,6 +14,7 @@ import * as argon2 from 'argon2';
 import { Role } from '@/roles/models/role.model';
 import { ForeignKeyConstraintError, UniqueConstraintError } from 'sequelize';
 import { UpdatePasswordDto } from './dtos/UpdatePasswordDto';
+import { ArgumentOutOfRangeError } from 'rxjs';
 
 @Injectable()
 export class UsersService {
@@ -35,7 +36,9 @@ export class UsersService {
       case FindUserStrategy.ID:
         return this.findUserByIdStrategy;
       default:
-        throw new Error('Invalid strategy');
+        throw new Error(
+          `The strategy ${strategy} is not supported. Available strategies are: ${Object.values(FindUserStrategy)}`,
+        );
     }
   }
 
@@ -43,16 +46,16 @@ export class UsersService {
     username,
     password,
     employeeId,
+    role,
   }: CreateUserDto): Promise<void> {
-    // Get default role
-    const defaultRole = await Role.findOne({ where: { name: 'USER' } });
+    const userRole = await Role.findOne({ where: { name: role } });
+    if (!userRole) throw new NotFoundException('Role not found');
 
     // Create a new user
     const user = new User();
     const passwordHash = await argon2.hash(password);
-
     user.username = username;
-    user.roleId = defaultRole.id;
+    user.roleId = userRole.id;
     user.hashedPassword = passwordHash;
     user.employeeId = employeeId;
 
