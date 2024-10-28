@@ -7,8 +7,7 @@ import { QuoteReqDetail } from '@/quoteReqDetails/models/quoteReqDetail.model';
 export class FindQuotationReqByCustomerIdStrategy implements IFindQuotationReqStrategy {
     async find(customerId: string): Promise<QuotationReq[] | null> {
         return QuotationReq.findAll({
-            where: { customerId: customerId },
-            include: QuoteReqDetail
+            where: { customerId: customerId }
         });
     }
 }

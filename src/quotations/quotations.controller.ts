@@ -21,7 +21,9 @@ import {
 import { QuotationsService } from './quotations.service';
 import { Quotation } from './models/quotations.model';
 import { FindQuotationStrategy } from './strategies/find-quotation/find-quotation-strategy.enum';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('quotations')
 @Controller({
   path: 'quotations',
   version: '1',

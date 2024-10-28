@@ -1,20 +1,27 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { QuotationReq } from '../../models/quotationReq.model';
-import { UpdateQuotationReqDto } from '@/quotationReqs/dtos/UpdateQuotationReqDto';
 import { CreateQuotationReqDto } from '@/quotationReqs/dtos/CreateQuotationReqDto';
+import { UniqueConstraintError } from 'sequelize';
 
 @Injectable()
 export class UpdateQuotationReqStrategy {
     constructor() { }
 
     async update(id: string, quotationReqInfo: Partial<CreateQuotationReqDto>): Promise<QuotationReq> {
-        const [affectedRows, [updateData]] = await QuotationReq.update(
-            { ...quotationReqInfo },
-            { where: { id: id }, returning: true },
-        )
-        if (affectedRows == 0) {
-            throw new NotFoundException('Quote request id does not exists in database')
+        try {
+            const [affectedRows, [updateData]] = await QuotationReq.update(
+                { ...quotationReqInfo },
+                { where: { id: id }, returning: true },
+            )
+            return updateData.dataValues as QuotationReq
+        } catch (error) {
+            if (error instanceof TypeError) {
+                throw new NotFoundException('Customer not found');
+            }
+            if (error instanceof UniqueConstraintError) {
+                throw new ConflictException(error.errors[0].message);
+            }
         }
-        return updateData.dataValues as QuotationReq
+
     }
 }

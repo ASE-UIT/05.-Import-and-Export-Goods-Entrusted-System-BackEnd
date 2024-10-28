@@ -5,7 +5,9 @@ import { CreateQuoteReqDetailDto, CreateQuoteReqDetailSchema } from './dtos/Crea
 import { UpdateQuoteReqDetailDto, UpdateQuoteReqDetailSchema } from './dtos/UpdateQuoteReqDetailDto';
 import { QueryQuoteReqDetailDto, QueryQuoteReqDetailSchema } from './dtos/QueryQuoteReqDetailDto';
 import { FindQuoteReqDetailStrategy } from './strategies/find_quoteReqDetail/find-quoteReqDetail-strategy.enum';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('quote request details')
 @Controller({
     path: 'quote-req-details',
     version: '1',
