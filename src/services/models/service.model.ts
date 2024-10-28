@@ -1,4 +1,5 @@
 import { QuotationService } from '@/quotation-services/models/quotation-services.model';
+import { ApiProperty } from '@nestjs/swagger';
 import sequelize from 'sequelize';
 import {
   Column,
@@ -18,6 +19,7 @@ export class Service extends Model<Service> {
   @Column
   id: string;
 
+  @ApiProperty()
   @Unique({
     name: 'name_conflict',
     msg: 'This service name is already existed',
@@ -25,9 +27,11 @@ export class Service extends Model<Service> {
   @Column
   name: string;
 
+  @ApiProperty()
   @Column
   shortName: string;
 
+  @ApiProperty()
   @Column({ type: DataType.FLOAT })
   fee: number;
 

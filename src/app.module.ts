@@ -26,7 +26,6 @@ import { ContactRepsModule } from './contactReps/contactReps.module';
 import { PaymentModule } from './payment/payment.module';
 import { ContractsModule } from './contracts/contracts.module';
 
-
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
@@ -43,7 +42,7 @@ import { ContractsModule } from './contracts/contracts.module';
         password: configService.getOrThrow<string>('POSTGRES_PASSWORD'),
         database: configService.getOrThrow<string>('POSTGRES_DB'),
         autoLoadModels: true,
-        sync: { alter: true },
+        sync: { force: true },
         logging: false,
       }),
     }),
@@ -67,9 +66,9 @@ import { ContractsModule } from './contracts/contracts.module';
     LandFreightModule,
     PaymentModule,
     ContractsModule,
-    ContactRepsModule
+    ContactRepsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule { }
+export class AppModule {}

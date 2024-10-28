@@ -32,7 +32,7 @@ export class EmployeesService {
       throw new InternalServerErrorException();
     }
 
-    return;
+    return employee;
   }
 
   async updateEmployee(
