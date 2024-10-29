@@ -9,6 +9,7 @@ import {
   Model,
   PrimaryKey,
   Table,
+  DataType,
 } from 'sequelize-typescript';
 
 @Table({
@@ -21,37 +22,37 @@ export class LandFreight extends Model {
   land_freight_id: string;
 
   @AllowNull(false)
-  @Column
-  weight: number;
+  @Column({ type: DataType.FLOAT })
+  price_0_100: number;
 
   @AllowNull(false)
-  @Column
+  @Column({ type: DataType.FLOAT })
   price_100_200: number;
 
   @AllowNull(false)
-  @Column
+  @Column({ type: DataType.FLOAT })
   price_200_500: number;
 
   @AllowNull(false)
-  @Column
+  @Column({ type: DataType.FLOAT })
   price_500_1500: number;
 
   @AllowNull(false)
-  @Column
+  @Column({ type: DataType.FLOAT })
   price_1500_5000: number;
 
   @AllowNull(false)
-  @Column
+  @Column({ type: DataType.FLOAT })
   price_5000_10000: number;
 
   @AllowNull(false)
-  @Column
+  @Column({ type: DataType.FLOAT })
   price_10000: number;
 
   @ForeignKey(() => Freight)
   @AllowNull(false)
   @Column
-  freight_id: string;
+  freight_id: string
 
   @BelongsTo(() => Freight)
   freight: Freight;

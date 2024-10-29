@@ -1,12 +1,11 @@
 import { AirFreight } from '@/airFreight/models/airFreight.model';
 import { Employee } from '@/employees/models/employee.model';
-import { Freight, ShipmentType } from '@/freight/models/freight.model';
+import { Freight, FreightType } from '@/freight/models/freight.model';
 import { LandFreight } from '@/landFreight/models/landFreight.model';
 import { PackageDetail } from '@/packageDetails/models/packageDetails.model';
 import { QuotationService } from '@/quotation-services/models/quotation-services.model';
 import { QuotationReq } from '@/quotationReqs/models/quotationReq.model';
 import { QuoteReqDetail } from '@/quoteReqDetails/models/quoteReqDetail.model';
-import { SeaFreight } from '@/seaFreight/models/seaFreight.model';
 import { QuotationStatus } from '@/shared/enums/quotation-status.enum';
 import { HttpException, HttpStatus } from '@nestjs/common';
 import sequelize from 'sequelize';

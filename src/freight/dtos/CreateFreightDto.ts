@@ -1,16 +1,17 @@
 import { z } from 'zod';
-import { ShipmentType } from '@/freight/models/freight.model';
+import { FreightType, WeekDay } from '@/freight/models/freight.model';
 
 export const CreateFreightSchema = z.object({
-  freightType: z.nativeEnum(ShipmentType),
+  freightType: z.nativeEnum(FreightType),
   origin: z.string().min(1),
   destination: z.string().min(1),
   transitTime: z.number().int(),
-  transit: z.string(),
+  additionFee: z.number().optional(),
   validFrom: z.coerce.date(),
   validUntil: z.coerce.date(),
-  note: z.string().optional(),
-  freeTime: z.number().int().optional(),
+  addition_fee_breakdown: z.string().optional(),
+  schedule: z.nativeEnum(WeekDay),
+  providerId: z.string().uuid()
 }).superRefine((data, ctx) => {
   if (data.validFrom >= data.validUntil) {
     ctx.addIssue({

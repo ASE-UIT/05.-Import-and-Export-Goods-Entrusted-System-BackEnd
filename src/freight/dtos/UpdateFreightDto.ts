@@ -1,8 +1,8 @@
 import { z } from 'zod';
-import { ShipmentType } from '@/freight/models/freight.model';
+import { FreightType } from '@/freight/models/freight.model';
 
 export const UpdateFreightSchema = z.object({
-  freightType: z.nativeEnum(ShipmentType).optional(),
+  freightType: z.nativeEnum(FreightType).optional(),
   origin: z.string().min(1).optional(),
   destination: z.string().min(1).optional(),
   transitTime: z.number().int().optional(),

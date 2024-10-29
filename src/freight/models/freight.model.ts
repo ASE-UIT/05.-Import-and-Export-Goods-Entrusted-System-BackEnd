@@ -4,22 +4,34 @@ import {
   AllowNull,
   BelongsTo,
   Column,
+  DataType,
   Default,
   ForeignKey,
   HasMany,
+  HasOne,
   Model,
   PrimaryKey,
   Table,
   Unique,
 } from 'sequelize-typescript';
-import { SeaFreight } from '@/seaFreight/models/seaFreight.model';
 import { LandFreight } from '@/landFreight/models/landFreight.model';
 import { AirFreight } from '@/airFreight/models/airFreight.model';
+import { FCL } from '@/fcl/models/fcl.model';
+import { LCL } from '@/lcl/models/lcl.model';
 
-export enum ShipmentType {
-  SEA_FREIGHT = 'SEA_FREIGHT',
-  AIR_FREIGHT = 'AIR_FREIGHT',
-  LAND_FREIGHT = 'LAND_FREIGHT',
+export enum FreightType {
+  AIR = 'AIR',
+  LAND = 'LAND',
+  FCL = 'FCL',
+  LCL = 'LCL'
+}
+
+export enum WeekDay {
+  MONDAY = 'MONDAY',
+  TUESDAY = 'TUESDAY',
+  WEDNESDAY = 'WEDNESDAY',
+  THURSDAY = 'THURSDAY',
+  FRIDAY = 'FRIDAY'
 }
 
 @Table({
@@ -33,7 +45,7 @@ export class Freight extends Model {
 
   @AllowNull(false)
   @Column
-  freightType: ShipmentType;
+  freightType: FreightType;
 
   @AllowNull(false)
   @Column
@@ -43,11 +55,13 @@ export class Freight extends Model {
   @Column
   destination: string;
 
-  @Column
+  @AllowNull(false)
+  @Column({ type: DataType.FLOAT })
   transitTime: number;
 
-  @Column
-  transit: string;
+  @Default(0)
+  @Column({ type: DataType.FLOAT })
+  additionFee: number
 
   @AllowNull(false)
   @Column
@@ -57,11 +71,12 @@ export class Freight extends Model {
   @Column
   validUntil: Date;
 
-  @Column
-  note: string;
+  @Column({ type: DataType.TEXT })
+  addition_fee_breakdown: string;
 
+  @AllowNull(false)
   @Column
-  freeTime: number;
+  schedule: WeekDay;
 
   @ForeignKey(() => Provider)
   @AllowNull(false)
@@ -71,12 +86,15 @@ export class Freight extends Model {
   @BelongsTo(() => Provider)
   provider: Provider;
 
-  @HasMany(() => SeaFreight)
-  seaFreight: SeaFreight[]
+  @HasOne(() => LandFreight)
+  landFreight: LandFreight
 
-  @HasMany(() => LandFreight)
-  landFreight: LandFreight[]
+  @HasOne(() => AirFreight)
+  airFreight: AirFreight
 
-  @HasMany(() => AirFreight)
-  airFreight: AirFreight[]
+  @HasOne(() => FCL)
+  fcl: FCL
+
+  @HasOne(() => LCL)
+  lcl: LCL
 }

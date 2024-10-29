@@ -16,15 +16,15 @@ import { QuotationServicesModule } from './quotation-services/quotation-services
 import { SessionModule } from './session/session.module';
 import { InvoicesModule } from './invoices/invoices.module';
 import { QuoteReqDetailsModule } from './quoteReqDetails/quoteReqDetails.module';
-import { PackageDetail } from './packageDetails/models/packageDetails.model';
 import { PackageDetailModule } from './packageDetails/packageDetails.module';
 import { FreightModule } from './freight/freight.module';
 import { AirFreightModule } from './airFreight/airFreight.module';
-import { SeaFreightModule } from './seaFreight/seaFreight.module';
 import { LandFreightModule } from './landFreight/landFreight.module';
 import { ContactRepsModule } from './contactReps/contactReps.module';
 import { PaymentModule } from './payment/payment.module';
 import { ContractsModule } from './contracts/contracts.module';
+import { FCLModule } from './fcl/fcl.module';
+import { LCLModule } from './lcl/lcl.module';
 
 @Module({
   imports: [
@@ -62,13 +62,14 @@ import { ContractsModule } from './contracts/contracts.module';
     SessionModule,
     InvoicesModule,
     AirFreightModule,
-    SeaFreightModule,
     LandFreightModule,
     PaymentModule,
     ContractsModule,
     ContactRepsModule,
+    FCLModule,
+    LCLModule
   ],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule { }

@@ -1,7 +1,7 @@
 import { string, z } from 'zod';
 
 export const CreateLandFreightSchema = z.object({
-  weight: z.number().min(0),
+  price_0_100: z.number().min(0),
   price_100_200: z.number().min(0),
   price_200_500: z.number().min(0),
   price_500_1500: z.number().min(0),
