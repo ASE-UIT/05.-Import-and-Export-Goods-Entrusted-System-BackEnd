@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { Position } from '../models/employee.model';
+import { createZodDto } from 'nestjs-zod';
 
 export const CreateEmployeeSchema = z.object({
   name: z.string().min(1),
@@ -12,4 +13,7 @@ export const CreateEmployeeSchema = z.object({
   baseSalary: z.number().nonnegative(),
 });
 
-export type CreateEmployeeDto = z.infer<typeof CreateEmployeeSchema>;
+export class CreateEmployeeDto extends createZodDto(CreateEmployeeSchema) {}
+export class UpdateEmployeeDto extends createZodDto(
+  CreateEmployeeSchema.partial(),
+) {}
