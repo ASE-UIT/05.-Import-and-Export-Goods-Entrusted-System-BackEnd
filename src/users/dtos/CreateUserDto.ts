@@ -45,7 +45,7 @@ export const CreateUserSchema = z
       ),
     role: z
       .nativeEnum(RoleEnum)
-      .describe('The user role')
+      .describe('The user role. Cannot be ADMIN')
       .refine((role) => {
         if (role === RoleEnum.ADMIN) {
           return false;

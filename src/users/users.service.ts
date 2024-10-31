@@ -1,5 +1,6 @@
 import {
   ConflictException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
   UnauthorizedException,
@@ -89,8 +90,7 @@ export class UsersService {
       hashedPassword,
       body.oldPassword,
     );
-    if (!oldPasswordCorrect)
-      throw new UnauthorizedException('Incorrect password');
+    if (!oldPasswordCorrect) throw new ForbiddenException('Incorrect password');
     const newHashedPassword = await argon2.hash(body.newPassword);
     await User.update(
       { hashedPassword: newHashedPassword },
