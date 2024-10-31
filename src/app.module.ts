@@ -42,7 +42,7 @@ import { ContractsModule } from './contracts/contracts.module';
         password: configService.getOrThrow<string>('POSTGRES_PASSWORD'),
         database: configService.getOrThrow<string>('POSTGRES_DB'),
         autoLoadModels: true,
-        sync: { force: true },
+        sync: { alter: true },
         logging: false,
       }),
     }),

@@ -5,7 +5,6 @@ import {
   Param,
   Patch,
   Post,
-  Req,
   UseGuards,
 } from '@nestjs/common';
 import {
@@ -17,7 +16,6 @@ import { EmployeesService } from './employees.service';
 import { RoleGuard } from '@/shared/guards/role.guard';
 import { Roles } from '@/shared/decorators/role.decorator';
 import { RoleEnum } from '@/shared/enums/roles.enum';
-import { User } from '@/users/models/user.model';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 @ApiTags('employees')
@@ -40,8 +38,7 @@ export class EmployeesController {
     @Body(new ZodValidationPipe(CreateEmployeeSchema)) body: CreateEmployeeDto,
   ) {
     const employee = await this.employeesService.createEmployee(body);
-
-    return { message: 'Employee successfully created', data: employee };
+    return { message: 'Employee successfully created' };
   }
 
   @ApiOperation({ description: 'Update an employee' })

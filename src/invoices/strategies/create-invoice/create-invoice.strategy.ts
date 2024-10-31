@@ -12,8 +12,6 @@ export class CreateInvoiceStrategy implements ICreateInvoiceStrategy {
     invoice.status = invoiceInfo.status;
     invoice.taxAmount = invoiceInfo.taxAmount;
     invoice.totalAmount = invoiceInfo.totalAmount;
-    invoice.employeeId = invoiceInfo.employeeId;
-    invoice.contractId = invoiceInfo.contractId;
     await invoice.save();
     return invoice;
   }

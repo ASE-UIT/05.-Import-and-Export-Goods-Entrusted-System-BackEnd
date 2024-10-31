@@ -20,11 +20,7 @@ import {
   UpdatePasswordDto,
   UpdatePasswordSchema,
 } from './dtos/UpdatePasswordDto';
-
-import { ApiCreatedResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
-
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-
 
 @ApiTags('users')
 @Controller({
@@ -38,9 +34,6 @@ export class UsersController {
   @Roles([RoleEnum.ADMIN])
   @Post()
   @ApiOperation({ summary: 'Create a new user' })
-
-  @ApiCreatedResponse({ description: 'User successfully created' })
-
   @ApiResponse({ status: 201, description: 'User successfully created' })
   @ApiResponse({ status: 400, description: 'Invalid request body' })
   @ApiResponse({ status: 401, description: 'Not logged in' })

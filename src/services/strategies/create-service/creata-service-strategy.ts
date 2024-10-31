@@ -1,9 +1,9 @@
 import { ConflictException, Injectable } from '@nestjs/common';
+import { ICreateServiceStrategy } from './create-service-stategy.interface';
+import { CreateServiceDto } from '@/services/dtos/CreateServiceDto';
 import { Service } from '@/services/models/service.model';
 import { SequelizeScopeError, UniqueConstraintError } from 'sequelize';
 import { ErrorReply } from 'redis';
-import { CreateServiceDto } from '@/services/dtos/CreateServiceDto';
-import { ICreateServiceStrategy } from './create-service-stategy.interface';
 
 @Injectable()
 export class CreateServiceStrategy implements ICreateServiceStrategy {
