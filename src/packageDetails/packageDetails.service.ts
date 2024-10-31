@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
 import { CreatePackageDetailDto } from './dtos/CreatePackageDetailDto';
 import { CreatePackageDetailStrategy } from './strategies/create-packageDetail/create-packageDetail.strategy';
 import { UpdatePackageDetailDto } from './dtos/UpdatePackageDetailDto';
@@ -9,6 +9,7 @@ import { IFindPackageDetailStrategy } from './strategies/find-packageDetail/find
 import { FindAllPackageDetailStrategy } from './strategies/find-packageDetail/find-all.strategy';
 import { FindPackageDetailByDetailIdStrategy } from './strategies/find-packageDetail/find-by-detailId.strategy';
 import { FindPackageDetailByPackageTypeStrategy } from './strategies/find-packageDetail/find-by-packageType.strategy';
+import { ForeignKeyConstraintError } from 'sequelize';
 
 @Injectable()
 export class PackageDetailsService {
@@ -44,6 +45,9 @@ export class PackageDetailsService {
         try {
             return await this.createPackageDetailStrategy.create(packageDetailInfo)
         } catch (error) {
+            if (error instanceof ForeignKeyConstraintError) {
+                throw new HttpException('Invalid foreign key.', HttpStatus.BAD_REQUEST);
+            }
             throw new Error('Error when create quote request detail')
         }
     }
@@ -51,12 +55,18 @@ export class PackageDetailsService {
     async updatePackageDetail(
         id: string,
         packageDetailInfo: Partial<CreatePackageDetailDto>)
-        : Promise<{
-            message: string,
-            data: PackageDetail
-        }> {
-        const updatedResponse = await this.updatePackageDetailStrategy.update(id, packageDetailInfo)
-        return { message: 'Package detail updated successfully', data: updatedResponse }
+        : Promise<PackageDetail> {
+        try {
+            return await this.updatePackageDetailStrategy.update(id, packageDetailInfo)
+        } catch (error) {
+            if (error instanceof ForeignKeyConstraintError) {
+                throw new HttpException('Invalid foreign key.', HttpStatus.BAD_REQUEST);
+            }
+            if (error instanceof NotFoundException) {
+                throw new HttpException('Quote request detail id does not exists in database', HttpStatus.NOT_FOUND)
+            }
+            throw new Error()
+        }
     }
 
 }

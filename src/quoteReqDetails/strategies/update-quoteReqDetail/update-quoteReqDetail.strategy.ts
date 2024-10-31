@@ -1,6 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { QuoteReqDetail } from '@/quoteReqDetails/models/quoteReqDetail.model';
-import { UpdateQuoteReqDetailDto } from '@/quoteReqDetails/dtos/UpdateQuoteReqDetailDto';
 import { CreateQuoteReqDetailDto } from '@/quoteReqDetails/dtos/CreateQuoteReqDetailDto';
 
 @Injectable()

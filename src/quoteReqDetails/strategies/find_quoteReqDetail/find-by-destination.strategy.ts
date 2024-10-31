@@ -6,6 +6,6 @@ import { PackageDetail } from '@/packageDetails/models/packageDetails.model';
 @Injectable()
 export class FindQuoteReqDetailByDestinationStrategy implements IFindQuoteReqDetailStrategy {
     async find(destination: string): Promise<QuoteReqDetail[] | null> {
-        return QuoteReqDetail.findAll({ where: { destination: destination }, include: PackageDetail });
+        return QuoteReqDetail.findAll({ where: { destination: destination } });
     }
 }

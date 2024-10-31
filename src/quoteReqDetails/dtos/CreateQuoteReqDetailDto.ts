@@ -1,3 +1,4 @@
+import { createZodDto } from 'nestjs-zod';
 import { z } from 'zod'
 
 export const CreateQuoteReqDetailSchema = z.object({
@@ -9,4 +10,6 @@ export const CreateQuoteReqDetailSchema = z.object({
     quoteReqId: z.string()
 });
 
-export type CreateQuoteReqDetailDto = z.infer<typeof CreateQuoteReqDetailSchema>;
+//export class CreateQuoteReqDetailDto = z.infer<typeof CreateQuoteReqDetailSchema>;
+export class CreateQuoteReqDetailDto extends createZodDto(CreateQuoteReqDetailSchema) { }
+export class UpdateQuoteReqDetailDto extends createZodDto(CreateQuoteReqDetailSchema.partial()) { }

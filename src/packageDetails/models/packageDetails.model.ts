@@ -1,7 +1,7 @@
 import { QuoteReqDetail } from "@/quoteReqDetails/models/quoteReqDetail.model";
 import { ALL } from "dns";
 import sequelize from "sequelize";
-import { AllowNull, BelongsTo, Column, Default, ForeignKey, Model, PrimaryKey, Table } from "sequelize-typescript";
+import { AllowNull, BelongsTo, Column, DataType, Default, ForeignKey, Model, PrimaryKey, Table } from "sequelize-typescript";
 
 export enum PackageType {
     // CONTAINER = 'CONTAINER',
@@ -25,19 +25,19 @@ export class PackageDetail extends Model {
     packageType: PackageType
 
     @AllowNull(false)
-    @Column
+    @Column({ type: DataType.FLOAT })
     weight: number
 
     @AllowNull(false)
-    @Column
+    @Column({ type: DataType.FLOAT })
     length: number
 
     @AllowNull(false)
-    @Column
+    @Column({ type: DataType.FLOAT })
     width: number
 
     @AllowNull(false)
-    @Column
+    @Column({ type: DataType.FLOAT })
     height: number
 
     // Associtations

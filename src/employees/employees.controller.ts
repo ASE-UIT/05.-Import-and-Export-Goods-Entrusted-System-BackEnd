@@ -21,7 +21,7 @@ import { RoleEnum } from '@/shared/enums/roles.enum';
   version: '1',
 })
 export class EmployeesController {
-  constructor(private employeesService: EmployeesService) {}
+  constructor(private employeesService: EmployeesService) { }
 
   @UseGuards(RoleGuard)
   @Roles([RoleEnum.ADMIN])

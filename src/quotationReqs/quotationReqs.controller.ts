@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Controller, Get, Param, Patch, Post, Put, Query, UseGuards } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Get, NotFoundException, Param, Patch, Post, Put, Query, UseGuards } from '@nestjs/common';
 import { QuotationReqsService } from './quotationReqs.service';
 import { ZodValidationPipe } from '@/shared/pipes/zod.pipe';
 import { QueryQuotationReqDto, QueryQuotationReqSchema } from './dtos/QueryQuotationReqDto';
@@ -18,7 +18,7 @@ import { Roles } from '@/shared/decorators/role.decorator';
 export class QuotationReqsController {
   constructor(private readonly quotationReqsService: QuotationReqsService) { }
 
-  @UseGuards(RoleGuard)
+  // @UseGuards(RoleGuard)
   @Roles([
     RoleEnum.ADMIN,
     RoleEnum.SALES,
@@ -26,12 +26,10 @@ export class QuotationReqsController {
   ])
   @Get()
   @ApiOperation({ summary: 'Retrieve quote requests based on query parameters' })
+  @ApiResponse({ status: 401, description: 'Not logged in or account has unappropriate role' })
   @ApiResponse({ status: 200, description: 'Successfully retrieved quote requests' })
   @ApiResponse({ status: 404, description: 'No quote requests found' })
   @ApiResponse({ status: 500, description: 'Internal server error.' })
-  @ApiUnauthorizedResponse({
-    description: 'Not logged in or account has unappropriate role',
-  })
   @ApiQuery({ name: 'requestDate', required: false, type: String })
   @ApiQuery({ name: 'status', required: false, enum: QuotationReqStatus })
   @ApiQuery({ name: 'customerId', required: false, type: String })
@@ -66,6 +64,7 @@ export class QuotationReqsController {
         }
       }
     }
+    throw new NotFoundException('Quotate Request not found')
   }
 
   //create quotation request
@@ -79,10 +78,8 @@ export class QuotationReqsController {
   @ApiOperation({ summary: 'Create a new quote request' })
   @ApiResponse({ status: 201, description: 'Quote request successfully created' })
   @ApiResponse({ status: 400, description: 'Invalid foreign key.' })
+  @ApiResponse({ status: 401, description: 'Not logged in or account has unappropriate role' })
   @ApiResponse({ status: 500, description: 'Internal server error.' })
-  @ApiUnauthorizedResponse({
-    description: 'Not logged in or account has unappropriate role',
-  })
   @ApiBody({
     type: CreateQuotationReqDto,
     schema: {
@@ -111,12 +108,11 @@ export class QuotationReqsController {
   @Patch(':id')
   @ApiOperation({ summary: 'Update quote request' })
   @ApiResponse({ status: 200, description: 'Quote request successfully updated' })
+  @ApiResponse({ status: 401, description: 'Not logged in or account has unappropriate role' })
   @ApiResponse({ status: 404, description: "Quote request id does not exists in database" })
   @ApiResponse({ status: 500, description: 'Internal server error.' })
-  @ApiUnauthorizedResponse({
-    description: 'Not logged in or account has unappropriate role',
-  })
   @ApiBody({
+    type: UpdateQuotationReqDto,
     schema: {
       example: {
         requestDate: '2024-01-01T00:00:00.000Z',

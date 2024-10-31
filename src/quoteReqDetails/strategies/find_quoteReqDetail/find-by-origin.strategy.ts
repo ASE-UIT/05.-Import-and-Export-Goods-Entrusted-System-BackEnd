@@ -7,8 +7,7 @@ import { PackageDetail } from '@/packageDetails/models/packageDetails.model';
 export class FindQuoteReqDetailByOriginStrategy implements IFindQuoteReqDetailStrategy {
     async find(origin: string): Promise<QuoteReqDetail[] | null> {
         return QuoteReqDetail.findAll({
-            where: { origin: origin },
-            include: PackageDetail
+            where: { origin: origin }
         });
     }
 }

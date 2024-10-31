@@ -1,4 +1,5 @@
 import { AirFreight } from '@/airFreight/models/airFreight.model';
+import { Contract } from '@/contracts/models/contract.model';
 import { Employee } from '@/employees/models/employee.model';
 import { Freight, FreightType } from '@/freight/models/freight.model';
 import { LandFreight } from '@/landFreight/models/landFreight.model';
@@ -21,6 +22,8 @@ import {
   Default,
   AllowNull,
   BeforeCreate,
+  BelongsTo,
+  HasOne,
 } from 'sequelize-typescript';
 
 @Table({ tableName: 'quotations' })
@@ -54,6 +57,8 @@ export class Quotation extends Model {
   @Column
   status: QuotationStatus;
 
+
+  //Association
   @HasMany(() => QuotationService)
   quotationServices: QuotationService[];
 
@@ -62,15 +67,27 @@ export class Quotation extends Model {
   @Column
   quoteReqId: string
 
+  @BelongsTo(() => QuotationReq)
+  quotationReq: QuotationReq
+
   @ForeignKey(() => Freight)
   @AllowNull(false)
   @Column
   freightId: string
 
+  @BelongsTo(() => Freight)
+  freight: Freight
+
   @ForeignKey(() => Employee)
   @AllowNull(false)
   @Column
   employeeId: string
+
+  @BelongsTo(() => Employee)
+  employee: Employee
+
+  // @HasOne(() => Contract)
+  // contract: Contract
 
   // @BeforeCreate
   // static async calculateTotal(quotation: Quotation) {

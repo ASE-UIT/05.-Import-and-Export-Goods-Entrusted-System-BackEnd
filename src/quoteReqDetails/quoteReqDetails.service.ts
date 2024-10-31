@@ -1,7 +1,6 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, HttpException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateQuoteReqDetailDto } from './dtos/CreateQuoteReqDetailDto';
 import { CreateQuoteReqDetailStrategy } from './strategies/create-quoteReqDetail/create-quoteReqDetail.strategy';
-import { UpdateQuoteReqDetailDto } from './dtos/UpdateQuoteReqDetailDto';
 import { UpdateQuoteReqDetailStrategy } from './strategies/update-quoteReqDetail/update-quoteReqDetail.strategy';
 import { FindQuoteReqDetailStrategy } from './strategies/find_quoteReqDetail/find-quoteReqDetail-strategy.enum';
 import { QuoteReqDetail } from './models/quoteReqDetail.model';
@@ -14,7 +13,7 @@ import { FindQuoteReqDetailByShipmentDeadlineStrategy } from './strategies/find_
 import { FindQuoteReqDetailByCargoInsuranceStrategy } from './strategies/find_quoteReqDetail/find-by-cargoInsurance.strategy';
 import { FindQuoteReqDetailByQuoteReqIdStrategy } from './strategies/find_quoteReqDetail/find-by-quoteReqId.strategy';
 import { FindAllQuoteReqDetailStrategy } from './strategies/find_quoteReqDetail/find-all.strategy';
-import { BaseError, HostNotFoundError } from 'sequelize';
+import { BaseError, ForeignKeyConstraintError, HostNotFoundError } from 'sequelize';
 
 @Injectable()
 export class QuoteReqDetailsService {
@@ -62,15 +61,24 @@ export class QuoteReqDetailsService {
         try {
             return await this.createQuoteReqDetailStrategy.create(quoteReqDetailInfo)
         } catch (error) {
-            throw new Error('Error when create quote request detail')
+            if (error instanceof ForeignKeyConstraintError) {
+                throw new HttpException('Invalid foreign key.', HttpStatus.BAD_REQUEST);
+            }
+            throw new Error()
         }
     }
 
-    async updateQuoteReqDetail(id: string, quoteReqDetailInfo: Partial<CreateQuoteReqDetailDto>): Promise<{
-        message: string,
-        data: QuoteReqDetail
-    }> {
-        const updatedResponse = await this.updateQuoteReqDetailStrategy.update(id, quoteReqDetailInfo)
-        return { message: 'Quote Request Detail updated successfully', data: updatedResponse }
+    async updateQuoteReqDetail(id: string, quoteReqDetailInfo: Partial<CreateQuoteReqDetailDto>): Promise<QuoteReqDetail> {
+        try {
+            return await this.updateQuoteReqDetailStrategy.update(id, quoteReqDetailInfo)
+        } catch (error) {
+            if (error instanceof ForeignKeyConstraintError) {
+                throw new HttpException('Invalid foreign key.', HttpStatus.BAD_REQUEST);
+            }
+            if (error instanceof NotFoundException) {
+                throw new HttpException('Quote request detail id does not exists in database', HttpStatus.NOT_FOUND)
+            }
+            throw new Error()
+        }
     }
 }

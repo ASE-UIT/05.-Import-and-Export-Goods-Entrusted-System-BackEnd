@@ -7,8 +7,7 @@ import { PackageDetail } from '@/packageDetails/models/packageDetails.model';
 export class FindQuoteReqDetailByShipmentDeadlineStrategy implements IFindQuoteReqDetailStrategy {
     async find(shipmentDeadline: string): Promise<QuoteReqDetail[] | null> {
         return QuoteReqDetail.findAll({
-            where: { shipmentDeadline: shipmentDeadline },
-            include: PackageDetail
+            where: { shipmentDeadline: shipmentDeadline }
         });
     }
 }

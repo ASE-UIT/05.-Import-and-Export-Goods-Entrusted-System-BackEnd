@@ -12,7 +12,7 @@ export const CreateQuotationReqSchema = z.object({
 
 export class CreateQuotationReqDto extends createZodDto(CreateQuotationReqSchema) { }
 
-export class UpdateQuotationReqDto extends PartialType(CreateQuotationReqDto) { }
+export class UpdateQuotationReqDto extends createZodDto(CreateQuotationReqSchema.partial()) { }
 
 //export type CreateQuotationReqDto = z.infer<typeof CreateQuotationReqSchema>;
 

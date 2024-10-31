@@ -1,4 +1,5 @@
 import { Customer } from '@/customers/models/customer.model';
+import { Quotation } from '@/quotations/models/quotations.model';
 import { QuoteReqDetail } from '@/quoteReqDetails/models/quoteReqDetail.model';
 import sequelize from 'sequelize';
 import {
@@ -8,6 +9,7 @@ import {
   Default,
   ForeignKey,
   HasMany,
+  HasOne,
   Model,
   PrimaryKey,
   Table,
@@ -15,8 +17,11 @@ import {
 
 export enum QuotationReqStatus {
   PENDING = 'PENDING',
-  ACCEPTED = 'ACCEPTED',
   REJECTED = 'REJECTED',
+  INPROGRESS = 'INPROGRESS',
+  COMPLETED = 'COMPLETED',
+  ACCEPTED = 'ACCEPTED',
+  CANCELLED = 'CANCELLED'
 }
 
 @Table({
@@ -47,4 +52,7 @@ export class QuotationReq extends Model {
 
   @HasMany(() => QuoteReqDetail)
   quoteReqDetails: QuoteReqDetail[]
+
+  @HasOne(() => Quotation)
+  quotation: Quotation
 }
