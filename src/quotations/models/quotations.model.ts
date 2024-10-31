@@ -1,14 +1,17 @@
 import { AirFreight } from '@/airFreight/models/airFreight.model';
 import { Contract } from '@/contracts/models/contract.model';
 import { Employee } from '@/employees/models/employee.model';
+import { FCL } from '@/fcl/models/fcl.model';
 import { Freight, FreightType } from '@/freight/models/freight.model';
 import { LandFreight } from '@/landFreight/models/landFreight.model';
+import { LCL } from '@/lcl/models/lcl.model';
 import { PackageDetail } from '@/packageDetails/models/packageDetails.model';
 import { QuotationService } from '@/quotation-services/models/quotation-services.model';
 import { QuotationReq } from '@/quotationReqs/models/quotationReq.model';
 import { QuoteReqDetail } from '@/quoteReqDetails/models/quoteReqDetail.model';
+import { Service } from '@/services/models/service.model';
 import { QuotationStatus } from '@/shared/enums/quotation-status.enum';
-import { HttpException, HttpStatus } from '@nestjs/common';
+import { BadRequestException, HttpException, HttpStatus, NotFoundException } from '@nestjs/common';
 import sequelize from 'sequelize';
 import {
   Column,
@@ -89,61 +92,79 @@ export class Quotation extends Model {
   // @HasOne(() => Contract)
   // contract: Contract
 
-  // @BeforeCreate
-  // static async calculateTotal(quotation: Quotation) {
-  //   const quotationReq = await QuotationReq.findByPk(quotation.quoteReqId, {
-  //     include: [{
-  //       model: QuoteReqDetail,
-  //       include: [PackageDetail]
-  //     }]
-  //   })
+  @BeforeCreate
+  static async calculateTotal(quotation: Quotation) {
+    const quotationReq = await QuotationReq.findByPk(quotation.quoteReqId, {
+      include: [{
+        model: QuoteReqDetail,
+        include: [{ model: PackageDetail }],
+      }],
+      raw: true,
+      nest: true
+    })
 
-  //   const freight = await Freight.findByPk(quotation.freightId, {
-  //     include: [SeaFreight, LandFreight, AirFreight]
-  //   })
+    const freight = await Freight.findByPk(quotation.freightId, {
+      include: [{ model: LandFreight }, { model: AirFreight }, { model: FCL }, { model: LCL }],
+      raw: true,
+      nest: true
+    })
 
-  //   if (!quotationReq) throw new Error('QuoteReq not found')
+    if (!quotationReq) throw new NotFoundException('Quote Request not found')
+    if (!freight) throw new NotFoundException('Freight not found')
+    const packageDetail = quotationReq.quoteReqDetails.packageDetails
 
-  //   const packageDetail = quotationReq.quoteReqDetails[0].packageDetails[0].dataValues
+    let freightCost = 0
+    const weight = packageDetail.weight
+    if (freight.freightType == FreightType.LCL) {
+      const vol = packageDetail.length * packageDetail.width * packageDetail.height
+      const choose = Math.max(weight / 1000, vol)
+      freightCost = freight.lcl.cost * choose
+    } else if (freight.freightType == FreightType.FCL) {
+      freightCost = 9999
+    } else if (freight.freightType == FreightType.LAND) {
+      if (!freight.landFreight) throw new NotFoundException('Land price not found')
+      if (weight >= 0 && weight < 100) {
+        freightCost = weight * freight.landFreight.price_0_100
+      } else if (weight >= 100 && weight < 200) {
+        freightCost = weight * freight.landFreight.price_100_200
+      } else if (weight >= 200 && weight < 500) {
+        freightCost = weight * freight.landFreight.price_200_500
+      } else if (weight >= 500 && weight < 1500) {
+        freightCost = weight * freight.landFreight.price_500_1500
+      } else if (weight >= 1500 && weight < 5000) {
+        freightCost = weight * freight.landFreight.price_1500_5000
+      } else if (weight >= 5000 && weight < 10000) {
+        freightCost = weight * freight.landFreight.price_5000_10000
+      } else if (weight >= 10000) {
+        freightCost = weight * freight.landFreight.price_10000
+      } else {
+        throw new BadRequestException('Package weight is invalid')
+      }
+    } else if (freight.freightType == FreightType.AIR) {
+      if (!freight.airFreight) throw new NotFoundException('Air price not found')
+      if (weight >= 0 && weight < 45) {
+        freightCost = weight * freight.airFreight.price_0K
+      } else if (weight >= 45 && weight <= 100) {
+        freightCost = weight * freight.airFreight.price_45K
+      } else if (weight > 100 && weight <= 300) {
+        freightCost = weight * freight.airFreight.price_100K
+      } else if (weight > 300 && weight <= 500) {
+        freightCost = weight * freight.airFreight.price_300K
+      } else if (weight > 500) {
+        freightCost = weight * freight.airFreight.price_500K
+      } else {
+        throw new HttpException("Package weight is invalid", HttpStatus.BAD_REQUEST);
+      }
+    }
 
-  //   let freightCost = 0
-  //   if (freight.freightType == ShipmentType.SEA_FREIGHT) {
-  //     freightCost = freight.seaFreight.reduce((acc, sea) => acc + sea.price_20dc, 0);
-  //     console.log("Go to sea")
-  //   } else if (freight.freightType == ShipmentType.LAND_FREIGHT) {
+    // const quotationServices = await QuotationService.findAll({
+    //   where: { quotation_id: quotation.id },
+    //   include: [{ model: Service, attributes: ['id', 'fee'] }],
+    //   raw: true,
+    //   nest: true
+    // })
+    //console.log("Check quotationServices: ", quotationServices)
 
-  //     const weight = packageDetail.weight
-  //     if (weight >= 100 && weight < 200) {
-  //       freightCost = weight * freight.landFreight[0].price_100_200
-  //     } else if (weight >= 200 && weight < 500) {
-  //       freightCost = weight * freight.landFreight[0].price_200_500
-  //     } else if (weight >= 500 && weight < 1500) {
-  //       freightCost = weight * freight.landFreight[0].price_500_1500
-  //     } else if (weight >= 1500 && weight < 5000) {
-  //       freightCost = weight * freight.landFreight[0].price_1500_5000
-  //     } else if (weight >= 5000 && weight < 10000) {
-  //       freightCost = weight * freight.landFreight[0].price_5000_10000
-  //     } else if (weight >= 10000) {
-  //       freightCost = weight * freight.landFreight[0].price_10000
-  //     } else {
-  //       throw new HttpException("Trọng lượng không hợp lệ. Phải lớn hơn hoặc bằng 100kg.", HttpStatus.BAD_REQUEST);
-  //     }
-  //   } else if (freight.freightType == ShipmentType.AIR_FREIGHT) {
-
-  //     const weight = packageDetail.weight
-  //     if (weight >= 45 && weight <= 100) {
-  //       freightCost = weight * freight.airFreight[0].price_45K
-  //     } else if (weight > 100 && weight <= 300) {
-  //       freightCost = weight * freight.airFreight[0].price_100K
-  //     } else if (weight > 300 && weight <= 500) {
-  //       freightCost = weight * freight.airFreight[0].price_300K
-  //     } else if (weight > 500) {
-  //       freightCost = weight * freight.airFreight[0].price_500K
-  //     } else {
-  //       throw new HttpException("Trọng lượng không hợp lệ. Phải từ 45 - 500kg.", HttpStatus.BAD_REQUEST);
-  //     }
-  //   }
-
-  //   quotation.totalPrice = freightCost
-  // }
+    quotation.totalPrice = freightCost + freight.additionFee
+  }
 }

@@ -1,7 +1,7 @@
 import { PackageDetail } from "@/packageDetails/models/packageDetails.model";
 import { QuotationReq } from "@/quotationReqs/models/quotationReq.model";
 import sequelize from "sequelize";
-import { AllowNull, BelongsTo, Column, Default, ForeignKey, HasMany, Model, PrimaryKey, Table } from "sequelize-typescript";
+import { AllowNull, BelongsTo, Column, Default, ForeignKey, HasMany, HasOne, Model, PrimaryKey, Table } from "sequelize-typescript";
 
 @Table({
     tableName: "quote_req_details"
@@ -41,6 +41,6 @@ export class QuoteReqDetail extends Model {
     @BelongsTo(() => QuotationReq)
     quotationReq: QuotationReq
 
-    @HasMany(() => PackageDetail)
-    packageDetails: PackageDetail[]
+    @HasOne(() => PackageDetail)
+    packageDetails: PackageDetail
 }

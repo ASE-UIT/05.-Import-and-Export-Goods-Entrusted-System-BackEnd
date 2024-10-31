@@ -47,7 +47,10 @@ export class QuotationsService {
       if (error instanceof ForeignKeyConstraintError) {
         throw new HttpException('Invalid foreign key.', HttpStatus.BAD_REQUEST);
       }
-      throw new Error()
+      if (error instanceof NotFoundException) {
+        throw new HttpException('Check your data carefully, include all reference', HttpStatus.NOT_FOUND)
+      }
+      throw new Error(error)
     }
   }
 

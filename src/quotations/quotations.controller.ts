@@ -38,12 +38,12 @@ export class QuotationsController {
   constructor(private quotationsService: QuotationsService) { }
 
   //query quotation
-  @UseGuards(RoleGuard)
-  @Roles([
-    RoleEnum.ADMIN,
-    RoleEnum.SALES,
-    RoleEnum.MANAGER,
-  ])
+  // @UseGuards(RoleGuard)
+  // @Roles([
+  //   RoleEnum.ADMIN,
+  //   RoleEnum.SALES,
+  //   RoleEnum.MANAGER,
+  // ])
   @Get()
   @ApiOperation({ summary: 'Retrieve quotation based on query parameters' })
   @ApiResponse({ status: 200, description: 'Successfully retrieved quotation' })
@@ -89,12 +89,12 @@ export class QuotationsController {
   }
 
   //create quotation
-  @UseGuards(RoleGuard)
-  @Roles([
-    RoleEnum.ADMIN,
-    RoleEnum.SALES,
-    RoleEnum.MANAGER,
-  ])
+  // @UseGuards(RoleGuard)
+  // @Roles([
+  //   RoleEnum.ADMIN,
+  //   RoleEnum.SALES,
+  //   RoleEnum.MANAGER,
+  // ])
   @Post()
   @ApiOperation({ summary: 'Create a new quotation' })
   @ApiResponse({ status: 201, description: 'Quote request successfully created' })
@@ -106,7 +106,6 @@ export class QuotationsController {
     schema: {
       example: {
         quoteReqId: "1c26b2ca-a13c-40a7-9903-fa092e2ecb5c",
-        totalPrice: 3500,
         pickupDate: "2023-04-20T12:00:00.000Z",
         deliveryDate: "2023-04-26T12:00:00.000Z",
         quotationDate: "2023-04-19T12:00:00.000Z",
@@ -127,12 +126,12 @@ export class QuotationsController {
 
 
   //update quotation  
-  @UseGuards(RoleGuard)
-  @Roles([
-    RoleEnum.ADMIN,
-    RoleEnum.SALES,
-    RoleEnum.MANAGER,
-  ])
+  // @UseGuards(RoleGuard)
+  // @Roles([
+  //   RoleEnum.ADMIN,
+  //   RoleEnum.SALES,
+  //   RoleEnum.MANAGER,
+  // ])
   @Patch(':id')
   @ApiOperation({ summary: 'Update Quotation' })
   @ApiResponse({ status: 200, description: 'Quotation successfully updated' })

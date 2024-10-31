@@ -3,7 +3,7 @@ import { createZodDto } from 'nestjs-zod';
 import { z } from 'zod';
 
 export const CreateQuotationSchema = z.object({
-  totalPrice: z.coerce.number().min(0),
+  //totalPrice: z.coerce.number().min(0),
   pickupDate: z.coerce.date(),
   deliveryDate: z.coerce.date(),
   quotationDate: z.coerce.date(),

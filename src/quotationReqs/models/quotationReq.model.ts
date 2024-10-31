@@ -50,8 +50,8 @@ export class QuotationReq extends Model {
   @BelongsTo(() => Customer)
   customer: Customer;
 
-  @HasMany(() => QuoteReqDetail)
-  quoteReqDetails: QuoteReqDetail[]
+  @HasOne(() => QuoteReqDetail)
+  quoteReqDetails: QuoteReqDetail
 
   @HasOne(() => Quotation)
   quotation: Quotation
