@@ -49,6 +49,7 @@ export class UsersService {
     employeeId,
     role,
   }: CreateUserDto): Promise<void> {
+    // Get default role
     const userRole = await Role.findOne({ where: { name: role } });
     if (!userRole) throw new NotFoundException('Role not found');
 

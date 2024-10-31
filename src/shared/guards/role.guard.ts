@@ -10,6 +10,7 @@ import { Observable } from 'rxjs';
 import { RoleEnum } from '../enums/roles.enum';
 import { Roles } from '../decorators/role.decorator';
 import { User } from '@/users/models/user.model';
+import { use } from 'passport';
 
 @Injectable()
 export class RoleGuard implements CanActivate {

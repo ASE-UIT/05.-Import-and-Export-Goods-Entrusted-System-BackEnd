@@ -13,7 +13,6 @@ const PASSWORD_REQUIREMENTS = {
     SPECIAL: /[`!@#$%^&*()_\-+=\[\]{};':"\\|,.<>\/?~ ]/,
   },
 } as const;
-
 const countCharacterTypes = (password: string) => {
   return Object.entries(PASSWORD_REQUIREMENTS.PATTERNS).reduce(
     (acc, [key, pattern]) => ({
@@ -24,7 +23,6 @@ const countCharacterTypes = (password: string) => {
     {} as Record<string, number>,
   );
 };
-
 export const CreateUserSchema = z
   .object({
     username: z
@@ -32,7 +30,6 @@ export const CreateUserSchema = z
       .min(1, 'Username is required')
       .max(16, 'Username must not exceed 16 characters')
       .describe("The user's username"),
-
     password: z
       .string()
       .min(
@@ -46,7 +43,6 @@ export const CreateUserSchema = z
       .describe(
         'Additional requirement: Must have at least one uppercase letter, one lowercase letter, one number, and one special character',
       ),
-
     role: z
       .nativeEnum(RoleEnum)
       .describe('The user role. Cannot be ADMIN')
@@ -54,10 +50,10 @@ export const CreateUserSchema = z
         if (role === RoleEnum.ADMIN) {
           return false;
         }
-
         return true;
       }, 'Admin role cannot be assigned to users using the public API. Contact a system administrator for assistance.'),
-
+        return true;
+      }, 'Admin role cannot be assigned to users using the public API. Contact a system administrator for assistance.'),
     employeeId: z
       .string({
         required_error: 'Employee ID is required',
@@ -68,7 +64,6 @@ export const CreateUserSchema = z
   })
   .superRefine(({ password }, ctx) => {
     const counts = countCharacterTypes(password);
-
     const requirements = [
       {
         check: counts.lowercase < 1,
@@ -87,7 +82,6 @@ export const CreateUserSchema = z
         message: 'Password must contain at least one special character',
       },
     ];
-
     requirements.forEach(({ check, message }) => {
       if (check) {
         ctx.addIssue({

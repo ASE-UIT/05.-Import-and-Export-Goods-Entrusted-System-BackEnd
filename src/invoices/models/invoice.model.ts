@@ -2,10 +2,10 @@ import { Contract } from '@/contracts/models/contract.model';
 import { Employee } from '@/employees/models/employee.model';
 import { Payment } from '@/payment/models/payment.model';
 import { InvoiceStatus } from '@/shared/enums/invoice-status.enum';
+import { ApiProperty } from '@nestjs/swagger';
 import sequelize from 'sequelize';
 import {
   AllowNull,
-  BelongsTo,
   Column,
   DataType,
   Default,
@@ -14,6 +14,7 @@ import {
   Model,
   PrimaryKey,
   Table,
+  BelongsTo,
 } from 'sequelize-typescript';
 
 @Table({ tableName: 'invoices' })
@@ -42,7 +43,6 @@ export class Invoice extends Model {
   @AllowNull(false)
   @Column({ type: DataType.FLOAT })
   totalAmount: number;
-
 
   @HasMany(() => Payment)
   payments: Payment[];

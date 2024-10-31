@@ -1,3 +1,4 @@
+import { createZodDto } from 'nestjs-zod';
 import { z } from 'zod';
 
 export const QueryServiceSchema = z.object({
@@ -6,4 +7,4 @@ export const QueryServiceSchema = z.object({
   fee: z.coerce.number().optional(),
 });
 
-export type QueryServiceDto = z.infer<typeof QueryServiceSchema>;
+export class QueryServiceDto extends createZodDto(QueryServiceSchema) {}
