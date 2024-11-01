@@ -46,8 +46,8 @@ import { DataTypes } from 'sequelize';
 export class InvoicesController {
   constructor(private invoicesService: InvoicesService) {}
 
-  @UseGuards(RoleGuard)
-  @Roles([RoleEnum.ADMIN, RoleEnum.ACCOUTANT])
+  //@UseGuards(RoleGuard)
+  //@Roles([RoleEnum.ADMIN, RoleEnum.ACCOUTANT])
   @Post()
   @ApiOperation({ summary: 'Create new invoice' })
   @ApiBody({
@@ -69,8 +69,8 @@ export class InvoicesController {
     return { message: 'Invoice created successfully', data: createRes };
   }
 
-  @UseGuards(RoleGuard)
-  @Roles([RoleEnum.ADMIN, RoleEnum.ACCOUTANT])
+  //@UseGuards(RoleGuard)
+  //@Roles([RoleEnum.ADMIN, RoleEnum.ACCOUTANT])
   @ApiOperation({ summary: 'Search for invoices' })
   @ApiQuery({
     name: 'id',
@@ -86,14 +86,13 @@ export class InvoicesController {
   })
   @ApiQuery({
     name: 'paid date',
-    type: Date,
+    type: String,
     required: false,
     description: 'Search invoice by paid date',
   })
   @ApiQuery({
     name: 'status',
     enum: InvoiceStatus,
-    type: String,
     required: false,
     description: 'Search invoice by invoice status',
   })
@@ -164,8 +163,8 @@ export class InvoicesController {
     throw new NotFoundException('Invoice not found');
   }
 
-  @UseGuards(RoleGuard)
-  @Roles([RoleEnum.ADMIN, RoleEnum.ACCOUTANT])
+  //@UseGuards(RoleGuard)
+  //@Roles([RoleEnum.ADMIN, RoleEnum.ACCOUTANT])
   @ApiOperation({ summary: "Update invoice's information" })
   @ApiOkResponse({ description: 'New information updated' })
   @ApiBadRequestResponse({ description: 'Empty body or misspelled property' })

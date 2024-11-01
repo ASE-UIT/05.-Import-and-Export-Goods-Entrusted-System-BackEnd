@@ -90,7 +90,6 @@ export class ContractsController {
   @ApiQuery({
     name: 'status',
     enum: ContractStatus,
-    type: String,
     required: false,
     description: 'Search contract by contract status',
   })

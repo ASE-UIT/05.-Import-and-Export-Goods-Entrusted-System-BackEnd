@@ -29,4 +29,6 @@ export const CreateContractSchema = z.object({
 
 export class CreateContractDto extends createZodDto(CreateContractSchema) {}
 
-export class UpdateContractDto extends PartialType(CreateContractDto) {}
+export class UpdateContractDto extends createZodDto(
+  CreateContractSchema.partial(),
+) {}

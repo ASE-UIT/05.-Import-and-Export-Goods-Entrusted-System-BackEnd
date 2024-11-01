@@ -85,7 +85,6 @@ export class PaymentsController {
   @ApiQuery({
     name: 'status',
     enum: PaymentStatus,
-    type: String,
     required: false,
     description: 'Search payment by status',
   })
