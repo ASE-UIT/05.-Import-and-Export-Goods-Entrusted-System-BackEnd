@@ -1,7 +1,8 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { IUpdateProviderStrategy } from './update-provider-strategy.interface';
 import { CreateProviderDto } from '@/providers/dtos/CreateProviderDto';
 import { Provider } from '@/providers/models/provider.model';
+import { UniqueConstraintError } from 'sequelize';
 
 @Injectable()
 export class UpdateProviderStrategy implements IUpdateProviderStrategy {
@@ -9,13 +10,19 @@ export class UpdateProviderStrategy implements IUpdateProviderStrategy {
     providerId: string,
     updateInfo: Partial<CreateProviderDto>,
   ): Promise<Provider> {
-    const [affectedRows, [updatedData]] = await Provider.update(
+    try {
+      const [affectedRows, [updatedData]] = await Provider.update(
       { ...updateInfo },
       { where: { id: providerId }, returning: true },
-    );
-
-    if (affectedRows === 0)
-      throw new BadRequestException("Provider doesn't exist");
-    return updatedData.dataValues as Provider;
+      );
+      return updatedData.dataValues as Provider;
+    } catch (err) {
+      if (err instanceof TypeError) {
+        throw new NotFoundException('Provider not found');
+      }
+      if (err instanceof UniqueConstraintError) {
+        throw new ConflictException(err.errors[0].message);
+      }
+    }
   }
 }

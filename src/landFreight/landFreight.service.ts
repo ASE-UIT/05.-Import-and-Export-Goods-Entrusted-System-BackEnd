@@ -18,15 +18,19 @@ import { IFindLandFreightStrategy } from './strategies/find-land-freight/find-la
 import { CreateLandFreightStrategy } from './strategies/create-land-freight/create-land-freight.strategy';
 import { CreateLandFreightDto } from './dtos/CreateLandFreightDto';
 import { UpdateLandFreightStrategy } from './strategies/update-land-freight/update-land-freight.strategy';
+import { FindLandFreightByPrice0_100Strategy } from './strategies/find-land-freight/find-by-price-0-100.strategy';
+import { FindLandFreightByFreightIdStrategy } from './strategies/find-land-freight/find-by-freight-id.strategy';
 @Injectable()
 export class LandFreightService {
   constructor(
+    private findLandFreightByPrice0_100Strategy: FindLandFreightByPrice0_100Strategy,
     private findLandFreightByPrice100_200Strategy: FindLandFreightByPrice100_200Strategy,
     private findLandFreightByPrice200_500Strategy: FindLandFreightByPrice200_500Strategy,
     private findLandFreightByPrice500_1500Strategy: FindLandFreightByPrice500_1500Strategy,
     private findLandFreightByPrice1500_5000Strategy: FindLandFreightByPrice1500_5000Strategy,
     private findLandFreightByPrice5000_10000Strategy: FindLandFreightByPrice5000_10000Strategy,
     private findLandFreightByPrice10000Strategy: FindLandFreightByPrice10000Strategy,
+    private findLandFreightByFreightIdStrategy: FindLandFreightByFreightIdStrategy,
     private findAllLandFreightStrategy: FindAllLandFreightStrategy,
     private createLandFreightStrategy: CreateLandFreightStrategy,
     private updateLandFreightStrategy: UpdateLandFreightStrategy,
@@ -45,6 +49,8 @@ export class LandFreightService {
     switch (strategy) {
       case FindLandFreightStrategy.ALL:
         return this.findAllLandFreightStrategy;
+      case FindLandFreightStrategy.PRICE_0_100:
+        return this.findLandFreightByPrice0_100Strategy;
       case FindLandFreightStrategy.PRICE_100_200:
         return this.findLandFreightByPrice100_200Strategy;
       case FindLandFreightStrategy.PRICE_200_500:
@@ -57,8 +63,8 @@ export class LandFreightService {
         return this.findLandFreightByPrice5000_10000Strategy;
       case FindLandFreightStrategy.PRICE_10000:
         return this.findLandFreightByPrice10000Strategy;
-      default:
-        throw new BadRequestException('Invalid strategy');
+      case FindLandFreightStrategy.FREIGHT_ID:
+        return this.findLandFreightByFreightIdStrategy;
     }
   }
 

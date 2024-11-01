@@ -1,4 +1,3 @@
-import { CreateFreightDto } from '@/freight/dtos/CreateFreightDto';
 import { UpdateFreightDto } from '@/freight/dtos/UpdateFreightDto';
 import { Freight } from '@/freight/models/freight.model';
 

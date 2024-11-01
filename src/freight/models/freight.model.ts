@@ -18,20 +18,13 @@ import { LandFreight } from '@/landFreight/models/landFreight.model';
 import { AirFreight } from '@/airFreight/models/airFreight.model';
 import { FCL } from '@/fcl/models/fcl.model';
 import { LCL } from '@/lcl/models/lcl.model';
+import { WeekDay } from '@/shared/enums/freight-weekday.enum';
 
 export enum FreightType {
   AIR = 'AIR',
   LAND = 'LAND',
   FCL = 'FCL',
   LCL = 'LCL'
-}
-
-export enum WeekDay {
-  MONDAY = 'MONDAY',
-  TUESDAY = 'TUESDAY',
-  WEDNESDAY = 'WEDNESDAY',
-  THURSDAY = 'THURSDAY',
-  FRIDAY = 'FRIDAY'
 }
 
 @Table({

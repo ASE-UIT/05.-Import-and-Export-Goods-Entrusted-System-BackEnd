@@ -25,7 +25,7 @@ export class ContactRep extends Model {
   @AllowNull(false)
   @Unique({
     name: 'name_conflict',
-    msg: "Contact representative's name already exist",
+    msg: "This name is already exist",
   })
   @Column
   name: string;
@@ -33,7 +33,7 @@ export class ContactRep extends Model {
   @AllowNull(false)
   @Unique({
     name: 'email_conflict',
-    msg: "Contact representative's email already exist",
+    msg: "This email address is already taken",
   })
   @Column
   email: string;
@@ -41,16 +41,11 @@ export class ContactRep extends Model {
   @AllowNull(false)
   @Unique({
     name: 'phone_conflict',
-    msg: "Contact representative's phone already exist",
+    msg: "This phone number is already taken",
   })
   @Column
   phone: string;
 
-  @ForeignKey(() => Provider)
-  @AllowNull(false)
-  @Column
-  providerId: string;
-
-  @BelongsTo(() => Provider)
-  provider: Provider;
+  @HasMany(() => Provider)
+  providers: Provider[];
 }

@@ -1,7 +1,8 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { IUpdateAirFreightStrategy } from './update-air-freight-strategy.interface'; 
 import { CreateAirFreightDto } from '@/airFreight/dtos/CreateAirFreightDto'; 
 import { AirFreight } from '@/airFreight/models/airFreight.model';
+import { UniqueConstraintError } from 'sequelize';
 
 @Injectable()
 export class UpdateAirFreightStrategy implements IUpdateAirFreightStrategy {
@@ -9,14 +10,19 @@ export class UpdateAirFreightStrategy implements IUpdateAirFreightStrategy {
     airFreightId: string,
     updateInfo: Partial<CreateAirFreightDto>,
   ): Promise<AirFreight> {
-    const [affectedRows, [updatedData]] = await AirFreight.update(
-      { ...updateInfo },
-      { where: { air_freight_id: airFreightId }, returning: true }, 
-    );
-
-    if (affectedRows === 0) {
-      throw new BadRequestException("Air freight doesn't exist");
+    try {
+      const [affectedRows, [updatedData]] = await AirFreight.update(
+        { ...updateInfo },
+        { where: { air_freight_id: airFreightId }, returning: true }, 
+      );
+      return updatedData.dataValues as AirFreight;
+    } catch (err) {
+      if (err instanceof TypeError) {
+        throw new NotFoundException('Air freight not found');
+      }
+      if (err instanceof UniqueConstraintError) {
+        throw new ConflictException(err.errors[0].message);
+      }
     }
-    return updatedData.dataValues as AirFreight; 
   }
 }

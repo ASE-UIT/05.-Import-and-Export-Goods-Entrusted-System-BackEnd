@@ -1,8 +1,10 @@
 export enum FindProviderStrategy {
-  ALL = 'all',
-  EMAIL = 'email',
-  NAME = 'name',
-  PHONE = 'phone',
-  COUNTRY = 'country',
-  ADDRESS = 'address',
+  ALL = 'ALL',
+  EMAIL = 'EMAIL',
+  NAME = 'NAME',
+  PHONE = 'PHONE',
+  COUNTRY = 'COUNTRY',
+  ADDRESS = 'ADDRESS',
+  CONTACT_REP_ID = 'CONTACT_REP_ID',
+  STATUS = 'STATUS',
 }

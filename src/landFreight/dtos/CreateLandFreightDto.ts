@@ -1,4 +1,5 @@
-import { string, z } from 'zod';
+import { createZodDto } from 'nestjs-zod';
+import { z } from 'zod';
 
 export const CreateLandFreightSchema = z.object({
   price_0_100: z.number().min(0),
@@ -11,4 +12,5 @@ export const CreateLandFreightSchema = z.object({
   freight_id: z.string().min(0),
 });
 
-export type CreateLandFreightDto = z.infer<typeof CreateLandFreightSchema>;
+export class CreateLandFreightDto extends createZodDto(CreateLandFreightSchema) {}
+export class UpdateLandFreightDto extends createZodDto(CreateLandFreightSchema.partial()) {}

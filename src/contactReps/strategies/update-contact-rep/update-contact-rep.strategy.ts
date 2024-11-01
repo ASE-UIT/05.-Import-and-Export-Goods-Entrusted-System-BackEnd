@@ -1,7 +1,8 @@
 import { ContactRep } from '@/contactReps/models/contactReps.model';
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { IUpdateContactRepsStrategy } from './update-contact-rep-strategy.interface';
 import { CreateContactRepDto } from '@/contactReps/dtos/CreateContactRepDto';
+import { UniqueConstraintError } from 'sequelize';
 
 @Injectable()
 export class UpdateContactRepsStrategy implements IUpdateContactRepsStrategy {
@@ -9,13 +10,19 @@ export class UpdateContactRepsStrategy implements IUpdateContactRepsStrategy {
     contactRepId: string,
     updateInfo: CreateContactRepDto,
   ): Promise<ContactRep> {
-    const [affectedRows, [updateData]] = await ContactRep.update(
+    try {
+      const [affectedRows, [updateData]] = await ContactRep.update(
       { ...updateInfo },
       { where: { id: contactRepId }, returning: true },
-    );
-
-    if (affectedRows === 0)
-      throw new BadRequestException("Contact representitive doesn't exist");
-    return updateData.dataValues as ContactRep;
+      );
+      return updateData.dataValues as ContactRep;
+    } catch (err) {
+      if (err instanceof TypeError) {
+        throw new NotFoundException('Contact representative not found');
+      }
+      if (err instanceof UniqueConstraintError) {
+        throw new ConflictException(err.errors[0].message);
+      }
+    }
   }
 }

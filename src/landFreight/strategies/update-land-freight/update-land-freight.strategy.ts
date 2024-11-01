@@ -1,7 +1,8 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { IUpdateLandFreightStrategy } from './update-land-freight-strategy.interface'; 
 import { CreateLandFreightDto } from '@/landFreight/dtos/CreateLandFreightDto'; 
 import { LandFreight } from '@/landFreight/models/landFreight.model';
+import { UniqueConstraintError } from 'sequelize';
 
 @Injectable()
 export class UpdateLandFreightStrategy implements IUpdateLandFreightStrategy {
@@ -9,14 +10,19 @@ export class UpdateLandFreightStrategy implements IUpdateLandFreightStrategy {
     landFreightId: string,
     updateInfo: Partial<CreateLandFreightDto>,
   ): Promise<LandFreight> {
-    const [affectedRows, [updatedData]] = await LandFreight.update(
-      { ...updateInfo },
-      { where: { land_freight_id: landFreightId }, returning: true }, 
-    );
-
-    if (affectedRows === 0) {
-      throw new BadRequestException("Land freight doesn't exist");
+    try {
+      const [affectedRows, [updatedData]] = await LandFreight.update(
+        { ...updateInfo },
+        { where: { land_freight_id: landFreightId }, returning: true }, 
+      );
+      return updatedData.dataValues as LandFreight;
+    } catch (err) {
+      if (err instanceof TypeError) {
+        throw new NotFoundException('Land freight not found');
+      }
+      if (err instanceof UniqueConstraintError) {
+        throw new ConflictException(err.errors[0].message);
+      }
     }
-    return updatedData.dataValues as LandFreight; 
   }
 }

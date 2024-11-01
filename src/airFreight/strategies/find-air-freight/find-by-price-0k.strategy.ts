@@ -3,10 +3,10 @@ import { AirFreight } from '@/airFreight/models/airFreight.model';
 import { IFindAirFreightStrategy } from './find-air-freight-strategy.interface';
 
 @Injectable()
-export class FindAirFreightByRoutineStrategy implements IFindAirFreightStrategy {
-  async find(airFreightRoutine: string): Promise<AirFreight[] | null> {
+export class FindAirFreightByPrice0kStrategy implements IFindAirFreightStrategy {
+  async find(airFreight0k: number): Promise<AirFreight[] | null> {
     return AirFreight.findAll({
-      where: {routine: airFreightRoutine},
+      where: {price_0k: airFreight0k},
     });
   }
 }

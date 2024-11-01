@@ -59,10 +59,16 @@ export class Provider extends Model {
   @Column
   country: string;
 
+  @AllowNull(false)
   @Default(ProviderStatus.ACTIVE)
   @Column
   status: ProviderStatus;
 
-  @HasMany(() => ContactRep)
-  contactReps: ContactRep[];
+  @ForeignKey(() => ContactRep)
+  @AllowNull(true)
+  @Column
+  contactRepId: string;
+
+  @BelongsTo(() => ContactRep)
+  contactRep: ContactRep;
 }

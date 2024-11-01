@@ -1,8 +1,5 @@
 import {
-  BadRequestException,
-  Injectable,
-  NotFoundException,
-  ConflictException
+  Injectable
 } from '@nestjs/common';
 import { CreateContactRepsStrategy } from './strategies/create-contact-rep/create-contact-rep.strategy';
 import { CreateContactRepDto } from './dtos/CreateContactRepDto';
@@ -26,23 +23,12 @@ export class ContactRepsService {
     private findAllContactRepsStrategy: FindAllContactRepsStrategy,
   ) {}
 
-  async create(contactRepData: CreateContactRepDto): Promise<ContactRep> {
-    const createdContactRep = await this.createContactRepStrategy.create(contactRepData);
-    
-    if (!createdContactRep) {
-      throw new Error('Failed to create contact representative');
-    }
-    
-    return createdContactRep;
+  async createContactReps(contactRepData: CreateContactRepDto) {
+    return await this.createContactRepStrategy.create(contactRepData);
   }
 
-  async update(contactRepId: string, updateData: CreateContactRepDto): Promise<ContactRep> {
-    if (Object.keys(updateData).length < 1)
-      throw new BadRequestException('Body is empty');
-      
-    const updatedResponse = await this.updateContactRepsStrategy.update(contactRepId, updateData);
-    
-    return updatedResponse;
+  async updateContactReps(contactRepId: string, updateData: CreateContactRepDto) {
+    return await this.updateContactRepsStrategy.update(contactRepId, updateData);
   }
 
   getFindStrategy(strategy: FindContactRepsStrategy): IFindContactRepsStrategy {
@@ -58,9 +44,9 @@ export class ContactRepsService {
     }
   }
 
-  find(strategy: FindContactRepsStrategy, contactRepInfo: string): Promise<ContactRep[] | null> {
+  async findContactReps(strategy: FindContactRepsStrategy, contactRepInfo: string): Promise<ContactRep[] | null> {
     const findStrategy = this.getFindStrategy(strategy);
-    const contactRep = findStrategy.find(contactRepInfo);
+    const contactRep: ContactRep[] | null = await findStrategy.find(contactRepInfo);
     return contactRep;
   }
 }

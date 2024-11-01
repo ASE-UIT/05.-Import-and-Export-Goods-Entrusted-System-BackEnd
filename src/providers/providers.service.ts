@@ -1,33 +1,39 @@
-import {
-  ConflictException,
-  Injectable,
-  NotFoundException,
-  BadRequestException,
-} from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { FindProviderByNameStrategy } from './strategies/find-provider/find-by-name.strategy';
 import { FindProviderByEmailStrategy } from './strategies/find-provider/find-by-email.strategy';
 import { FindProviderByPhoneStrategy } from './strategies/find-provider/find-by-phone.strategy';
-import { FindProviderByCountryStrategy } from './strategies/find-provider/find-by-country.strategy'; 
-import { FindProviderByAddressStrategy } from './strategies/find-provider/find-by-address.strategy'; 
 import { FindProviderStrategy } from './strategies/find-provider/find-provider-strategy.enum';
 import { IFindProviderStrategy } from './strategies/find-provider/find-provider-strategy.interface';
-import { Provider } from './models/provider.model';
+import { Provider, ProviderStatus } from './models/provider.model';
 import { FindAllProviderStrategy } from './strategies/find-provider/find-all.strategy';
 import { CreateProviderStrategy } from './strategies/create-provider/create-provider.strategy';
 import { CreateProviderDto } from './dtos/CreateProviderDto';
 import { UpdateProviderStrategy } from './strategies/update-provider/update-provider.strategy';
+import { FindProviderByAddressStrategy } from './strategies/find-provider/find-by-address.strategy';
+import { FindProviderByCountryStrategy } from './strategies/find-provider/find-by-country.strategy';
+import { FindProviderByContactRepIdStrategy } from './strategies/find-provider/find-by-contact-rep-id.strategy';
+import { FindProviderByStatusStrategy } from './strategies/find-provider/find-by-status.strategy';
+import { InjectModel } from '@nestjs/sequelize';
+import { Freight } from '@/freight/models/freight.model';
+import { Op } from 'sequelize';
 
 @Injectable()
 export class ProvidersService {
   constructor(
+    private findProviderByAddressStrategy: FindProviderByAddressStrategy,
+    private findProviderByCountryStrategy: FindProviderByCountryStrategy,
     private findProviderByNameStrategy: FindProviderByNameStrategy,
     private findProviderByEmailStrategy: FindProviderByEmailStrategy,
     private findProviderByPhoneStrategy: FindProviderByPhoneStrategy,
-    private findProviderByCountryStrategy: FindProviderByCountryStrategy,
-    private findProviderByAddressStrategy: FindProviderByAddressStrategy,
+    private findProviderByContactRepIdStrategy: FindProviderByContactRepIdStrategy,
+    private findProviderByStatusStrategy: FindProviderByStatusStrategy,
     private findAllProviderStrategy: FindAllProviderStrategy,
     private createProviderStrategy: CreateProviderStrategy,
-    private updateProviderStrategy: UpdateProviderStrategy, 
+    private updateProviderStrategy: UpdateProviderStrategy,
+    @InjectModel(Freight)
+    private readonly freightRepository: typeof Freight,
+    @InjectModel(Provider) 
+    private readonly providerRepository: typeof Provider,
   ) {}
 
   async findProvider(
@@ -50,30 +56,74 @@ export class ProvidersService {
         return this.findProviderByNameStrategy;
       case FindProviderStrategy.PHONE:
         return this.findProviderByPhoneStrategy;
-      case FindProviderStrategy.COUNTRY:
-        return this.findProviderByCountryStrategy;
       case FindProviderStrategy.ADDRESS:
         return this.findProviderByAddressStrategy;
+      case FindProviderStrategy.COUNTRY:
+        return this.findProviderByCountryStrategy;
+      case FindProviderStrategy.CONTACT_REP_ID:
+        return this.findProviderByContactRepIdStrategy;
+      case FindProviderStrategy.STATUS:
+        return this.findProviderByStatusStrategy;
     }
   }
 
   async createProvider(providerInfo: CreateProviderDto): Promise<Provider> {
-    return await this.createProviderStrategy.create(providerInfo);
-  }
+    const contactRep = await this.providerRepository.findByPk(providerInfo.contactRepId);
+    if (!contactRep) {
+      throw new BadRequestException('Contact representative not found');
+    }
+    const provider = await this.createProviderStrategy.create(providerInfo);
+    const isEligible = await this.checkFreightEligibility(provider.id);
 
-  async checkDuplicate(name: string): Promise<boolean> {
-    const exists = await Provider.findOne({ where: { name } });
-    return exists !== null;
+    if (!isEligible) {
+      provider.status = ProviderStatus.INACTIVE;
+      await provider.save();
+    }
+
+    return provider;
   }
 
   async updateProvider(
     providerId: string,
     updateInfo: Partial<CreateProviderDto>,
-  ): Promise<{message: string; data: Provider}> {
+  ): Promise<{ message: string; data: Provider }> {
     const updateResponse = await this.updateProviderStrategy.update(
       providerId,
       updateInfo,
     );
-    return { message: 'Provider created', data: updateResponse};
+    await this.updateProviderStatus(providerId);
+    return { message: 'Provider updated', data: updateResponse };
+  }
+
+  private async checkFreightEligibility(providerId: string): Promise<boolean> {
+    const freightCount = await this.freightRepository.count({
+      where: {
+        provider_id: providerId,
+        type: { [Op.in]: ['AIR', 'FCL', 'LCL', 'LAND'] },
+      },
+      distinct: true,
+      col: 'type',
+    });
+
+    return freightCount >= 4;
+  }
+
+  private async updateProviderStatus(providerId: string): Promise<void> {
+    const provider = await this.providerRepository.findByPk(providerId);
+    if (!provider) {
+      throw new NotFoundException('Provider not found');
+    }
+
+    const freightCount = await this.freightRepository.count({
+      where: {
+        providerId,
+        type: { [Op.in]: ['AIR', 'FCL', 'LCL', 'LAND'] },
+      },
+      distinct: true,
+      col: 'type',
+    });
+
+    provider.status = freightCount >= 4 ? ProviderStatus.ACTIVE : ProviderStatus.INACTIVE;
+    await provider.save();
   }
 }
