@@ -8,6 +8,7 @@ import {
   Patch,
   Post,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { ZodValidationPipe } from 'nestjs-zod';
 import {
@@ -22,6 +23,9 @@ import {
   QueryShipmentSchema,
 } from './dtos/query-shipment.dto';
 import { FindShipmentStrategies } from './find-strategies/find-shipment-strategy.enum';
+import { RoleGuard } from '@/shared/guards/role.guard';
+import { Roles } from '@/shared/decorators/role.decorator';
+import { RoleEnum } from '@/shared/enums/roles.enum';
 
 @Controller({ path: 'shipment', version: '1' })
 export class ShipmentController {
@@ -29,6 +33,14 @@ export class ShipmentController {
     private shipmentService: ShipmentService,
     private shipmentTrackingService: ShipmentTrackingService,
   ) {}
+
+  @UseGuards(RoleGuard)
+  @Roles([
+    RoleEnum.ADMIN,
+    RoleEnum.SALES,
+    RoleEnum.CUSTOMER_SERVICE,
+    RoleEnum.DOCUMENTATION,
+  ])
   @Post()
   async createShipment(
     @Body(new ZodValidationPipe(CreateShipmentSchema)) body: CreateShipmentDto,
@@ -47,6 +59,13 @@ export class ShipmentController {
     };
   }
 
+  @UseGuards(RoleGuard)
+  @Roles([
+    RoleEnum.ADMIN,
+    RoleEnum.SALES,
+    RoleEnum.CUSTOMER_SERVICE,
+    RoleEnum.DOCUMENTATION,
+  ])
   @Patch(':id')
   async updateShipment(
     @Param('id') id: string,
@@ -67,6 +86,13 @@ export class ShipmentController {
     return { message: 'Shipment updated successfully', data: updateResponse };
   }
 
+  @UseGuards(RoleGuard)
+  @Roles([
+    RoleEnum.ADMIN,
+    RoleEnum.SALES,
+    RoleEnum.CUSTOMER_SERVICE,
+    RoleEnum.DOCUMENTATION,
+  ])
   @Get()
   async findShipment(
     @Query(new ZodValidationPipe(QueryShipmentSchema.partial()))

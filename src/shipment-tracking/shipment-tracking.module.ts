@@ -7,9 +7,10 @@ import { FindAllShipmentTrackingStrategy } from './find-strategies/find-all.stra
 import { FindShipmentTrackingByLocationStrategy } from './find-strategies/find-by-location.strategy';
 import { FindShipmentTrackingByStatusStrategy } from './find-strategies/find-by-status.strategy';
 import { FindShipmentTrackingByShipmentIdStrategy } from './find-strategies/find-by-shipment-id.strategy';
+import { ShipmentTracking } from './models/shipment-tracking.model';
 
 @Module({
-  imports: [SequelizeModule.forFeature([Shipment])],
+  imports: [SequelizeModule.forFeature([Shipment, ShipmentTracking])],
   providers: [
     ShipmentTrackingService,
     FindAllShipmentTrackingStrategy,

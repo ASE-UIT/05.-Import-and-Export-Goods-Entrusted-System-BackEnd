@@ -8,10 +8,13 @@ import { FindShipmentTrackingByShipmentIdStrategy } from './find-strategies/find
 import { FindShipmentTrackingStrategies } from './find-strategies/find-shipment-tracking-strategy.enum';
 import { FindShipmentStrategies } from '@/shipment/find-strategies/find-shipment-strategy.enum';
 import { IFindShipmentTrackingStrategy } from './find-strategies/find-shipment-tracking-strategy.interface';
+import { InjectModel } from '@nestjs/sequelize';
 
 @Injectable()
 export class ShipmentTrackingService {
   constructor(
+    @InjectModel(ShipmentTracking)
+    private shipmentTrackingModel: typeof ShipmentTracking,
     private findAllShipmentTrackingStrategy: FindAllShipmentTrackingStrategy,
     private findShipmentTrackingByLocationStrategy: FindShipmentTrackingByLocationStrategy,
     private findShipmentTrackingByStatusStrategy: FindShipmentTrackingByStatusStrategy,
@@ -21,13 +24,13 @@ export class ShipmentTrackingService {
   async createShipmentTracking(
     body: CreateShipmentTrackingDto,
   ): Promise<ShipmentTracking> {
-    const tracker = new ShipmentTracking();
-    tracker.shipmentId = body.shipmentId;
-    tracker.status = body.status;
-    tracker.location = body.location;
     try {
-      await tracker.save();
-      return tracker;
+      const newTracker = await this.shipmentTrackingModel.create({
+        shipmentId: body.shipmentId,
+        status: body.status,
+        location: body.location,
+      });
+      return newTracker;
     } catch (err) {
       console.log(err);
     }
@@ -37,10 +40,11 @@ export class ShipmentTrackingService {
     body: Partial<CreateShipmentTrackingDto>,
   ) {
     try {
-      const [affectedRows, [updateData]] = await ShipmentTracking.update(
-        { ...body },
-        { where: { id: shipmentTrackingId }, returning: true },
-      );
+      const [affectedRows, [updateData]] =
+        await this.shipmentTrackingModel.update(
+          { ...body },
+          { where: { id: shipmentTrackingId }, returning: true },
+        );
       return updateData.dataValues as ShipmentTracking;
     } catch (err) {
       if (err instanceof TypeError) {

@@ -13,11 +13,10 @@ export const CreateCustomerSchema = z.object({
     .string()
     .min(1)
     .uuid()
-    .optional()
     .describe("The customer's legalRep representative"),
 });
 
 export class CreateCustomerDto extends createZodDto(CreateCustomerSchema) {}
 export class UpdateCustomerDto extends createZodDto(
-  CreateCustomerSchema.partial(),
+  CreateCustomerSchema.partial().omit({ legalRepId: true }),
 ) {}

@@ -49,8 +49,6 @@ import { UUIDV4 } from 'sequelize';
 export class LegalRepsController {
   constructor(private legalRepsService: LegalRepsService) {}
 
-  @UseGuards(RoleGuard)
-  @Roles([RoleEnum.ADMIN, RoleEnum.MANAGER])
   @ApiOperation({ summary: 'Create new customer' })
   @ApiBody({
     type: CreateLegalRepDto,
@@ -64,6 +62,8 @@ export class LegalRepsController {
   @ApiInternalServerErrorResponse({
     description: 'Something went terribly wrong. Contact backend team at once',
   })
+  @UseGuards(RoleGuard)
+  @Roles([RoleEnum.ADMIN, RoleEnum.MANAGER])
   @Post()
   async createLegalReps(
     @Body(new ZodValidationPipe(CreateLegalRepSchema))
@@ -77,8 +77,6 @@ export class LegalRepsController {
     };
   }
 
-  // @UseGuards(RoleGuard)
-  // @Roles([RoleEnum.ADMIN, RoleEnum.MANAGER])
   @ApiOperation({ summary: "Update customer's information" })
   @ApiOkResponse({ description: 'New information updated' })
   @ApiBadRequestResponse({ description: 'Empty body or misspelled property' })
@@ -102,6 +100,8 @@ export class LegalRepsController {
   @ApiInternalServerErrorResponse({
     description: 'Something went terribly wrong. Contact backend team at once',
   })
+  @UseGuards(RoleGuard)
+  @Roles([RoleEnum.ADMIN, RoleEnum.MANAGER])
   @Patch(':id')
   async updateLegalReps(
     @Param('id') id: string,
@@ -120,8 +120,6 @@ export class LegalRepsController {
     };
   }
 
-  @UseGuards(RoleGuard)
-  @Roles([RoleEnum.ADMIN, RoleEnum.MANAGER])
   @ApiOperation({ summary: 'Search for legal representatives' })
   @ApiQuery({
     name: 'name',
@@ -155,6 +153,8 @@ export class LegalRepsController {
   @ApiUnauthorizedResponse({
     description: 'Not logged in or account has unappropriate role',
   })
+  @UseGuards(RoleGuard)
+  @Roles([RoleEnum.ADMIN, RoleEnum.MANAGER])
   @Get()
   async findLegalReps(
     @Query(new ZodValidationPipe(QueryLegalRepsSchema))

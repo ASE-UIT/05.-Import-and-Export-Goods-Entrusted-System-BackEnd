@@ -48,13 +48,6 @@ import {
 export class CustomersController {
   constructor(private customerService: CustomersService) {}
 
-  @UseGuards(RoleGuard)
-  @Roles([
-    RoleEnum.ADMIN,
-    RoleEnum.SALES,
-    RoleEnum.CUSTOMER_SERVICE,
-    RoleEnum.MANAGER,
-  ])
   @ApiOperation({ summary: 'Search for customers' })
   @ApiQuery({
     name: 'name',
@@ -82,6 +75,13 @@ export class CustomersController {
   @ApiUnauthorizedResponse({
     description: 'Not logged in or account has unappropriate role',
   })
+  @UseGuards(RoleGuard)
+  @Roles([
+    RoleEnum.ADMIN,
+    RoleEnum.SALES,
+    RoleEnum.CUSTOMER_SERVICE,
+    RoleEnum.MANAGER,
+  ])
   @Get()
   async getCustomers(
     @Query(new ZodValidationPipe(QueryCustomerSchema)) query: QueryCustomerDto,
@@ -120,13 +120,6 @@ export class CustomersController {
     throw new NotFoundException('Customer not found');
   }
 
-  @UseGuards(RoleGuard)
-  @Roles([
-    RoleEnum.ADMIN,
-    RoleEnum.SALES,
-    RoleEnum.CUSTOMER_SERVICE,
-    RoleEnum.MANAGER,
-  ])
   @ApiOperation({ summary: 'Create new customer' })
   @ApiBody({
     type: CreateCustomerDto,
@@ -140,6 +133,13 @@ export class CustomersController {
   @ApiInternalServerErrorResponse({
     description: 'Something went terribly wrong. Contact backend team at once',
   })
+  @UseGuards(RoleGuard)
+  @Roles([
+    RoleEnum.ADMIN,
+    RoleEnum.SALES,
+    RoleEnum.CUSTOMER_SERVICE,
+    RoleEnum.MANAGER,
+  ])
   @Post()
   async createCustomer(
     @Body(new ZodValidationPipe(CreateCustomerSchema)) body: CreateCustomerDto,
@@ -148,13 +148,6 @@ export class CustomersController {
     return { message: `Customer created`, data: createRes };
   }
 
-  @UseGuards(RoleGuard)
-  @Roles([
-    RoleEnum.ADMIN,
-    RoleEnum.SALES,
-    RoleEnum.CUSTOMER_SERVICE,
-    RoleEnum.MANAGER,
-  ])
   @ApiOperation({ summary: "Update customer's information" })
   @ApiOkResponse({ description: 'New information updated' })
   @ApiBadRequestResponse({ description: 'Empty body or misspelled property' })
@@ -178,10 +171,21 @@ export class CustomersController {
   @ApiInternalServerErrorResponse({
     description: 'Something went terribly wrong. Contact backend team at once',
   })
+  @UseGuards(RoleGuard)
+  @Roles([
+    RoleEnum.ADMIN,
+    RoleEnum.SALES,
+    RoleEnum.CUSTOMER_SERVICE,
+    RoleEnum.MANAGER,
+  ])
   @Patch(':id')
   async updateCustomer(
     @Param('id') id: string,
-    @Body(new ZodValidationPipe(CreateCustomerSchema.partial()))
+    @Body(
+      new ZodValidationPipe(
+        CreateCustomerSchema.partial().omit({ legalRepId: true }),
+      ),
+    )
     body: Partial<CreateCustomerDto>,
   ) {
     if (Object.keys(body).length === 0)

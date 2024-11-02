@@ -9,10 +9,11 @@ import { ShipmentTrackingModule } from '@/shipment-tracking/shipment-tracking.mo
 import { FindAllShipmentStrategy } from './find-strategies/find-all.strategy';
 import { FindShipmentByContractIdStrategy } from './find-strategies/find-by-contract-id.strategy';
 import { FindShipmentByShipmentTypeStrategy } from './find-strategies/find-by-shipment-type.strategy';
+import { Shipment } from './models/shipment.model';
 
 @Module({
   imports: [
-    SequelizeModule.forFeature([ShipmentTracking, Document]),
+    SequelizeModule.forFeature([ShipmentTracking, Document, Shipment]),
     ShipmentTrackingModule,
   ],
   providers: [

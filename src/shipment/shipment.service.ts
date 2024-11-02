@@ -6,21 +6,24 @@ import { FindShipmentByShipmentTypeStrategy } from './find-strategies/find-by-sh
 import { FindShipmentStrategies } from './find-strategies/find-shipment-strategy.enum';
 import { IFindShipmentStrategy } from './find-strategies/find-shipment-strategy.interface';
 import { FindShipmentByContractIdStrategy } from './find-strategies/find-by-contract-id.strategy';
+import { InjectModel } from '@nestjs/sequelize';
 
 @Injectable()
 export class ShipmentService {
   constructor(
+    @InjectModel(Shipment)
+    private shipmentModel: typeof Shipment,
     private findAllShipmentStrategy: FindAllShipmentStrategy,
     private findShipmentByShipmentTypeStrategy: FindShipmentByShipmentTypeStrategy,
     private findShipmentByContractIdStrategy: FindShipmentByContractIdStrategy,
   ) {}
   async createShipment(body: CreateShipmentDto): Promise<Shipment> {
-    const shipmment = new Shipment();
-    shipmment.shipmentType = body.shipmentType;
-    shipmment.contractId = body.contractId;
     try {
-      await shipmment.save();
-      return shipmment;
+      const newShipment = await this.shipmentModel.create({
+        shipmentType: body.shipmentType,
+        contractId: body.contractId,
+      });
+      return newShipment;
     } catch (err) {
       console.log(err);
     }
@@ -31,7 +34,7 @@ export class ShipmentService {
     body: Partial<CreateShipmentDto>,
   ): Promise<Shipment> {
     try {
-      const [affectedRows, [updateData]] = await Shipment.update(
+      const [affectedRows, [updateData]] = await this.shipmentModel.update(
         { ...body },
         { where: { id: shipmentId }, returning: true },
       );

@@ -7,6 +7,7 @@ import {
   Param,
   Patch,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { ShipmentTrackingService } from './shipment-tracking.service';
 import { ZodValidationPipe } from 'nestjs-zod';
@@ -20,10 +21,22 @@ import {
 } from './dtos/query-shipment-tracking.dto';
 import { query } from 'express';
 import { FindShipmentTrackingStrategies } from './find-strategies/find-shipment-tracking-strategy.enum';
+import { RoleGuard } from '@/shared/guards/role.guard';
+import { Roles } from '@/shared/decorators/role.decorator';
+import { RoleEnum } from '@/shared/enums/roles.enum';
 
 @Controller({ path: 'shipment-tracking', version: '1' })
 export class ShipmentTrackingController {
   constructor(private shipTrackingService: ShipmentTrackingService) {}
+
+  @UseGuards(RoleGuard)
+  @Roles([
+    RoleEnum.ADMIN,
+    RoleEnum.SALES,
+    RoleEnum.CUSTOMER_SERVICE,
+    RoleEnum.DOCUMENTATION,
+    RoleEnum.MANAGER,
+  ])
   @Patch(':id')
   async updateShipmentTracking(
     @Param('id') id: string,
@@ -43,6 +56,14 @@ export class ShipmentTrackingController {
     return { message: 'Shipment tracking updated', data: updatedData };
   }
 
+  @UseGuards(RoleGuard)
+  @Roles([
+    RoleEnum.ADMIN,
+    RoleEnum.SALES,
+    RoleEnum.CUSTOMER_SERVICE,
+    RoleEnum.DOCUMENTATION,
+    RoleEnum.MANAGER,
+  ])
   @Get()
   async getShipmentTracking(
     @Query(new ZodValidationPipe(QueryShipmentTrackingSchema.partial()))
