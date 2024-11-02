@@ -13,5 +13,5 @@ export class CreateShipmentTrackingDto extends createZodDto(
 ) {}
 
 export class UpdateShipmentTrackingDto extends createZodDto(
-  CreateShipmentTrackingSchema.partial(),
+  CreateShipmentTrackingSchema.partial().omit({ shipmentId: true }),
 ) {}

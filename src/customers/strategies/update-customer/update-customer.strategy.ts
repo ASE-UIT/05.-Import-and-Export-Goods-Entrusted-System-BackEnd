@@ -8,6 +8,10 @@ import { Customer } from '@/customers/models/customer.model';
 import { UniqueConstraintError } from 'sequelize';
 import { CreateCustomerDto } from '@/customers/dtos/create-customer.dto';
 import { InjectModel } from '@nestjs/sequelize';
+import {
+  ValidationError,
+  ValidationErrorDetail,
+} from '@/shared/classes/validation-error.class';
 
 @Injectable()
 export class UpdateCustomerStrategy implements IUpdateCustomerStrategy {
@@ -30,7 +34,10 @@ export class UpdateCustomerStrategy implements IUpdateCustomerStrategy {
         throw new NotFoundException('Customer not found');
       }
       if (err instanceof UniqueConstraintError) {
-        throw new ConflictException(err.errors[0].message);
+        const errors = err.errors.map(
+          (error) => new ValidationErrorDetail(error.path, error.message),
+        );
+        throw new ConflictException(new ValidationError(errors));
       }
     }
   }

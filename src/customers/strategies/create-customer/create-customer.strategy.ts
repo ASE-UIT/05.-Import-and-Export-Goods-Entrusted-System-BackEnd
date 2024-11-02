@@ -4,6 +4,10 @@ import { Customer } from '@/customers/models/customer.model';
 import { ForeignKeyConstraintError, UniqueConstraintError } from 'sequelize';
 import { CreateCustomerDto } from '@/customers/dtos/create-customer.dto';
 import { InjectModel } from '@nestjs/sequelize';
+import {
+  ValidationError,
+  ValidationErrorDetail,
+} from '@/shared/classes/validation-error.class';
 
 @Injectable()
 export class CreateCustomerStrategy implements ICreateCustomerStrategy {
@@ -26,7 +30,10 @@ export class CreateCustomerStrategy implements ICreateCustomerStrategy {
       return newCustomer;
     } catch (err) {
       if (err instanceof UniqueConstraintError) {
-        throw new ConflictException(err.errors[0].message);
+        const errors = err.errors.map(
+          (error) => new ValidationErrorDetail(error.path, error.message),
+        );
+        throw new ConflictException(new ValidationError(errors));
       }
       if (err instanceof ForeignKeyConstraintError) {
         throw new ConflictException('Legal representative not found');

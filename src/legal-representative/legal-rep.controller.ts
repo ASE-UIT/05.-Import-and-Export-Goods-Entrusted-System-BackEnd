@@ -2,12 +2,14 @@ import {
   BadRequestException,
   Body,
   Controller,
+  ForbiddenException,
   Get,
   NotFoundException,
   Param,
   Patch,
   Post,
   Query,
+  UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
 import { LegalRepsService } from './legal-rep.service';
@@ -36,10 +38,15 @@ import {
   ApiOkResponse,
   ApiOperation,
   ApiQuery,
+  ApiResponse,
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { UUIDV4 } from 'sequelize';
+import { SuccessResponse } from '@/shared/classes/success-response.class';
+import { createResponseType } from '@/shared/helpers/create-response.mixin';
+import { LegalRep } from './models/legal-rep.model';
+import { ValidationError } from '@/shared/classes/validation-error.class';
 
 @ApiTags('Legal representatives')
 @Controller({
@@ -50,17 +57,42 @@ export class LegalRepsController {
   constructor(private legalRepsService: LegalRepsService) {}
 
   @ApiOperation({ summary: 'Create new customer' })
-  @ApiBody({
-    type: CreateLegalRepDto,
+  @ApiResponse({
+    status: 201,
+    description: 'Legal representative created successfully',
+    type: createResponseType(
+      'Legal representative created successfully',
+      LegalRep,
+    ),
   })
-  @ApiCreatedResponse({ description: 'New legalRep created' })
-  @ApiBadRequestResponse({ description: 'Invalid body' })
-  @ApiConflictResponse({ description: 'Unique information already exist' })
-  @ApiUnauthorizedResponse({
-    description: 'Not logged in or account has unappropriate role',
+  @ApiResponse({
+    status: 400,
+    description: 'Invalid request body',
+    type: ValidationError,
   })
-  @ApiInternalServerErrorResponse({
-    description: 'Something went terribly wrong. Contact backend team at once',
+  @ApiResponse({
+    status: 401,
+    description: 'Authentication is required to create a legal-rep',
+    type: UnauthorizedException,
+    example: new UnauthorizedException().getResponse(),
+  })
+  @ApiResponse({
+    status: 403,
+    description:
+      'Only user with role: [ADMIN | MANAGER] can perform this action',
+    type: ForbiddenException,
+    example: new ForbiddenException().getResponse(),
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'The provided legal-rep information does not exist',
+    type: NotFoundException,
+    example: new NotFoundException().getResponse(),
+  })
+  @ApiResponse({
+    status: 409,
+    description: 'Conflict',
+    type: ValidationError,
   })
   @UseGuards(RoleGuard)
   @Roles([RoleEnum.ADMIN, RoleEnum.MANAGER])
@@ -71,19 +103,13 @@ export class LegalRepsController {
   ) {
     const createRes =
       await this.legalRepsService.createLegalReps(legalRepsData);
-    return {
-      message: 'Legal representative created successfully',
-      data: createRes,
-    };
+    return new SuccessResponse(
+      'Legal representative created successfully',
+      createRes,
+    );
   }
 
   @ApiOperation({ summary: "Update customer's information" })
-  @ApiOkResponse({ description: 'New information updated' })
-  @ApiBadRequestResponse({ description: 'Empty body or misspelled property' })
-  @ApiNotFoundResponse({ description: 'Could not find customer to update' })
-  @ApiUnauthorizedResponse({
-    description: 'Not logged in or account has unappropriate role',
-  })
   @ApiBody({
     type: UpdateLegalRepDto,
     examples: {
@@ -97,9 +123,40 @@ export class LegalRepsController {
       },
     },
   })
-  @ApiInternalServerErrorResponse({
-    description: 'Something went terribly wrong. Contact backend team at once',
+  @ApiResponse({
+    status: 201,
+    description: 'Legal representative updated successfully',
+    type: createResponseType(
+      'Legal representative updated successfully',
+      LegalRep,
+    ),
   })
+  @ApiResponse({
+    status: 400,
+    description: 'Invalid request body',
+    type: ValidationError,
+  })
+  @ApiResponse({
+    status: 401,
+    description:
+      "Authentication is required to update a legal-rep's information",
+    type: UnauthorizedException,
+    example: new UnauthorizedException().getResponse(),
+  })
+  @ApiResponse({
+    status: 403,
+    description:
+      'Only user with role: [ADMIN | MANAGER] can perform this action',
+    type: ForbiddenException,
+    example: new ForbiddenException().getResponse(),
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'The provided legal-rep information does not exist',
+    type: NotFoundException,
+    example: new NotFoundException().getResponse(),
+  })
+  @ApiResponse({ status: 409, description: 'Conflict', type: ValidationError })
   @UseGuards(RoleGuard)
   @Roles([RoleEnum.ADMIN, RoleEnum.MANAGER])
   @Patch(':id')
@@ -114,10 +171,10 @@ export class LegalRepsController {
       id,
       updateData,
     );
-    return {
-      message: 'Legal representative updated successfully',
-      data: updateResponse,
-    };
+    return new SuccessResponse(
+      'Legal representative updated successfully',
+      updateResponse,
+    );
   }
 
   @ApiOperation({ summary: 'Search for legal representatives' })
@@ -139,19 +196,37 @@ export class LegalRepsController {
     required: false,
     description: 'Search legalRep by email',
   })
-  @ApiQuery({
-    name: 'customerId',
-    type: String,
-    required: false,
-    description: "Search legalRep by their customer's id",
+  @ApiResponse({
+    status: 200,
+    description: 'Shipment founded',
+    example: {
+      id: '112fad97-b247-49f8-855c-65b22dab4189',
+      name: 'rep3',
+      email: 'rep3@example.com',
+      phone: '654321',
+      createdAt: '2024-10-24T14:33:15.881Z',
+      updatedAt: '2024-10-24T14:33:15.881Z',
+    },
   })
-  @ApiOkResponse({ description: 'legalRep found' })
-  @ApiNotFoundResponse({ description: 'legalRep not found' })
-  @ApiInternalServerErrorResponse({
-    description: 'Something went terribly wrong. Contact backend team at once',
+  @ApiResponse({
+    status: 401,
+    description: "Authentication is required to find legal-rep's information",
+    type: UnauthorizedException,
+    example: new UnauthorizedException().getResponse(),
   })
-  @ApiUnauthorizedResponse({
-    description: 'Not logged in or account has unappropriate role',
+  @ApiResponse({
+    status: 403,
+    description:
+      'Only user with role: [ADMIN | MANAGER] can perform this action',
+    type: ForbiddenException,
+
+    example: new ForbiddenException().getResponse(),
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Legal representative not found',
+    type: NotFoundException,
+    example: new NotFoundException().getResponse(),
   })
   @UseGuards(RoleGuard)
   @Roles([RoleEnum.ADMIN, RoleEnum.MANAGER])

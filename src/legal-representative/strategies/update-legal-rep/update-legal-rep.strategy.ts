@@ -8,6 +8,10 @@ import { UniqueConstraintError } from 'sequelize';
 import { CreateLegalRepDto } from '@/legal-representative/dtos/create-legal-rep.dto';
 import { LegalRep } from '@/legal-representative/models/legal-rep.model';
 import { InjectModel } from '@nestjs/sequelize';
+import {
+  ValidationError,
+  ValidationErrorDetail,
+} from '@/shared/classes/validation-error.class';
 
 @Injectable()
 export class UpdateLegalRepsStrategy implements IUpdateLegalRepsStrategy {
@@ -30,7 +34,10 @@ export class UpdateLegalRepsStrategy implements IUpdateLegalRepsStrategy {
         throw new NotFoundException('Legal representative not found');
       }
       if (err instanceof UniqueConstraintError) {
-        throw new ConflictException(err.errors[0].message);
+        const errors = err.errors.map(
+          (error) => new ValidationErrorDetail(error.path, error.message),
+        );
+        throw new ConflictException(new ValidationError(errors));
       }
     }
   }

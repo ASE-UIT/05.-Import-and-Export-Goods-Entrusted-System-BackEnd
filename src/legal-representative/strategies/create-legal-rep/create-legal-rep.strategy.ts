@@ -9,6 +9,10 @@ import { Customer } from '@/customers/models/customer.model';
 import { CreateLegalRepDto } from '@/legal-representative/dtos/create-legal-rep.dto';
 import { LegalRep } from '@/legal-representative/models/legal-rep.model';
 import { InjectModel } from '@nestjs/sequelize';
+import {
+  ValidationError,
+  ValidationErrorDetail,
+} from '@/shared/classes/validation-error.class';
 
 @Injectable()
 export class CreateLegalRepsStrategy implements ICreateLegalRepsStrategy {
@@ -26,7 +30,10 @@ export class CreateLegalRepsStrategy implements ICreateLegalRepsStrategy {
       return newLegalRep;
     } catch (err) {
       if (err instanceof UniqueConstraintError) {
-        throw new ConflictException(err.errors[0].message);
+        const errors = err.errors.map(
+          (error) => new ValidationErrorDetail(error.path, error.message),
+        );
+        throw new ConflictException(new ValidationError(errors));
       }
     }
   }

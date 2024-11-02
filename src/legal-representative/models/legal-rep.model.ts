@@ -1,4 +1,5 @@
 import { Customer } from '@/customers/models/customer.model';
+import { ApiProperty } from '@nestjs/swagger';
 import sequelize from 'sequelize';
 import {
   AllowNull,
@@ -15,13 +16,16 @@ import {
 
 @Table({
   tableName: 'legal_reps',
+  timestamps: false,
 })
 export class LegalRep extends Model {
+  @ApiProperty()
   @PrimaryKey
   @Default(sequelize.UUIDV4)
   @Column
   id: string;
 
+  @ApiProperty()
   @AllowNull(false)
   @Unique({
     name: 'name_conflict',
@@ -30,6 +34,7 @@ export class LegalRep extends Model {
   @Column
   name: string;
 
+  @ApiProperty()
   @AllowNull(false)
   @Unique({
     name: 'email_conflict',
@@ -38,6 +43,7 @@ export class LegalRep extends Model {
   @Column
   email: string;
 
+  @ApiProperty()
   @AllowNull(false)
   @Unique({
     name: 'name_conflict',

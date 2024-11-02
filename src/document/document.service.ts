@@ -15,6 +15,10 @@ import { FindDocumentByTypeStrategy } from './find-document-strategies/find-by-t
 import { FindDocumentByDocNumberStrategy } from './find-document-strategies/find-by-doc-number.strategy';
 import { FindDocumentStrategies } from './find-document-strategies/find-document-strategy.enum';
 import { IFindDocumentStrategy } from './find-document-strategies/find-document-strategy.interface';
+import {
+  ValidationError,
+  ValidationErrorDetail,
+} from '@/shared/classes/validation-error.class';
 
 @Injectable()
 export class DocumentService {
@@ -38,8 +42,12 @@ export class DocumentService {
     } catch (err) {
       if (err instanceof ForeignKeyConstraintError)
         throw new NotFoundException('Shipment not found');
-      if (err instanceof UniqueConstraintError)
-        throw new ConflictException(err.errors[0].message);
+      if (err instanceof UniqueConstraintError) {
+        const errors = err.errors.map(
+          (error) => new ValidationErrorDetail(error.path, error.message),
+        );
+        throw new ConflictException(new ValidationError(errors));
+      }
     }
   }
 
@@ -58,7 +66,10 @@ export class DocumentService {
         throw new NotFoundException('Document not found');
       }
       if (err instanceof UniqueConstraintError) {
-        throw new ConflictException(err.errors[0].message);
+        const errors = err.errors.map(
+          (error) => new ValidationErrorDetail(error.path, error.message),
+        );
+        throw new ConflictException(new ValidationError(errors));
       }
     }
   }

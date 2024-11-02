@@ -2,12 +2,14 @@ import {
   BadRequestException,
   Body,
   Controller,
+  ForbiddenException,
   Get,
   NotFoundException,
   Param,
   Patch,
   Post,
   Query,
+  UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
 import { CustomersService } from './customers.service';
@@ -35,10 +37,15 @@ import {
   ApiOkResponse,
   ApiOperation,
   ApiQuery,
+  ApiResponse,
   ApiTags,
   ApiUnauthorizedResponse,
   PartialType,
 } from '@nestjs/swagger';
+import { SuccessResponse } from '@/shared/classes/success-response.class';
+import { createResponseType } from '@/shared/helpers/create-response.mixin';
+import { Customer } from './models/customer.model';
+import { ValidationError } from '@/shared/classes/validation-error.class';
 
 @ApiTags('Customers')
 @Controller({
@@ -67,13 +74,41 @@ export class CustomersController {
     required: false,
     description: 'Search customer by email',
   })
-  @ApiOkResponse({ description: 'Customer found' })
-  @ApiNotFoundResponse({ description: 'Customer not found' })
-  @ApiInternalServerErrorResponse({
-    description: 'Something went terribly wrong. Contact backend team at once',
+  @ApiResponse({
+    status: 200,
+    description: 'Customer founded',
+    example: {
+      id: 'b7a301b9-7dc7-4c1b-828e-effdea663335',
+      name: 'customer1',
+      shortName: 'cus1',
+      email: 'cus1@example.com',
+      phone: '123456',
+      address: 'cus1.st',
+      taxId: '123456',
+      legalRepId: '112fad97-b247-49f8-855c-65b22dab4189',
+      createdAt: '2024-10-24T14:29:00.452Z',
+      updatedAt: '2024-10-24T14:33:15.890Z',
+    },
   })
-  @ApiUnauthorizedResponse({
-    description: 'Not logged in or account has unappropriate role',
+  @ApiResponse({
+    status: 401,
+    description: "Authentication is required to find customer's information",
+    type: UnauthorizedException,
+    example: new UnauthorizedException().getResponse(),
+  })
+  @ApiResponse({
+    status: 403,
+    description:
+      'Only user with role: [ADMIN | SALES | CUSTOMER_SERVICE | MANAGER] can perform this action',
+    type: ForbiddenException,
+
+    example: new ForbiddenException().getResponse(),
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Customer not found',
+    type: NotFoundException,
+    example: new NotFoundException().getResponse(),
   })
   @UseGuards(RoleGuard)
   @Roles([
@@ -121,17 +156,39 @@ export class CustomersController {
   }
 
   @ApiOperation({ summary: 'Create new customer' })
-  @ApiBody({
-    type: CreateCustomerDto,
+  @ApiResponse({
+    status: 201,
+    description: 'Customer created',
+    type: createResponseType('Customer created', Customer),
   })
-  @ApiCreatedResponse({ description: 'New customer created' })
-  @ApiBadRequestResponse({ description: 'Invalid body' })
-  @ApiConflictResponse({ description: 'Unique information already exist' })
-  @ApiUnauthorizedResponse({
-    description: 'Not logged in or account has unappropriate role',
+  @ApiResponse({
+    status: 400,
+    description: 'Invalid request body',
+    type: ValidationError,
   })
-  @ApiInternalServerErrorResponse({
-    description: 'Something went terribly wrong. Contact backend team at once',
+  @ApiResponse({
+    status: 401,
+    description: 'Authentication is required to create a customer',
+    type: UnauthorizedException,
+    example: new UnauthorizedException().getResponse(),
+  })
+  @ApiResponse({
+    status: 403,
+    description:
+      'Only user with role: [ADMIN | SALES | CUSTOMER_SERVICE | MANAGER] can perform this action',
+    type: ForbiddenException,
+    example: new ForbiddenException().getResponse(),
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'The provided customer information does not exist',
+    type: NotFoundException,
+    example: new NotFoundException().getResponse(),
+  })
+  @ApiResponse({
+    status: 409,
+    description: 'Conflict',
+    type: ValidationError,
   })
   @UseGuards(RoleGuard)
   @Roles([
@@ -145,16 +202,10 @@ export class CustomersController {
     @Body(new ZodValidationPipe(CreateCustomerSchema)) body: CreateCustomerDto,
   ) {
     const createRes = await this.customerService.createCustomer(body);
-    return { message: `Customer created`, data: createRes };
+    return new SuccessResponse(`Customer created`, createRes);
   }
 
   @ApiOperation({ summary: "Update customer's information" })
-  @ApiOkResponse({ description: 'New information updated' })
-  @ApiBadRequestResponse({ description: 'Empty body or misspelled property' })
-  @ApiNotFoundResponse({ description: 'Could not find customer to update' })
-  @ApiUnauthorizedResponse({
-    description: 'Not logged in or account has unappropriate role',
-  })
   @ApiBody({
     type: UpdateCustomerDto,
     examples: {
@@ -168,9 +219,37 @@ export class CustomersController {
       },
     },
   })
-  @ApiInternalServerErrorResponse({
-    description: 'Something went terribly wrong. Contact backend team at once',
+  @ApiResponse({
+    status: 201,
+    description: 'Customer updated',
+    type: createResponseType('Customer updated', Customer),
   })
+  @ApiResponse({
+    status: 400,
+    description: 'Invalid request body',
+    type: ValidationError,
+  })
+  @ApiResponse({
+    status: 401,
+    description:
+      "Authentication is required to update a customer's information",
+    type: UnauthorizedException,
+    example: new UnauthorizedException().getResponse(),
+  })
+  @ApiResponse({
+    status: 403,
+    description:
+      'Only user with role: [ADMIN | SALES | CUSTOMER_SERVICE | MANAGER] can perform this action',
+    type: ForbiddenException,
+    example: new ForbiddenException().getResponse(),
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'The provided customer information does not exist',
+    type: NotFoundException,
+    example: new NotFoundException().getResponse(),
+  })
+  @ApiResponse({ status: 409, description: 'Conflict', type: ValidationError })
   @UseGuards(RoleGuard)
   @Roles([
     RoleEnum.ADMIN,
@@ -191,6 +270,6 @@ export class CustomersController {
     if (Object.keys(body).length === 0)
       throw new BadRequestException('Body is empty or invalid field names');
     const updateResponse = await this.customerService.updateCustomer(id, body);
-    return updateResponse;
+    return new SuccessResponse('Customer updated', updateResponse);
   }
 }

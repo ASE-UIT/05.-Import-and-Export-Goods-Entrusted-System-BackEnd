@@ -54,11 +54,11 @@ export class CustomersService {
   async updateCustomer(
     customerID: string,
     updateInfo: Partial<CreateCustomerDto>,
-  ): Promise<{ message: string; data: Customer }> {
+  ): Promise<Customer> {
     const updatedResponse = await this.updateCustomerStrategy.update(
       customerID,
       updateInfo,
     );
-    return { message: 'Customer updated', data: updatedResponse };
+    return updatedResponse;
   }
 }

@@ -1,5 +1,6 @@
 import { Document } from '@/document/models/document.model';
 import { ShipmentTracking } from '@/shipment-tracking/models/shipment-tracking.model';
+import { ApiProperty } from '@nestjs/swagger';
 import { UUIDV4 } from 'sequelize';
 import {
   AllowNull,
@@ -20,15 +21,18 @@ export enum ShipmentType {
 
 @Table({ tableName: 'shipment', timestamps: false })
 export class Shipment extends Model {
+  @ApiProperty()
   @PrimaryKey
   @Default(UUIDV4)
   @Column
   id: string;
 
+  @ApiProperty()
   @AllowNull(false)
   @Column
   shipmentType: ShipmentType;
 
+  @ApiProperty()
   @AllowNull(false)
   @Column
   contractId: string;

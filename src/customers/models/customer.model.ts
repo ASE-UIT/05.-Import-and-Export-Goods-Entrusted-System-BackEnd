@@ -1,5 +1,6 @@
 import { LegalRep } from '@/legal-representative/models/legal-rep.model';
 import { QuotationReq } from '@/quotationReqs/models/quotationReq.model';
+import { ApiProperty } from '@nestjs/swagger';
 import sequelize, { HasOne } from 'sequelize';
 import {
   AllowNull,
@@ -16,13 +17,16 @@ import {
 
 @Table({
   tableName: 'customers',
+  timestamps: false,
 })
 export class Customer extends Model {
+  @ApiProperty()
   @PrimaryKey
   @Default(sequelize.UUIDV4)
   @Column
   id: string;
 
+  @ApiProperty()
   @AllowNull(false)
   @Unique({
     name: 'name_conflict',
@@ -31,10 +35,12 @@ export class Customer extends Model {
   @Column
   name: string;
 
+  @ApiProperty()
   @AllowNull(false)
   @Column
   shortName: string;
 
+  @ApiProperty()
   @AllowNull(false)
   @Unique({
     name: 'email_conflict',
@@ -43,6 +49,7 @@ export class Customer extends Model {
   @Column
   email: string;
 
+  @ApiProperty()
   @AllowNull(false)
   @Unique({
     name: 'phone_conflict',
@@ -51,10 +58,12 @@ export class Customer extends Model {
   @Column
   phone: string;
 
+  @ApiProperty()
   @AllowNull(false)
   @Column
   address: string;
 
+  @ApiProperty()
   @AllowNull(false)
   @Unique({
     name: 'taxId_conflict',
@@ -70,6 +79,7 @@ export class Customer extends Model {
   @HasMany(() => QuotationReq)
   quotationReqs: QuotationReq[];
 
+  @ApiProperty()
   @ForeignKey(() => LegalRep)
   @AllowNull(true)
   @Column

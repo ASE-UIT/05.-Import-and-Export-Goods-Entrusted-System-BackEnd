@@ -1,4 +1,5 @@
 import { Shipment } from '@/shipment/models/shipment.model';
+import { ApiProperty } from '@nestjs/swagger';
 import { UUIDV4 } from 'sequelize';
 import {
   AllowNull,
@@ -32,20 +33,24 @@ export enum ShipmentTrackingStatus {
 
 @Table({ tableName: 'shipment_tracking', timestamps: false })
 export class ShipmentTracking extends Model {
+  @ApiProperty()
   @PrimaryKey
   @Default(UUIDV4)
   @Column
   id: string;
 
+  @ApiProperty()
   @Default(ShipmentTrackingStatus.PENDING)
   @Column
   status: ShipmentTrackingStatus;
 
+  @ApiProperty()
   @AllowNull(false)
   @Column
   location: string;
 
   //Associations
+  @ApiProperty()
   @ForeignKey(() => Shipment)
   @AllowNull(false)
   @Column
