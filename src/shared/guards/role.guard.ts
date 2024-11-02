@@ -22,7 +22,7 @@ export class RoleGuard implements CanActivate {
 
     if (!request.isAuthenticated()) {
       throw new UnauthorizedException(
-        'You are not authorized to perform this action',
+        'Only authenticated users can access this resource',
       );
     }
 
@@ -39,7 +39,7 @@ export class RoleGuard implements CanActivate {
     }
 
     throw new ForbiddenException(
-      'You do not have the required role to perform this action',
+      'Only users with the following roles can access this resource: ' + roles,
     );
   }
 }

@@ -10,12 +10,16 @@ import { FindUserByIdStrategy } from './strategies/find-user/find-by-id.strategy
 import { FindUserByUsernameStrategy } from './strategies/find-user/find-by-username.strategy';
 import { FindUserStrategy } from './strategies/find-user/find-user-strategy.enum';
 import { IFindUserStrategy } from './strategies/find-user/find-user-strategy.interface';
-import { CreateUserDto } from './dtos/CreateUserDto';
+import { CreateUserDto } from './dtos/create-user.dto';
 import * as argon2 from 'argon2';
 import { Role } from '@/roles/models/role.model';
 import { ForeignKeyConstraintError, UniqueConstraintError } from 'sequelize';
-import { UpdatePasswordDto } from './dtos/UpdatePasswordDto';
+import { UpdatePasswordDto } from './dtos/update-password.dto';
 import { ArgumentOutOfRangeError } from 'rxjs';
+import {
+  ValidationError,
+  ValidationErrorDetail,
+} from '@/shared/classes/validation-error.class';
 
 @Injectable()
 export class UsersService {
@@ -48,7 +52,7 @@ export class UsersService {
     password,
     employeeId,
     role,
-  }: CreateUserDto): Promise<void> {
+  }: CreateUserDto): Promise<User> {
     const userRole = await Role.findOne({ where: { name: role } });
     if (!userRole) throw new NotFoundException('Role not found');
 
@@ -61,12 +65,16 @@ export class UsersService {
     user.employeeId = employeeId;
 
     try {
-      await user.save();
+      const newUser = await user.save();
+      return newUser;
     } catch (err) {
       if (err instanceof ForeignKeyConstraintError) {
         throw new NotFoundException("Employee doesn't exist");
       } else if (err instanceof UniqueConstraintError) {
-        throw new ConflictException(err.errors[0].message);
+        const errors = err.errors.map(
+          (error) => new ValidationErrorDetail(error.path, error.message),
+        );
+        throw new ConflictException(new ValidationError(errors));
       }
     }
   }
