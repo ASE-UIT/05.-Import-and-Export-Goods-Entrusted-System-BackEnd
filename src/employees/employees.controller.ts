@@ -48,13 +48,17 @@ export class EmployeesController {
     status: 401,
     description: 'Authentication is required to create an employee',
     type: UnauthorizedException,
-    example: new UnauthorizedException().getResponse(),
+    example: new UnauthorizedException(
+      'Only authenticated users can access this resource',
+    ).getResponse(),
   })
   @ApiResponse({
     status: 403,
     description: 'Only admins can create employees',
     type: ForbiddenException,
-    example: new ForbiddenException().getResponse(),
+    example: new ForbiddenException(
+      'Only users with the following roles can access this resource: ADMIN',
+    ).getResponse(),
   })
   @ApiResponse({ status: 409, description: 'Conflict', type: ValidationError })
   @UseGuards(RoleGuard)
@@ -77,19 +81,23 @@ export class EmployeesController {
     status: 401,
     description: 'Authentication is required to update an employee',
     type: UnauthorizedException,
-    example: new UnauthorizedException().getResponse(),
+    example: new UnauthorizedException(
+      'Only authenticated users can access this resource',
+    ).getResponse(),
   })
   @ApiResponse({
     status: 403,
     description: 'Only admins can update employees',
     type: ForbiddenException,
-    example: new ForbiddenException().getResponse(),
+    example: new ForbiddenException(
+      'Only users with the following roles can access this resource: ADMIN',
+    ).getResponse(),
   })
   @ApiResponse({
     status: 404,
     description: 'The provided employeeId does not exist',
     type: NotFoundException,
-    example: new NotFoundException().getResponse(),
+    example: new NotFoundException('Employee not found').getResponse(),
   })
   @ApiResponse({ status: 409, description: 'Conflict', type: ValidationError })
   @UseGuards(RoleGuard)

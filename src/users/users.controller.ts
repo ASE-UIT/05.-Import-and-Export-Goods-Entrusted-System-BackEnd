@@ -21,7 +21,7 @@ import {
   UpdatePasswordDto,
   UpdatePasswordSchema,
 } from './dtos/update-password.dto';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiResponse, ApiTags, refs } from '@nestjs/swagger';
 import { ValidationError } from '@/shared/classes/validation-error.class';
 import { SuccessResponse } from '@/shared/classes/success-response.class';
 import { createResponseType } from '@/shared/helpers/create-response.mixin';
@@ -49,19 +49,23 @@ export class UsersController {
     status: 401,
     description: 'Authentication is required to create a user',
     type: UnauthorizedException,
-    example: new UnauthorizedException().getResponse(),
+    example: new UnauthorizedException(
+      'Only authenticated users can access this resource',
+    ).getResponse(),
   })
   @ApiResponse({
     status: 403,
     description: 'Only admins can create users',
     type: ForbiddenException,
-    example: new ForbiddenException().getResponse(),
+    example: new ForbiddenException(
+      'Only users with the following roles can access this resource: ADMIN',
+    ).getResponse(),
   })
   @ApiResponse({
     status: 404,
     description: 'The provided employeeId does not exist',
     type: NotFoundException,
-    example: new NotFoundException().getResponse(),
+    example: new NotFoundException("Employee doesn't exist").getResponse(),
   })
   @ApiResponse({
     status: 409,
@@ -94,13 +98,26 @@ export class UsersController {
     status: 401,
     description: 'User is not authenticated',
     type: UnauthorizedException,
-    example: new UnauthorizedException().getResponse(),
+    example: new UnauthorizedException(
+      'Only authenticated users can access this resource',
+    ).getResponse(),
   })
   @ApiResponse({
     status: 403,
     description: 'Not authorized',
     type: ForbiddenException,
-    example: new ForbiddenException().getResponse(),
+    examples: {
+      NotSameUser: {
+        summary: "A user can't update another user's password",
+        value: new ForbiddenException(
+          "You can't update this user's password",
+        ).getResponse(),
+      },
+      WrongPassword: {
+        summary: 'The provided current password is incorrect',
+        value: new ForbiddenException('Incorrect password').getResponse(),
+      },
+    },
   })
   @UseGuards(AuthenticatedGuard)
   @Patch(':id/password')
