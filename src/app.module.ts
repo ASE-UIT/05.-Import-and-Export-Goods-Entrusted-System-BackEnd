@@ -4,7 +4,6 @@ import { AppService } from './app.service';
 import { UsersModule } from './users/users.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { SequelizeModule } from '@nestjs/sequelize';
-import { RolesModule } from './roles/roles.module';
 import { EmployeesModule } from './employees/employees.module';
 import { CustomersModule } from './customers/customers.module';
 import { ProvidersModule } from './providers/providers.module';
@@ -27,6 +26,7 @@ import { ShipmentModule } from './shipment/shipment.module';
 import { DocumentModule } from './document/document.module';
 import { ShipmentTrackingModule } from './shipment-tracking/shipment-tracking.module';
 import { LegalRepsModule } from './legal-representative/legal-rep.module';
+import { RolesModule } from './roles/roles.module';
 
 @Module({
   imports: [
@@ -49,7 +49,6 @@ import { LegalRepsModule } from './legal-representative/legal-rep.module';
       }),
     }),
     UsersModule,
-    RolesModule,
     EmployeesModule,
     FreightModule,
     LegalRepsModule,
@@ -72,6 +71,7 @@ import { LegalRepsModule } from './legal-representative/legal-rep.module';
     ShipmentModule,
     DocumentModule,
     ShipmentTrackingModule,
+    RolesModule,
   ],
   controllers: [AppController],
   providers: [AppService],
