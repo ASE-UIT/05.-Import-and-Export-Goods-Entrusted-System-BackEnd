@@ -109,7 +109,7 @@ export class LegalRepsController {
     updateData: Partial<CreateLegalRepDto>,
   ) {
     if (Object.keys(updateData).length === 0)
-      throw new BadRequestException('Body is empty');
+      throw new BadRequestException('Body is empty or invalid field names');
     const updateResponse = await this.legalRepsService.updateLegalReps(
       id,
       updateData,

@@ -25,6 +25,9 @@ import { LandFreightModule } from './landFreight/landFreight.module';
 import { ContactRepsModule } from './contactReps/contactReps.module';
 import { PaymentModule } from './payment/payment.module';
 import { ContractsModule } from './contracts/contracts.module';
+import { ShipmentModule } from './shipment/shipment.module';
+import { DocumentModule } from './document/document.module';
+import { ShipmentTrackingModule } from './shipment-tracking/shipment-tracking.module';
 
 @Module({
   imports: [
@@ -67,6 +70,9 @@ import { ContractsModule } from './contracts/contracts.module';
     PaymentModule,
     ContractsModule,
     ContactRepsModule,
+    ShipmentModule,
+    DocumentModule,
+    ShipmentTrackingModule,
   ],
   controllers: [AppController],
   providers: [AppService],

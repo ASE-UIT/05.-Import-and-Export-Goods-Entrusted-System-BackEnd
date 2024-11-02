@@ -182,7 +182,7 @@ export class CustomersController {
     body: Partial<CreateCustomerDto>,
   ) {
     if (Object.keys(body).length === 0)
-      throw new BadRequestException('Body is empty');
+      throw new BadRequestException('Body is empty or invalid field names');
     const updateResponse = await this.customerService.updateCustomer(id, body);
     return updateResponse;
   }

@@ -14,4 +14,6 @@ export const CreateLegalRepSchema = z.object({
 });
 
 export class CreateLegalRepDto extends createZodDto(CreateLegalRepSchema) {}
-export class UpdateLegalRepDto extends PartialType(CreateLegalRepDto) {}
+export class UpdateLegalRepDto extends createZodDto(
+  CreateLegalRepSchema.partial(),
+) {}
