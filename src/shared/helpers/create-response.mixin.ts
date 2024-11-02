@@ -10,9 +10,7 @@ export function createResponseType<T>(
     @ApiProperty({ example: responseString })
     message: string;
 
-    @ApiProperty(
-      DataType ? { type: () => DataType } : { type: 'object', nullable: true },
-    )
+    @ApiProperty({ type: () => (DataType ? DataType : Object) })
     data: T;
 
     constructor(message: string, data: T) {

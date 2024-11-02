@@ -36,7 +36,9 @@ export class SessionController {
     status: 401,
     description: 'Not logged in',
     type: UnauthorizedException,
-    example: new UnauthorizedException().getResponse(),
+    example: new UnauthorizedException(
+      'Only authenticated users can access this resource',
+    ).getResponse(),
   })
   @UseGuards(LocalAuthGuard)
   @Post()
@@ -55,7 +57,9 @@ export class SessionController {
     status: 401,
     description: 'Not logged in',
     type: UnauthorizedException,
-    example: new UnauthorizedException().getResponse(),
+    example: new UnauthorizedException(
+      'Only authenticated users can access this resource',
+    ).getResponse(),
   })
   @UseGuards(AuthenticatedGuard)
   @Get()
@@ -74,13 +78,17 @@ export class SessionController {
     status: 401,
     description: 'Not logged in',
     type: UnauthorizedException,
-    example: new UnauthorizedException().getResponse(),
+    example: new UnauthorizedException(
+      'Only authenticated users can access this resource',
+    ).getResponse(),
   })
   @ApiResponse({
     status: 500,
     description: 'Internal server error',
     type: InternalServerErrorException,
-    example: new InternalServerErrorException().getResponse(),
+    example: new InternalServerErrorException(
+      "This shouldn't happen",
+    ).getResponse(),
   })
   @UseGuards(AuthenticatedGuard)
   @Delete()
