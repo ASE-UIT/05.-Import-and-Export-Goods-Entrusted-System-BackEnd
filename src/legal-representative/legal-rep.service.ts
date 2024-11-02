@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { CreateLegalRepsStrategy } from './strategies/create-legal-rep/create-legal-rep.strategy';
-import { CreateLegalRepDto } from './dtos/CreateLegalRepDto';
-import { LegalRep } from './models/legalReps.model';
+import { CreateLegalRepDto } from './dtos/create-legal-rep.dto';
+import { LegalRep } from './models/legal-rep.model';
 import { UpdateLegalRepsStrategy } from './strategies/update-legal-rep/update-legal-rep.strategy';
 import { FindLegalRepsByCustomerIdStrategy } from './strategies/find-legal-rep/find-by-customer-id.strategy';
 import { FindLegalRepsByEmailStrategy } from './strategies/find-legal-rep/find-by-email.strategy';

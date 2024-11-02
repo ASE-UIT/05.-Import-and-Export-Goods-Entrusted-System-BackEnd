@@ -13,11 +13,11 @@ import { ZodValidationPipe } from 'nestjs-zod';
 import {
   CreateShipmentTrackingDto,
   CreateShipmentTrackingSchema,
-} from './dtos/CreateShipmentTrackingDto';
+} from './dtos/create-shipment-tracking.dto';
 import {
   QueryShipmentTrackingDto,
   QueryShipmentTrackingSchema,
-} from './dtos/QueryShipmentTrackingDto';
+} from './dtos/query-shipment-tracking.dto';
 import { query } from 'express';
 import { FindShipmentTrackingStrategies } from './find-strategies/find-shipment-tracking-strategy.enum';
 

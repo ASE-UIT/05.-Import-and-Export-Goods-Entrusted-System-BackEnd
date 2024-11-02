@@ -1,8 +1,8 @@
 import { ConflictException, Injectable } from '@nestjs/common';
 import { ICreateCustomerStrategy } from './create-customer-strategy.interface';
-import { CreateCustomerDto } from '@/customers/dtos/CreateCustomerDto';
 import { Customer } from '@/customers/models/customer.model';
 import { UniqueConstraintError } from 'sequelize';
+import { CreateCustomerDto } from '@/customers/dtos/create-customer.dto';
 
 @Injectable()
 export class CreateCustomerStrategy implements ICreateCustomerStrategy {

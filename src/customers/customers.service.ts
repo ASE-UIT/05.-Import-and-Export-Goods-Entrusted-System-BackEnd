@@ -7,7 +7,7 @@ import { IFindCustomerStrategy } from './strategies/find-customer/find-customer-
 import { Customer } from './models/customer.model';
 import { FindAllCustomerStrategy } from './strategies/find-customer/find-all.strategy';
 import { CreateCustomerStrategy } from './strategies/create-customer/create-customer.strategy';
-import { CreateCustomerDto } from './dtos/CreateCustomerDto';
+import { CreateCustomerDto } from './dtos/create-customer.dto';
 import { UpdateCustomerStrategy } from './strategies/update-customer/update-customer.strategy';
 
 @Injectable()

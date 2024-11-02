@@ -5,8 +5,8 @@ import {
 } from '@nestjs/common';
 import { IUpdateCustomerStrategy } from './update-customer-strategy.interface';
 import { Customer } from '@/customers/models/customer.model';
-import { CreateCustomerDto } from '@/customers/dtos/CreateCustomerDto';
 import { UniqueConstraintError } from 'sequelize';
+import { CreateCustomerDto } from '@/customers/dtos/create-customer.dto';
 
 @Injectable()
 export class UpdateCustomerStrategy implements IUpdateCustomerStrategy {

@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { CreateShipmentTrackingDto } from './dtos/CreateShipmentTrackingDto';
+import { CreateShipmentTrackingDto } from './dtos/create-shipment-tracking.dto';
 import { ShipmentTracking } from './models/shipment-tracking.model';
 import { FindAllShipmentTrackingStrategy } from './find-strategies/find-all.strategy';
 import { FindShipmentTrackingByLocationStrategy } from './find-strategies/find-by-location.strategy';

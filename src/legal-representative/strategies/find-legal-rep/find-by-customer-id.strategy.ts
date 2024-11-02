@@ -1,6 +1,6 @@
-import { LegalRep } from '@/legalReps/models/legalReps.model';
 import { Injectable } from '@nestjs/common';
 import { IFindLegalRepsStrategy } from './find-legal-rep-strategy.interface';
+import { LegalRep } from '@/legal-representative/models/legal-rep.model';
 
 @Injectable()
 export class FindLegalRepsByCustomerIdStrategy

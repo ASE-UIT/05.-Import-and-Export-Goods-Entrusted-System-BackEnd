@@ -13,12 +13,15 @@ import {
 import { CustomersService } from './customers.service';
 import { FindCustomerStrategy } from './strategies/find-customer/find-customer-strategy.enum';
 import { ZodValidationPipe } from '@/shared/pipes/zod.pipe';
-import { QueryCustomerDto, QueryCustomerSchema } from './dtos/QueryCustomerDto';
+import {
+  QueryCustomerDto,
+  QueryCustomerSchema,
+} from './dtos/query-customer.dto';
 import {
   CreateCustomerDto,
   CreateCustomerSchema,
   UpdateCustomerDto,
-} from './dtos/CreateCustomerDto';
+} from './dtos/create-customer.dto';
 import { RoleGuard } from '@/shared/guards/role.guard';
 import { Roles } from '@/shared/decorators/role.decorator';
 import { RoleEnum } from '@/shared/enums/roles.enum';

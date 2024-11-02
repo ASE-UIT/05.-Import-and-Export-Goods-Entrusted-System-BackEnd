@@ -4,10 +4,10 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { ICreateLegalRepsStrategy } from './create-legal-rep-strategy.interface';
-import { CreateLegalRepDto } from '@/legalReps/dtos/CreateLegalRepDto';
-import { LegalRep } from '@/legalReps/models/legalReps.model';
 import { ForeignKeyConstraintError, UniqueConstraintError } from 'sequelize';
 import { Customer } from '@/customers/models/customer.model';
+import { CreateLegalRepDto } from '@/legal-representative/dtos/create-legal-rep.dto';
+import { LegalRep } from '@/legal-representative/models/legal-rep.model';
 
 @Injectable()
 export class CreateLegalRepsStrategy implements ICreateLegalRepsStrategy {

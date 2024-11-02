@@ -1,13 +1,12 @@
-import { LegalRep } from '@/legalReps/models/legalReps.model';
 import {
-  BadRequestException,
   ConflictException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
 import { IUpdateLegalRepsStrategy } from './update-legal-rep-strategy.interface';
-import { CreateLegalRepDto } from '@/legalReps/dtos/CreateLegalRepDto';
 import { UniqueConstraintError } from 'sequelize';
+import { CreateLegalRepDto } from '@/legal-representative/dtos/create-legal-rep.dto';
+import { LegalRep } from '@/legal-representative/models/legal-rep.model';
 
 @Injectable()
 export class UpdateLegalRepsStrategy implements IUpdateLegalRepsStrategy {

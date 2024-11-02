@@ -13,11 +13,14 @@ import { ZodValidationPipe } from 'nestjs-zod';
 import {
   CreateShipmentDto,
   CreateShipmentSchema,
-} from './dtos/CreateShipmentDto';
+} from './dtos/create-shipment.dto';
 import { ShipmentService } from './shipment.service';
 import { ShipmentTrackingService } from '@/shipment-tracking/shipment-tracking.service';
-import { CreateShipmentTrackingDto } from '@/shipment-tracking/dtos/CreateShipmentTrackingDto';
-import { QueryShipmentDto, QueryShipmentSchema } from './dtos/QueryShipmentDto';
+import { CreateShipmentTrackingDto } from '@/shipment-tracking/dtos/create-shipment-tracking.dto';
+import {
+  QueryShipmentDto,
+  QueryShipmentSchema,
+} from './dtos/query-shipment.dto';
 import { FindShipmentStrategies } from './find-strategies/find-shipment-strategy.enum';
 
 @Controller({ path: 'shipment', version: '1' })

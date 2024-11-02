@@ -1,4 +1,4 @@
-import { LegalRep } from '@/legalReps/models/legalReps.model';
+import { LegalRep } from '@/legal-representative/models/legal-rep.model';
 import { QuotationReq } from '@/quotationReqs/models/quotationReq.model';
 import sequelize, { HasOne } from 'sequelize';
 import {

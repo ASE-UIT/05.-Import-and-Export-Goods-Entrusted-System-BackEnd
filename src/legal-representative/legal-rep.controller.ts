@@ -10,18 +10,18 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { LegalRepsService } from './legalReps.service';
+import { LegalRepsService } from './legal-rep.service';
 import {
   CreateLegalRepDto,
   CreateLegalRepSchema,
   UpdateLegalRepDto,
-} from './dtos/CreateLegalRepDto';
+} from './dtos/create-legal-rep.dto';
 import { ZodValidationPipe } from '@/shared/pipes/zod.pipe';
 
 import {
   QueryLegalRepsDto,
   QueryLegalRepsSchema,
-} from './dtos/QueryLegalRepsDto';
+} from './dtos/query-legal-rep.dto';
 import { FindLegalRepsStrategy } from './strategies/find-legal-rep/find-legal-rep-strategy.enum';
 import { RoleGuard } from '@/shared/guards/role.guard';
 import { Roles } from '@/shared/decorators/role.decorator';
