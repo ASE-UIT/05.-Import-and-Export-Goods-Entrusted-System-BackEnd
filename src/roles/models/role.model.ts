@@ -1,4 +1,6 @@
+import { RoleEnum } from '@/shared/enums/roles.enum';
 import { User } from '@/users/models/user.model';
+import { ApiProperty } from '@nestjs/swagger';
 import sequelize from 'sequelize';
 import {
   AllowNull,
@@ -14,8 +16,10 @@ import {
 
 @Table({
   tableName: 'roles',
+  timestamps: false,
 })
 export class Role extends Model {
+  @ApiProperty()
   @Column({
     type: sequelize.DataTypes.UUID,
     primaryKey: true,
@@ -23,10 +27,11 @@ export class Role extends Model {
   })
   id: string;
 
+  @ApiProperty({ enum: RoleEnum })
   @Unique
   @AllowNull(false)
   @Column
-  name: string;
+  name: RoleEnum;
 
   //Associations
   @HasMany(() => User)
