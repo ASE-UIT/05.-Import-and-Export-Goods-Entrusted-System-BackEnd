@@ -5,11 +5,6 @@ import { LegalRep } from './models/legal-rep.model';
 import { LegalRepsController } from './legal-rep.controller';
 import { CreateLegalRepsStrategy } from './strategies/create-legal-rep/create-legal-rep.strategy';
 import { UpdateLegalRepsStrategy } from './strategies/update-legal-rep/update-legal-rep.strategy';
-import { FindAllLegalRepsStrategy } from './strategies/find-legal-rep/find-all.strategy';
-import { FindLegalRepsByCustomerIdStrategy } from './strategies/find-legal-rep/find-by-customer-id.strategy';
-import { FindLegalRepsByEmailStrategy } from './strategies/find-legal-rep/find-by-email.strategy';
-import { FindLegalRepsByNameStrategy } from './strategies/find-legal-rep/find-by-name.strategy';
-import { FindLegalRepsByPhoneStrategy } from './strategies/find-legal-rep/find-by-phone.strategy';
 
 @Module({
   imports: [SequelizeModule.forFeature([LegalRep])],
@@ -18,11 +13,6 @@ import { FindLegalRepsByPhoneStrategy } from './strategies/find-legal-rep/find-b
     LegalRepsService,
     CreateLegalRepsStrategy,
     UpdateLegalRepsStrategy,
-    FindAllLegalRepsStrategy,
-    FindLegalRepsByCustomerIdStrategy,
-    FindLegalRepsByEmailStrategy,
-    FindLegalRepsByNameStrategy,
-    FindLegalRepsByPhoneStrategy,
   ],
 })
 export class LegalRepsModule {}

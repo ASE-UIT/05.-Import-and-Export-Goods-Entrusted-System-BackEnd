@@ -6,7 +6,10 @@ import {
 import { IUpdateCustomerStrategy } from './update-customer-strategy.interface';
 import { Customer } from '@/customers/models/customer.model';
 import { UniqueConstraintError } from 'sequelize';
-import { CreateCustomerDto } from '@/customers/dtos/create-customer.dto';
+import {
+  CreateCustomerDto,
+  UpdateCustomerDto,
+} from '@/customers/dtos/create-customer.dto';
 import { InjectModel } from '@nestjs/sequelize';
 import {
   ValidationError,
@@ -21,7 +24,7 @@ export class UpdateCustomerStrategy implements IUpdateCustomerStrategy {
   ) {}
   async update(
     customerId: string,
-    updateInfo: Partial<CreateCustomerDto>,
+    updateInfo: UpdateCustomerDto,
   ): Promise<Customer> {
     try {
       const [affectedRows, [updateData]] = await this.customerModel.update(

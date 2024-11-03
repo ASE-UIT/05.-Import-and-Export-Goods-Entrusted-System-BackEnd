@@ -1,21 +1,18 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { CreateShipmentDto } from './dtos/create-shipment.dto';
+import {
+  CreateShipmentDto,
+  UpdateShipmentDto,
+} from './dtos/create-shipment.dto';
 import { Shipment } from './models/shipment.model';
-import { FindAllShipmentStrategy } from './find-strategies/find-all.strategy';
-import { FindShipmentByShipmentTypeStrategy } from './find-strategies/find-by-shipment-type.strategy';
-import { FindShipmentStrategies } from './find-strategies/find-shipment-strategy.enum';
-import { IFindShipmentStrategy } from './find-strategies/find-shipment-strategy.interface';
-import { FindShipmentByContractIdStrategy } from './find-strategies/find-by-contract-id.strategy';
 import { InjectModel } from '@nestjs/sequelize';
+import { ForeignKeyConstraintError } from 'sequelize';
+import { QueryShipmentDto } from './dtos/query-shipment.dto';
 
 @Injectable()
 export class ShipmentService {
   constructor(
     @InjectModel(Shipment)
     private shipmentModel: typeof Shipment,
-    private findAllShipmentStrategy: FindAllShipmentStrategy,
-    private findShipmentByShipmentTypeStrategy: FindShipmentByShipmentTypeStrategy,
-    private findShipmentByContractIdStrategy: FindShipmentByContractIdStrategy,
   ) {}
   async createShipment(body: CreateShipmentDto): Promise<Shipment> {
     try {
@@ -25,13 +22,15 @@ export class ShipmentService {
       });
       return newShipment;
     } catch (err) {
-      console.log(err);
+      if (err instanceof ForeignKeyConstraintError) {
+        throw new NotFoundException('Contract id not found');
+      }
     }
   }
 
   async updateShipment(
     shipmentId: string,
-    body: Partial<CreateShipmentDto>,
+    body: UpdateShipmentDto,
   ): Promise<Shipment> {
     try {
       const [affectedRows, [updateData]] = await this.shipmentModel.update(
@@ -46,23 +45,12 @@ export class ShipmentService {
     }
   }
 
-  getFindStrategy(strategy: FindShipmentStrategies): IFindShipmentStrategy {
-    switch (strategy) {
-      case FindShipmentStrategies.ALL:
-        return this.findAllShipmentStrategy;
-      case FindShipmentStrategies.CONTRACT_ID:
-        return this.findShipmentByContractIdStrategy;
-      case FindShipmentStrategies.SHIPMENT_TYPE:
-        return this.findShipmentByShipmentTypeStrategy;
-    }
-  }
+  async findShipment(query: QueryShipmentDto): Promise<Shipment[]> {
+    let shipment: Shipment[];
+    if (query) shipment = await Shipment.findAll({ where: query });
+    else shipment = await Shipment.findAll();
 
-  async findShipment(
-    strategy: FindShipmentStrategies,
-    shipmentInfo: string,
-  ): Promise<Shipment[]> {
-    const findStrategy = this.getFindStrategy(strategy);
-    const shipment = await findStrategy.find(shipmentInfo);
-    return shipment;
+    if (shipment.length > 0) return shipment;
+    else throw new NotFoundException('Shipment not found');
   }
 }

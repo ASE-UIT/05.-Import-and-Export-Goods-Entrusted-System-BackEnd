@@ -18,35 +18,26 @@ import {
   CreateLegalRepSchema,
   UpdateLegalRepDto,
 } from './dtos/create-legal-rep.dto';
-import { ZodValidationPipe } from '@/shared/pipes/zod.pipe';
 
 import {
   QueryLegalRepsDto,
   QueryLegalRepsSchema,
 } from './dtos/query-legal-rep.dto';
-import { FindLegalRepsStrategy } from './strategies/find-legal-rep/find-legal-rep-strategy.enum';
 import { RoleGuard } from '@/shared/guards/role.guard';
 import { Roles } from '@/shared/decorators/role.decorator';
 import { RoleEnum } from '@/shared/enums/roles.enum';
 import {
-  ApiBadRequestResponse,
   ApiBody,
-  ApiConflictResponse,
-  ApiCreatedResponse,
-  ApiInternalServerErrorResponse,
-  ApiNotFoundResponse,
-  ApiOkResponse,
   ApiOperation,
   ApiQuery,
   ApiResponse,
   ApiTags,
-  ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
-import { UUIDV4 } from 'sequelize';
 import { SuccessResponse } from '@/shared/classes/success-response.class';
 import { createResponseType } from '@/shared/helpers/create-response.mixin';
 import { LegalRep } from './models/legal-rep.model';
 import { ValidationError } from '@/shared/classes/validation-error.class';
+import { ZodValidationPipe } from 'nestjs-zod';
 
 @ApiTags('Legal representatives')
 @Controller({
@@ -74,20 +65,18 @@ export class LegalRepsController {
     status: 401,
     description: 'Authentication is required to create a legal-rep',
     type: UnauthorizedException,
-    example: new UnauthorizedException().getResponse(),
+    example: new UnauthorizedException(
+      'Only authenticated users can access this resource',
+    ).getResponse(),
   })
   @ApiResponse({
     status: 403,
     description:
       'Only user with role: [ADMIN | MANAGER] can perform this action',
     type: ForbiddenException,
-    example: new ForbiddenException().getResponse(),
-  })
-  @ApiResponse({
-    status: 404,
-    description: 'The provided legal-rep information does not exist',
-    type: NotFoundException,
-    example: new NotFoundException().getResponse(),
+    example: new ForbiddenException(
+      'Only users with the following roles can access this resource: ADMIN, MANAGER',
+    ).getResponse(),
   })
   @ApiResponse({
     status: 409,
@@ -112,16 +101,6 @@ export class LegalRepsController {
   @ApiOperation({ summary: "Update customer's information" })
   @ApiBody({
     type: UpdateLegalRepDto,
-    examples: {
-      example: {
-        description: 'Able to update one or more fields in CreateCustomerDto',
-        value: {
-          name: 'Updated name',
-          phone: '123456',
-          email: 'UpdatedEmail@example.com',
-        },
-      },
-    },
   })
   @ApiResponse({
     status: 201,
@@ -141,20 +120,26 @@ export class LegalRepsController {
     description:
       "Authentication is required to update a legal-rep's information",
     type: UnauthorizedException,
-    example: new UnauthorizedException().getResponse(),
+    example: new UnauthorizedException(
+      'Only authenticated users can access this resource',
+    ).getResponse(),
   })
   @ApiResponse({
     status: 403,
     description:
       'Only user with role: [ADMIN | MANAGER] can perform this action',
     type: ForbiddenException,
-    example: new ForbiddenException().getResponse(),
+    example: new ForbiddenException(
+      'Only users with the following roles can access this resource: ADMIN, MANAGER',
+    ).getResponse(),
   })
   @ApiResponse({
     status: 404,
     description: 'The provided legal-rep information does not exist',
     type: NotFoundException,
-    example: new NotFoundException().getResponse(),
+    example: new NotFoundException(
+      'Legal representative not found',
+    ).getResponse(),
   })
   @ApiResponse({ status: 409, description: 'Conflict', type: ValidationError })
   @UseGuards(RoleGuard)
@@ -162,8 +147,8 @@ export class LegalRepsController {
   @Patch(':id')
   async updateLegalReps(
     @Param('id') id: string,
-    @Body(new ZodValidationPipe(CreateLegalRepSchema.partial()))
-    updateData: Partial<CreateLegalRepDto>,
+    @Body(new ZodValidationPipe(UpdateLegalRepDto))
+    updateData: UpdateLegalRepDto,
   ) {
     if (Object.keys(updateData).length === 0)
       throw new BadRequestException('Body is empty or invalid field names');
@@ -198,21 +183,20 @@ export class LegalRepsController {
   })
   @ApiResponse({
     status: 200,
-    description: 'Shipment founded',
-    example: {
-      id: '112fad97-b247-49f8-855c-65b22dab4189',
-      name: 'rep3',
-      email: 'rep3@example.com',
-      phone: '654321',
-      createdAt: '2024-10-24T14:33:15.881Z',
-      updatedAt: '2024-10-24T14:33:15.881Z',
-    },
+    description: 'Legal representative found',
+    type: LegalRep,
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Unrecognized key(s) in query',
   })
   @ApiResponse({
     status: 401,
     description: "Authentication is required to find legal-rep's information",
     type: UnauthorizedException,
-    example: new UnauthorizedException().getResponse(),
+    example: new UnauthorizedException(
+      'Only authenticated users can access this resource',
+    ).getResponse(),
   })
   @ApiResponse({
     status: 403,
@@ -220,51 +204,26 @@ export class LegalRepsController {
       'Only user with role: [ADMIN | MANAGER] can perform this action',
     type: ForbiddenException,
 
-    example: new ForbiddenException().getResponse(),
+    example: new ForbiddenException(
+      'Only users with the following roles can access this resource: ADMIN, MANAGER',
+    ).getResponse(),
   })
   @ApiResponse({
     status: 404,
     description: 'Legal representative not found',
     type: NotFoundException,
-    example: new NotFoundException().getResponse(),
+    example: new NotFoundException(
+      'Legal representative not found',
+    ).getResponse(),
   })
   @UseGuards(RoleGuard)
   @Roles([RoleEnum.ADMIN, RoleEnum.MANAGER])
   @Get()
   async findLegalReps(
-    @Query(new ZodValidationPipe(QueryLegalRepsSchema))
+    @Query(new ZodValidationPipe(QueryLegalRepsSchema.partial().strict()))
     query: QueryLegalRepsDto,
   ) {
-    if (Object.keys(query).length === 0)
-      return await this.legalRepsService.findLegalReps(
-        FindLegalRepsStrategy.ALL,
-        '',
-      );
-
-    const queryFields: { [key: string]: FindLegalRepsStrategy } = {
-      name: FindLegalRepsStrategy.NAME,
-      customerId: FindLegalRepsStrategy.CUSTOMER_ID,
-      phone: FindLegalRepsStrategy.PHONE,
-      email: FindLegalRepsStrategy.EMAIL,
-    };
-
-    // Assign corrisponding strategy to query fields
-    for (const [key, strategy] of Object.entries(queryFields)) {
-      const value = query[key as keyof QueryLegalRepsDto];
-      if (value) {
-        const customer = await this.legalRepsService.findLegalReps(
-          strategy,
-          value,
-        );
-        if (customer.length > 0) {
-          if (strategy === FindLegalRepsStrategy.ALL || customer.length > 1)
-            return customer;
-          else return customer[0];
-        }
-      }
-    }
-
-    // Cant find customer
-    throw new NotFoundException('Legal representative not found');
+    const result = await this.legalRepsService.findLegalReps(query);
+    return new SuccessResponse('Legal representative found', result);
   }
 }

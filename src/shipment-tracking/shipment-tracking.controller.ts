@@ -41,6 +41,7 @@ import {
   ShipmentTrackingStatus,
 } from './models/shipment-tracking.model';
 import { ValidationError } from '@/shared/classes/validation-error.class';
+import { ZodError, ZodIssueCode } from 'zod';
 
 @ApiTags('Shipment trackings')
 @Controller({ path: 'shipment-tracking', version: '1' })
@@ -50,16 +51,6 @@ export class ShipmentTrackingController {
   @ApiOperation({ summary: "Update a shipment's tracking information" })
   @ApiBody({
     type: UpdateShipmentTrackingDto,
-    examples: {
-      example: {
-        description:
-          'Able to update one or more fields in UpdateShipmentTrackingDto',
-        value: {
-          status: 'Updated status',
-          location: 'Updated location',
-        },
-      },
-    },
   })
   @ApiResponse({
     status: 201,
@@ -76,20 +67,24 @@ export class ShipmentTrackingController {
     description:
       "Authentication is required to update a shipment's information",
     type: UnauthorizedException,
-    example: new UnauthorizedException().getResponse(),
+    example: new UnauthorizedException(
+      'Only authenticated users can access this resource',
+    ).getResponse(),
   })
   @ApiResponse({
     status: 403,
     description:
       'Only user with role: [ADMIN | SALES | CUSTOMER_SERVICE | DOCUMENTATION | MANAGER] can perform this action',
     type: ForbiddenException,
-    example: new ForbiddenException().getResponse(),
+    example: new ForbiddenException(
+      'Only users with the following roles can access this resource: ADMIN, SALES, CUSTOMER_SERVICE, DOCUMENTATION, MANAGER',
+    ).getResponse(),
   })
   @ApiResponse({
     status: 404,
     description: 'The provided shipment tracking information does not exist',
     type: NotFoundException,
-    example: new NotFoundException().getResponse(),
+    example: new NotFoundException('Shipment tracking not found').getResponse(),
   })
   @ApiResponse({ status: 409, description: 'Conflict', type: ValidationError })
   @UseGuards(RoleGuard)
@@ -103,12 +98,8 @@ export class ShipmentTrackingController {
   @Patch(':id')
   async updateShipmentTracking(
     @Param('id') id: string,
-    @Body(
-      new ZodValidationPipe(
-        CreateShipmentTrackingSchema.partial().omit({ shipmentId: true }),
-      ),
-    )
-    body: Partial<CreateShipmentTrackingDto>,
+    @Body(new ZodValidationPipe(UpdateShipmentTrackingDto))
+    body: UpdateShipmentTrackingDto,
   ) {
     if (Object.keys(body).length === 0)
       throw new BadRequestException('Body is empty or invalid field names');
@@ -141,19 +132,20 @@ export class ShipmentTrackingController {
   @ApiResponse({
     status: 200,
     description: 'Shipment tracking founded',
-    example: {
-      id: 'dc4abb20-a6d9-47fc-a5c5-4b7379c7f21c',
-      status: 'PENDING',
-      location: 'Some where updated',
-      shipmentId: '1dd8e39d-26fe-445b-9efa-9d1187ce0e27',
-    },
+    type: ShipmentTracking,
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Unrecognized key(s) in query',
   })
   @ApiResponse({
     status: 401,
     description:
       "Authentication is required to find a shipment's tracking information",
     type: UnauthorizedException,
-    example: new UnauthorizedException().getResponse(),
+    example: new UnauthorizedException(
+      'Only authenticated users can access this resource',
+    ).getResponse(),
   })
   @ApiResponse({
     status: 403,
@@ -161,13 +153,15 @@ export class ShipmentTrackingController {
       'Only user with role: [ADMIN | SALES | CUSTOMER_SERVICE | DOCUMENTATION | MANAGER] can perform this action',
     type: ForbiddenException,
 
-    example: new ForbiddenException().getResponse(),
+    example: new ForbiddenException(
+      'Only users with the following roles can access this resource: ADMIN, SALES, CUSTOMER_SERVICE, DOCUMENTATION, MANAGER',
+    ).getResponse(),
   })
   @ApiResponse({
     status: 404,
     description: 'Shipment tracking not found',
     type: NotFoundException,
-    example: new NotFoundException().getResponse(),
+    example: new NotFoundException('Tracking not found').getResponse(),
   })
   @UseGuards(RoleGuard)
   @Roles([
@@ -179,44 +173,12 @@ export class ShipmentTrackingController {
   ])
   @Get()
   async getShipmentTracking(
-    @Query(new ZodValidationPipe(QueryShipmentTrackingSchema.partial()))
+    @Query(
+      new ZodValidationPipe(QueryShipmentTrackingSchema.partial().strict()),
+    )
     query: Partial<QueryShipmentTrackingDto>,
   ) {
-    if (Object.keys(query).length === 0) {
-      return await this.shipTrackingService.findShipmentTracking(
-        FindShipmentTrackingStrategies.ALL,
-        '',
-      );
-    }
-
-    // Get query fields
-
-    const queryFields: { [key: string]: FindShipmentTrackingStrategies } = {
-      shipmentId: FindShipmentTrackingStrategies.SHIPMENT_ID,
-      location: FindShipmentTrackingStrategies.LOCATION,
-      status: FindShipmentTrackingStrategies.STATUS,
-    };
-
-    // Assign corrisponding strategy to query fields
-    for (const [key, strategy] of Object.entries(queryFields)) {
-      const value = query[key as keyof QueryShipmentTrackingDto];
-      if (value) {
-        const shipment = await this.shipTrackingService.findShipmentTracking(
-          strategy,
-          value,
-        );
-        if (shipment.length > 0) {
-          if (
-            strategy === FindShipmentTrackingStrategies.ALL ||
-            shipment.length > 1
-          )
-            return shipment;
-          else return shipment[0];
-        }
-      }
-    }
-
-    // Cant find customer
-    throw new NotFoundException('Tracking not found');
+    const result = await this.shipTrackingService.findShipmentTracking(query);
+    return new SuccessResponse('Shipment tracking found', result);
   }
 }

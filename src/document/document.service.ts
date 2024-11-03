@@ -5,30 +5,23 @@ import {
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { Document } from './models/document.model';
-import { CreateDocumentDto } from './dtos/create-document..dto';
-import { ShipmentService } from '@/shipment/shipment.service';
-import { Shipment } from '@/shipment/models/shipment.model';
+import {
+  CreateDocumentDto,
+  UpdateDocumentDto,
+} from './dtos/create-document..dto';
+
 import { ForeignKeyConstraintError, UniqueConstraintError } from 'sequelize';
-import { FindAllDocumentStrategy } from './find-document-strategies/find-all.strategy';
-import { FindDocumentByShipmentIdStrategy } from './find-document-strategies/find-by-shipment-id.strategy';
-import { FindDocumentByTypeStrategy } from './find-document-strategies/find-by-type.strategy';
-import { FindDocumentByDocNumberStrategy } from './find-document-strategies/find-by-doc-number.strategy';
-import { FindDocumentStrategies } from './find-document-strategies/find-document-strategy.enum';
-import { IFindDocumentStrategy } from './find-document-strategies/find-document-strategy.interface';
 import {
   ValidationError,
   ValidationErrorDetail,
 } from '@/shared/classes/validation-error.class';
+import { QueryDocumentDto } from './dtos/query-document.dto';
 
 @Injectable()
 export class DocumentService {
   constructor(
     @InjectModel(Document)
     private documentModel: typeof Document,
-    private findAllDocument: FindAllDocumentStrategy,
-    private findDocumentByShipmentId: FindDocumentByShipmentIdStrategy,
-    private findDocumentByType: FindDocumentByTypeStrategy,
-    private findDocumentByDocNumber: FindDocumentByDocNumberStrategy,
   ) {}
   async createDocument(body: CreateDocumentDto): Promise<Document> {
     try {
@@ -53,7 +46,7 @@ export class DocumentService {
 
   async updateDocument(
     documentId: string,
-    body: Partial<CreateDocumentDto>,
+    body: UpdateDocumentDto,
   ): Promise<Document> {
     try {
       const [affectedRows, [updateData]] = await this.documentModel.update(
@@ -74,25 +67,12 @@ export class DocumentService {
     }
   }
 
-  getFindStrategy(strategy: FindDocumentStrategies): IFindDocumentStrategy {
-    switch (strategy) {
-      case FindDocumentStrategies.ALL:
-        return this.findAllDocument;
-      case FindDocumentStrategies.DOC_NUMBER:
-        return this.findDocumentByDocNumber;
-      case FindDocumentStrategies.SHIPMENT_ID:
-        return this.findDocumentByShipmentId;
-      case FindDocumentStrategies.TYPE:
-        return this.findDocumentByType;
-    }
-  }
+  async findDocument(query: QueryDocumentDto): Promise<Document[]> {
+    let document: Document[];
+    if (query) document = await Document.findAll({ where: query });
+    else document = await Document.findAll();
 
-  async findDocument(
-    strategy: FindDocumentStrategies,
-    documentInfo: string | number,
-  ) {
-    const findStrat = this.getFindStrategy(strategy);
-    const document = findStrat.find(documentInfo);
-    return document;
+    if (document.length > 0) return document;
+    else throw new NotFoundException('Document not found');
   }
 }

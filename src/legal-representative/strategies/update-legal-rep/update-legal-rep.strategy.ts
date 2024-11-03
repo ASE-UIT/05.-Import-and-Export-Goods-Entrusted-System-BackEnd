@@ -5,7 +5,10 @@ import {
 } from '@nestjs/common';
 import { IUpdateLegalRepsStrategy } from './update-legal-rep-strategy.interface';
 import { UniqueConstraintError } from 'sequelize';
-import { CreateLegalRepDto } from '@/legal-representative/dtos/create-legal-rep.dto';
+import {
+  CreateLegalRepDto,
+  UpdateLegalRepDto,
+} from '@/legal-representative/dtos/create-legal-rep.dto';
 import { LegalRep } from '@/legal-representative/models/legal-rep.model';
 import { InjectModel } from '@nestjs/sequelize';
 import {
@@ -21,7 +24,7 @@ export class UpdateLegalRepsStrategy implements IUpdateLegalRepsStrategy {
   ) {}
   async update(
     legalRepId: string,
-    updateInfo: Partial<CreateLegalRepDto>,
+    updateInfo: UpdateLegalRepDto,
   ): Promise<LegalRep> {
     try {
       const [affectedRows, [updateData]] = await this.legalRepModel.update(

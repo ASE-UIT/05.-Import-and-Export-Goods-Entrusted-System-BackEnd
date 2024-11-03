@@ -67,20 +67,24 @@ export class ShipmentController {
     status: 401,
     description: 'Authentication is required to create a shipment',
     type: UnauthorizedException,
-    example: new UnauthorizedException().getResponse(),
+    example: new UnauthorizedException(
+      'Only authenticated users can access this resource',
+    ).getResponse(),
   })
   @ApiResponse({
     status: 403,
     description:
       'Only user with role: [ADMIN | SALES | CUSTOMER_SERVICE | DOCUMENTATION] can perform this action',
     type: ForbiddenException,
-    example: new ForbiddenException().getResponse(),
+    example: new ForbiddenException(
+      'Only users with the following roles can access this resource: ADMIN, SALES, CUSTOMER_SERVICE, DOCUMENTATION',
+    ).getResponse(),
   })
   @ApiResponse({
     status: 404,
     description: 'The provided shipment information does not exist',
     type: NotFoundException,
-    example: new NotFoundException().getResponse(),
+    example: new NotFoundException('Contract id not found').getResponse(),
   })
   @ApiResponse({
     status: 409,
@@ -118,15 +122,6 @@ export class ShipmentController {
   @ApiOperation({ summary: "Update a shipment's information" })
   @ApiBody({
     type: UpdateShipmentDto,
-    examples: {
-      example: {
-        description: 'Able to update one or more fields in UpdateShipmentDto',
-        value: {
-          shipmentType: 'Updated type',
-          contractId: 'Updated contractId',
-        },
-      },
-    },
   })
   @ApiResponse({
     status: 201,
@@ -143,20 +138,24 @@ export class ShipmentController {
     description:
       "Authentication is required to update a shipment's information",
     type: UnauthorizedException,
-    example: new UnauthorizedException().getResponse(),
+    example: new UnauthorizedException(
+      'Only authenticated users can access this resource',
+    ).getResponse(),
   })
   @ApiResponse({
     status: 403,
     description:
       'Only user with role: [ADMIN | SALES | CUSTOMER_SERVICE | DOCUMENTATION] can perform this action',
     type: ForbiddenException,
-    example: new ForbiddenException().getResponse(),
+    example: new ForbiddenException(
+      'Only users with the following roles can access this resource: ADMIN, SALES, CUSTOMER_SERVICE, DOCUMENTATION',
+    ).getResponse(),
   })
   @ApiResponse({
     status: 404,
     description: 'The provided shipment information does not exist',
     type: NotFoundException,
-    example: new NotFoundException().getResponse(),
+    example: new NotFoundException('Shipment not found').getResponse(),
   })
   @ApiResponse({ status: 409, description: 'Conflict', type: ValidationError })
   @UseGuards(RoleGuard)
@@ -169,16 +168,8 @@ export class ShipmentController {
   @Patch(':id')
   async updateShipment(
     @Param('id') id: string,
-    @Body(
-      new ZodValidationPipe(
-        CreateShipmentSchema.partial().omit({
-          location: true,
-          status: true,
-          contractId: true,
-        }),
-      ),
-    )
-    body: Partial<CreateShipmentDto>,
+    @Body(new ZodValidationPipe(UpdateShipmentDto))
+    body: UpdateShipmentDto,
   ) {
     if (Object.keys(body).length === 0)
       throw new BadRequestException('Body is empty or invalid field names');
@@ -202,17 +193,19 @@ export class ShipmentController {
   @ApiResponse({
     status: 200,
     description: 'Shipment founded',
-    example: {
-      id: 'bd55389f-c552-4976-95ab-a68ac1241142',
-      shipmentType: 'LAND',
-      contractId: '1',
-    },
+    type: Shipment,
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Unrecognized key(s) in query',
   })
   @ApiResponse({
     status: 401,
     description: "Authentication is required to find shipment's information",
     type: UnauthorizedException,
-    example: new UnauthorizedException().getResponse(),
+    example: new UnauthorizedException(
+      'Only authenticated users can access this resource',
+    ).getResponse(),
   })
   @ApiResponse({
     status: 403,
@@ -220,13 +213,15 @@ export class ShipmentController {
       'Only user with role: [ADMIN | SALES | CUSTOMER_SERVICE | DOCUMENTATION] can perform this action',
     type: ForbiddenException,
 
-    example: new ForbiddenException().getResponse(),
+    example: new ForbiddenException(
+      'Only users with the following roles can access this resource: ADMIN, SALES, CUSTOMER_SERVICE, DOCUMENTATION',
+    ).getResponse(),
   })
   @ApiResponse({
     status: 404,
     description: 'Shipment not found',
     type: NotFoundException,
-    example: new NotFoundException().getResponse(),
+    example: new NotFoundException('Shipment not found').getResponse(),
   })
   @UseGuards(RoleGuard)
   @Roles([
@@ -237,39 +232,10 @@ export class ShipmentController {
   ])
   @Get()
   async findShipment(
-    @Query(new ZodValidationPipe(QueryShipmentSchema.partial()))
+    @Query(new ZodValidationPipe(QueryShipmentSchema.partial().strict()))
     query: Partial<QueryShipmentDto>,
   ) {
-    if (Object.keys(query).length === 0)
-      return await this.shipmentService.findShipment(
-        FindShipmentStrategies.ALL,
-        '',
-      );
-
-    // Get query fields
-
-    const queryFields: { [key: string]: FindShipmentStrategies } = {
-      contractId: FindShipmentStrategies.CONTRACT_ID,
-      shipmentType: FindShipmentStrategies.SHIPMENT_TYPE,
-    };
-
-    // Assign corrisponding strategy to query fields
-    for (const [key, strategy] of Object.entries(queryFields)) {
-      const value = query[key as keyof QueryShipmentDto];
-      if (value) {
-        const shipment = await this.shipmentService.findShipment(
-          strategy,
-          value,
-        );
-        if (shipment.length > 0) {
-          if (strategy === FindShipmentStrategies.ALL || shipment.length > 1)
-            return shipment;
-          else return shipment[0];
-        }
-      }
-    }
-
-    // Cant find customer
-    throw new NotFoundException('Shipment not found');
+    const result = await this.shipmentService.findShipment(query);
+    return new SuccessResponse('shipment found', result);
   }
 }
