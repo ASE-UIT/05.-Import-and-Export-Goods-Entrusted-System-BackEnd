@@ -17,13 +17,7 @@ import { RoleGuard } from '@/shared/guards/role.guard';
 export class QuoteReqDetailsController {
     constructor(private quoteReqDetailsSerivce: QuoteReqDetailsService) { }
 
-    @UseGuards(RoleGuard)
-    @Roles([
-        RoleEnum.ADMIN,
-        RoleEnum.SALES,
-        RoleEnum.MANAGER,
-    ])
-    @Get()
+
     @ApiOperation({ summary: 'Retrieve quote request details based on query parameters' })
     @ApiResponse({ status: 401, description: 'Not logged in or account has unappropriate role' })
     @ApiResponse({ status: 404, description: 'No quote request detail found' })
@@ -34,6 +28,13 @@ export class QuoteReqDetailsController {
     @ApiQuery({ name: 'quoteReqId', required: false, type: String })
     @ApiQuery({ name: 'shipmentReadyDate', required: false, type: String })
     @ApiQuery({ name: 'shipmentDeadline', required: false, type: String })
+    @UseGuards(RoleGuard)
+    @Roles([
+        RoleEnum.ADMIN,
+        RoleEnum.SALES,
+        RoleEnum.MANAGER,
+    ])
+    @Get()
     async getQuoteReqDetail(
         @Query(new ZodValidationPipe(QueryQuoteReqDetailSchema)) query: QueryQuoteReqDetailDto
     ) {
@@ -72,12 +73,7 @@ export class QuoteReqDetailsController {
     }
 
     //create new quote request detail
-    @UseGuards(RoleGuard)
-    @Roles([
-        RoleEnum.ADMIN,
-        RoleEnum.SALES,
-        RoleEnum.MANAGER,
-    ])
+
     @ApiOperation({ summary: 'Create a new quote request detail' })
     @ApiResponse({ status: 201, description: 'Quote request detail successfully created' })
     @ApiResponse({ status: 400, description: 'Invalid foreign key.' })
@@ -96,6 +92,12 @@ export class QuoteReqDetailsController {
             },
         },
     })
+    @UseGuards(RoleGuard)
+    @Roles([
+        RoleEnum.ADMIN,
+        RoleEnum.SALES,
+        RoleEnum.MANAGER,
+    ])
     @Post()
     async createQuoteReqDetail(
         @Body(new ZodValidationPipe(CreateQuoteReqDetailSchema)) body: CreateQuoteReqDetailDto
@@ -105,13 +107,7 @@ export class QuoteReqDetailsController {
     }
 
     //update quote request detail
-    @UseGuards(RoleGuard)
-    @Roles([
-        RoleEnum.ADMIN,
-        RoleEnum.SALES,
-        RoleEnum.MANAGER,
-    ])
-    @Patch(':id')
+
     @ApiOperation({ summary: 'Update quote request detail' })
     @ApiResponse({ status: 200, description: 'Quote request detail successfully updated' })
     @ApiResponse({ status: 400, description: 'Invalid foreign key' })
@@ -131,6 +127,13 @@ export class QuoteReqDetailsController {
             },
         },
     })
+    @UseGuards(RoleGuard)
+    @Roles([
+        RoleEnum.ADMIN,
+        RoleEnum.SALES,
+        RoleEnum.MANAGER,
+    ])
+    @Patch(':id')
     async updateQuoteReqDetail(
         @Param('id') id: string,
         @Body(new ZodValidationPipe(CreateQuoteReqDetailSchema.partial())) body: Partial<CreateQuoteReqDetailDto>) {

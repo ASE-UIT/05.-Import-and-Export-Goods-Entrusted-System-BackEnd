@@ -20,13 +20,7 @@ export class PackageDetailsController {
         private packageDetailsService: PackageDetailsService
     ) { }
 
-    @UseGuards(RoleGuard)
-    @Roles([
-        RoleEnum.ADMIN,
-        RoleEnum.SALES,
-        RoleEnum.MANAGER,
-    ])
-    @Get()
+    //query package detail
     @ApiOperation({ summary: 'Retrieve package detail based on query parameters' })
     @ApiResponse({ status: 401, description: 'Not logged in or account has unappropriate role' })
     @ApiResponse({ status: 200, description: 'Successfully retrieved quote requests' })
@@ -34,6 +28,13 @@ export class PackageDetailsController {
     @ApiResponse({ status: 500, description: 'Internal server error.' })
     @ApiQuery({ name: 'packageType', required: false, enum: PackageType })
     @ApiQuery({ name: 'detailId', required: false, type: String })
+    @UseGuards(RoleGuard)
+    @Roles([
+        RoleEnum.ADMIN,
+        RoleEnum.SALES,
+        RoleEnum.MANAGER,
+    ])
+    @Get()
     async getQuoteReqDetail(
         @Query(new ZodValidationPipe(QueryPackageDetailSchema)) query: QueryPackageDetailDto
     ) {
@@ -66,13 +67,7 @@ export class PackageDetailsController {
         throw new NotFoundException('Package detail not found')
     }
 
-    @UseGuards(RoleGuard)
-    @Roles([
-        RoleEnum.ADMIN,
-        RoleEnum.SALES,
-        RoleEnum.MANAGER,
-    ])
-    @Post()
+    //create package detail
     @ApiOperation({ summary: 'Create a new package detail' })
     @ApiResponse({ status: 201, description: 'Package detail successfully created' })
     @ApiResponse({ status: 201, description: 'Quote request successfully created' })
@@ -92,6 +87,13 @@ export class PackageDetailsController {
             },
         },
     })
+    @UseGuards(RoleGuard)
+    @Roles([
+        RoleEnum.ADMIN,
+        RoleEnum.SALES,
+        RoleEnum.MANAGER,
+    ])
+    @Post()
     async createPackageDetail(
         @Body(new ZodValidationPipe(CreatePackageDetailSchema)) body: CreatePackageDetailDto
     ) {
@@ -99,13 +101,7 @@ export class PackageDetailsController {
         return { message: "Package Detail Created", data: packageDetail }
     }
 
-    @UseGuards(RoleGuard)
-    @Roles([
-        RoleEnum.ADMIN,
-        RoleEnum.SALES,
-        RoleEnum.MANAGER,
-    ])
-    @Patch(':id')
+    //update package detail
     @ApiOperation({ summary: 'Update a package detail' })
     @ApiResponse({ status: 200, description: 'Package detail successfully updated' })
     @ApiResponse({ status: 400, description: 'Invalid foreign key' })
@@ -125,6 +121,13 @@ export class PackageDetailsController {
             },
         },
     })
+    @UseGuards(RoleGuard)
+    @Roles([
+        RoleEnum.ADMIN,
+        RoleEnum.SALES,
+        RoleEnum.MANAGER,
+    ])
+    @Patch(':id')
     async updatePackageDetail(
         @Param('id') id: string,
         @Body(new ZodValidationPipe(CreatePackageDetailSchema.partial())) body: Partial<CreatePackageDetailDto>) {

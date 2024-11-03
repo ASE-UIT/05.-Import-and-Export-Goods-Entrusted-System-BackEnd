@@ -18,13 +18,6 @@ import { Roles } from '@/shared/decorators/role.decorator';
 export class QuotationReqsController {
   constructor(private readonly quotationReqsService: QuotationReqsService) { }
 
-  // @UseGuards(RoleGuard)
-  @Roles([
-    RoleEnum.ADMIN,
-    RoleEnum.SALES,
-    RoleEnum.MANAGER,
-  ])
-  @Get()
   @ApiOperation({ summary: 'Retrieve quote requests based on query parameters' })
   @ApiResponse({ status: 401, description: 'Not logged in or account has unappropriate role' })
   @ApiResponse({ status: 200, description: 'Successfully retrieved quote requests' })
@@ -33,6 +26,13 @@ export class QuotationReqsController {
   @ApiQuery({ name: 'requestDate', required: false, type: String })
   @ApiQuery({ name: 'status', required: false, enum: QuotationReqStatus })
   @ApiQuery({ name: 'customerId', required: false, type: String })
+  @UseGuards(RoleGuard)
+  @Roles([
+    RoleEnum.ADMIN,
+    RoleEnum.SALES,
+    RoleEnum.MANAGER,
+  ])
+  @Get()
   async getQuotationReqs(
     @Query(new ZodValidationPipe(QueryQuotationReqSchema)) query: QueryQuotationReqDto,
   ) {
@@ -68,13 +68,6 @@ export class QuotationReqsController {
   }
 
   //create quotation request
-  @UseGuards(RoleGuard)
-  @Roles([
-    RoleEnum.ADMIN,
-    RoleEnum.SALES,
-    RoleEnum.MANAGER,
-  ])
-  @Post()
   @ApiOperation({ summary: 'Create a new quote request' })
   @ApiResponse({ status: 201, description: 'Quote request successfully created' })
   @ApiResponse({ status: 400, description: 'Invalid foreign key.' })
@@ -90,6 +83,13 @@ export class QuotationReqsController {
       },
     },
   })
+  @UseGuards(RoleGuard)
+  @Roles([
+    RoleEnum.ADMIN,
+    RoleEnum.SALES,
+    RoleEnum.MANAGER,
+  ])
+  @Post()
   async createQuotationReq(
     @Body(new ZodValidationPipe(CreateQuotationReqSchema)) body: CreateQuotationReqDto
   ) {
@@ -99,13 +99,7 @@ export class QuotationReqsController {
 
 
   //update quotation request
-  @UseGuards(RoleGuard)
-  @Roles([
-    RoleEnum.ADMIN,
-    RoleEnum.SALES,
-    RoleEnum.MANAGER,
-  ])
-  @Patch(':id')
+
   @ApiOperation({ summary: 'Update quote request' })
   @ApiResponse({ status: 200, description: 'Quote request successfully updated' })
   @ApiResponse({ status: 401, description: 'Not logged in or account has unappropriate role' })
@@ -121,6 +115,13 @@ export class QuotationReqsController {
       },
     },
   })
+  @UseGuards(RoleGuard)
+  @Roles([
+    RoleEnum.ADMIN,
+    RoleEnum.SALES,
+    RoleEnum.MANAGER,
+  ])
+  @Patch(':id')
   async updateQuotationReq(
     @Param('id') id: string,
     @Body(new ZodValidationPipe(CreateQuotationReqSchema.partial())) body: Partial<CreateQuotationReqDto>
