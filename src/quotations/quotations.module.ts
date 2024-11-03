@@ -14,7 +14,7 @@ import { CreateQuotationStrategy } from './strategies/create-quotation/create-qu
 import { UpdateQuotationStrategy } from './strategies/update-quotation/update-quotation.strategy';
 import { FindQuotationByEmployeeId } from './strategies/find-quotation/find-by-employee-id';
 import { FindQuotationByCustomerId } from './strategies/find-quotation/find-by-customer-id';
-import { FindQuotationReqByCustomerIdStrategy } from '@/quotationReqs/strategies/find-quotationReq/find-by-customerId.strategy';
+import { FindQuotationReqByCustomerIdStrategy } from '@/quotation-requests/strategies/find-quotationReq/find-by-customerId.strategy';
 
 @Module({
   imports: [SequelizeModule.forFeature([Quotation])],
