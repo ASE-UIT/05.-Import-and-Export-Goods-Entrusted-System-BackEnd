@@ -38,9 +38,9 @@ import { PaymentStatus } from '@/shared/enums/payment-status.enum';
 import { RoleGuard } from '@/shared/guards/role.guard';
 import { RoleEnum } from '@/shared/enums/roles.enum';
 import { Roles } from '@/shared/decorators/role.decorator';
-import { createResponseType } from '@/shared/helpers/create-response.mixi';
 import { ValidationError } from '@/shared/classes/validation-error.class';
 import { SuccessResponse } from '@/shared/classes/success-response.class';
+import { createResponseType } from '@/shared/helpers/create-response.mixin';
 
 @ApiTags('Payments')
 @Controller({
@@ -95,7 +95,7 @@ export class PaymentsController {
     type: ValidationError,
   })
   @UseGuards(RoleGuard)
-  @Roles([RoleEnum.ADMIN, RoleEnum.ACCOUTANT])
+  @Roles([RoleEnum.ADMIN, RoleEnum.ACCOUNTANT])
   @Post()
   async createPayment(
     @Body(new ZodValidationPipe(CreatePaymentSchema))
@@ -168,7 +168,7 @@ export class PaymentsController {
     type: ValidationError,
   })
   @UseGuards(RoleGuard)
-  @Roles([RoleEnum.ADMIN, RoleEnum.ACCOUTANT])
+  @Roles([RoleEnum.ADMIN, RoleEnum.ACCOUNTANT])
   @Get()
   async findPayment(
     @Query(new ZodValidationPipe(QueryPaymentSchema.strict()))
@@ -221,7 +221,7 @@ export class PaymentsController {
     type: ValidationError,
   })
   @UseGuards(RoleGuard)
-  @Roles([RoleEnum.ADMIN, RoleEnum.ACCOUTANT])
+  @Roles([RoleEnum.ADMIN, RoleEnum.ACCOUNTANT])
   @Patch(':id')
   async updatePayment(
     @Param('id') id: string,

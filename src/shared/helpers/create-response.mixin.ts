@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { SuccessResponse } from '../classes/success-response.class';
 import { Type } from '@nestjs/common';
-import { SuccessResponse } from '@/shared/classes/success-response.class';
 
 export function createResponseType<T>(
   responseString: string,
