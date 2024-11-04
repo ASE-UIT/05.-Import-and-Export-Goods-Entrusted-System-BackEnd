@@ -19,27 +19,33 @@ import {
 
 @Table({ tableName: 'invoices' })
 export class Invoice extends Model {
+  @ApiProperty()
   @PrimaryKey
   @Default(sequelize.UUIDV4)
   @Column
   id: string;
 
+  @ApiProperty()
   @AllowNull(false)
   @Column
   invoiceDate: Date;
 
+  @ApiProperty()
   @AllowNull(false)
   @Column
   paidDate: Date;
 
+  @ApiProperty()
   @AllowNull(false)
   @Column
   status: InvoiceStatus;
 
+  @ApiProperty()
   @AllowNull(false)
   @Column({ type: DataType.FLOAT })
   taxAmount: number;
 
+  @ApiProperty()
   @AllowNull(false)
   @Column({ type: DataType.FLOAT })
   totalAmount: number;
@@ -47,6 +53,7 @@ export class Invoice extends Model {
   @HasMany(() => Payment)
   payments: Payment[];
 
+  @ApiProperty()
   @ForeignKey(() => Employee)
   @AllowNull(false)
   @Column
@@ -55,6 +62,7 @@ export class Invoice extends Model {
   @BelongsTo(() => Employee)
   employee: Employee;
 
+  @ApiProperty()
   @ForeignKey(() => Contract)
   @AllowNull(false)
   @Column

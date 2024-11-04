@@ -16,22 +16,16 @@ import { FindContractByContractDateStrategy } from './strategies/find-contract/f
 import { FindContractByEmployeeIdStrategy } from './strategies/find-contract/find-by-employee-id.strategy';
 import { FindContractByQuotationIdStrategy } from './strategies/find-contract/find-by-quotation-id.strategy';
 import { UpdateContractStrategy } from './strategies/update-contract/update-contract.strategy';
+import { FindContractStrategy } from './strategies/find-contract/find-contract.strategy';
 
 @Module({
   imports: [SequelizeModule.forFeature([Contract, Employee, Quotation])],
   controllers: [ContractsController],
   providers: [
     ContractsService,
-    FindAllContractStrategy,
-    FindContractByIdStrategy,
-    FindContractByStartDateStrategy,
-    FindContractByEndDateStrategy,
-    FindContractByStatusStrategy,
-    FindContractByContractDateStrategy,
-    FindContractByEmployeeIdStrategy,
-    FindContractByQuotationIdStrategy,
     CreateContractStrategy,
     UpdateContractStrategy,
+    FindContractStrategy,
   ],
 })
 export class ContractsModule {}

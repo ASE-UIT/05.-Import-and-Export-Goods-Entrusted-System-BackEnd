@@ -1,16 +1,29 @@
 import { Payment } from '@/payment/models/payment.model';
-import { Injectable } from '@nestjs/common';
+import { ConflictException, Injectable } from '@nestjs/common';
 import { ICreatePaymentStrategy } from './create-payment-strategy.interface';
-import { CreatePaymentDto } from '@/payment/dtos/CreatePaymentDto';
+import { CreatePaymentDto } from '@/payment/dtos/create-payment.dto';
+import { InjectModel } from '@nestjs/sequelize';
+import { ForeignKeyConstraintError } from 'sequelize';
 
 @Injectable()
 export class CreatePaymentStrategy implements ICreatePaymentStrategy {
+  constructor(
+    @InjectModel(Payment)
+    private paymentModel: typeof Payment,
+  ) {}
+
   async create(paymentInfo: CreatePaymentDto): Promise<Payment> {
-    const payment = new Payment();
-    payment.amountPaid = paymentInfo.amountPaid;
-    payment.status = paymentInfo.status;
-    payment.invoiceId = paymentInfo.invoiceId;
-    await payment.save();
-    return payment;
+    try {
+      const payment = this.paymentModel.create({
+        amountPaid: paymentInfo.amountPaid,
+        status: paymentInfo.status,
+        invoiceId: paymentInfo.invoiceId,
+      });
+      return payment;
+    } catch (err) {
+      if (err instanceof ForeignKeyConstraintError) {
+        throw new ConflictException('Invoice id not found');
+      }
+    }
   }
 }

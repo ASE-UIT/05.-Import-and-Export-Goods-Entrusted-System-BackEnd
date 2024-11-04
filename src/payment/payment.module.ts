@@ -12,6 +12,7 @@ import { FindPaymentByAmountPaidStrategy } from './strategies/find-payment/find-
 import { FindPaymentByStatusStrategy } from './strategies/find-payment/find-by-status.strategy';
 import { FindPaymentByInvoiceIdStrategy } from './strategies/find-payment/find-by-invoice-id.strategy';
 import { UpdatePaymentStrategy } from './strategies/update-payment/update-payment.strategy';
+import { FindPaymentStrategy } from './strategies/find-payment/find-payment.strategy';
 
 @Module({
   imports: [SequelizeModule.forFeature([Payment, Invoice])],
@@ -25,6 +26,7 @@ import { UpdatePaymentStrategy } from './strategies/update-payment/update-paymen
     FindPaymentByInvoiceIdStrategy,
     UpdatePaymentStrategy,
     CreatePaymentStrategy,
+    FindPaymentStrategy,
   ],
 })
 export class PaymentModule {}

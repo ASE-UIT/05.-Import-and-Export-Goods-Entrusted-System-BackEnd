@@ -18,4 +18,4 @@ export const QueryPaymentSchema = z.object({
   invoiceId: z.string().uuid().optional(),
 });
 
-export class QueryPaymentDto extends createZodDto(QueryPaymentSchema) {}
+export type QueryPaymentDto = z.infer<typeof QueryPaymentSchema>;

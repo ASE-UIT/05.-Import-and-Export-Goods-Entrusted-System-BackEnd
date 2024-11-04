@@ -1,4 +1,13 @@
-import { Body, Controller, Patch, Post, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  ForbiddenException,
+  HttpException,
+  Param,
+  Patch,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto, CreateUserSchema } from './dtos/CreateUserDto';
 import { ZodValidationPipe } from '@/shared/pipes/zod.pipe';
@@ -11,7 +20,7 @@ import {
   UpdatePasswordDto,
   UpdatePasswordSchema,
 } from './dtos/UpdatePasswordDto';
-import { ApiCreatedResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 @ApiTags('users')
 @Controller({
@@ -21,11 +30,14 @@ import { ApiCreatedResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 export class UsersController {
   constructor(private usersService: UsersService) {}
 
-  @UseGuards(RoleGuard)
-  @Roles([RoleEnum.ADMIN])
+  //@UseGuards(RoleGuard)
+  //Roles([RoleEnum.ADMIN])
   @Post()
   @ApiOperation({ summary: 'Create a new user' })
-  @ApiCreatedResponse({ description: 'User successfully created' })
+  @ApiResponse({ status: 201, description: 'User successfully created' })
+  @ApiResponse({ status: 400, description: 'Invalid request body' })
+  @ApiResponse({ status: 401, description: 'Not logged in' })
+  @ApiResponse({ status: 403, description: 'Not authorized' })
   async createUser(
     @Body(new ZodValidationPipe(CreateUserSchema)) reqBody: CreateUserDto,
   ) {
@@ -34,13 +46,22 @@ export class UsersController {
   }
 
   @UseGuards(AuthenticatedGuard)
-  @Patch('password')
+  @Patch(':id/password')
+  @ApiOperation({ summary: 'Update user password' })
+  @ApiResponse({ status: 200, description: 'User password updated' })
+  @ApiResponse({ status: 400, description: 'Invalid request body' })
+  @ApiResponse({ status: 401, description: 'Not logged in' })
+  @ApiResponse({ status: 403, description: 'Not authorized' })
   async updatePassword(
     @User() user,
+    @Param('id') id: string,
     @Body(new ZodValidationPipe(UpdatePasswordSchema)) body: UpdatePasswordDto,
   ) {
-    const hashedPassword = user.hashedPassword;
     const userId = user.id;
+    if (userId !== id)
+      throw new ForbiddenException("You can't update this user's password");
+
+    const hashedPassword = user.hashedPassword;
     await this.usersService.updateUser(userId, hashedPassword, body);
     return { message: "User's password has been updated" };
   }

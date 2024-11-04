@@ -36,5 +36,5 @@ export const CreateInvoiceSchema = z.object({
 export class CreateInvoiceDto extends createZodDto(CreateInvoiceSchema) {}
 
 export class UpdateInvoiceDto extends createZodDto(
-  CreateInvoiceSchema.partial(),
+  CreateInvoiceSchema.partial().omit({ employeeId: true, contractId: true }),
 ) {}

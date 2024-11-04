@@ -16,22 +16,15 @@ import { FindInvoiceByContractId } from './strategies/find-invoice/find-by-contr
 import { Contract } from '@/contracts/models/contract.model';
 import { Employee } from '@/employees/models/employee.model';
 import { FindInvoiceById } from './strategies/find-invoice/find-by-id.strategy';
+import { FindInvoiceStrategy } from './strategies/find-invoice/find-invoice.strategy';
 
 @Module({
   imports: [SequelizeModule.forFeature([Invoice, Contract, Employee])],
   providers: [
     InvoicesService,
-    FindAllInvoiceStrategy,
-    FindInvoiceById,
-    FindInvoiceByInvoiceDate,
-    FindInvoiceByPaidDate,
-    FindInvoiceByStatus,
-    FindInvoiceByTaxAmount,
-    FindInvoiceByTotalAmount,
-    FindInvoiceByEmployeeId,
-    FindInvoiceByContractId,
     CreateInvoiceStrategy,
     UpdateInvoiceStrategy,
+    FindInvoiceStrategy,
   ],
   controllers: [InvoicesController],
 })

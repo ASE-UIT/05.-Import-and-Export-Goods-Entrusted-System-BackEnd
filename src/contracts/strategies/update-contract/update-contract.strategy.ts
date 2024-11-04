@@ -1,21 +1,34 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { IUpdateContractStrategy } from './update-contract-strategy.interface';
-import { CreateContractDto } from '@/contracts/dtos/CreateContractDto';
+import { CreateContractDto } from '@/contracts/dtos/create-contract.dto';
 import { Contract } from '@/contracts/models/contract.model';
+import { InjectModel } from '@nestjs/sequelize';
+import { NotFoundError } from 'rxjs';
 
 @Injectable()
 export class UpdateContractStrategy implements IUpdateContractStrategy {
+  constructor(
+    @InjectModel(Contract)
+    private contractModel: typeof Contract,
+  ) {}
   async update(
     contractId: string,
     udpateInfo: Partial<CreateContractDto>,
   ): Promise<Contract> {
-    const [affetedRows, [updateData]] = await Contract.update(
-      { ...udpateInfo },
-      { where: { id: contractId }, returning: true },
-    );
-    if (affetedRows === 0) {
-      throw new BadRequestException("Contract doesn't exist");
+    try {
+      const [affetedRows, [updateData]] = await this.contractModel.update(
+        { ...udpateInfo },
+        { where: { id: contractId }, returning: true },
+      );
+      return updateData.dataValues as Contract;
+    } catch (err) {
+      if (err instanceof TypeError) {
+        throw new NotFoundException('Contract not found');
+      }
     }
-    return updateData.dataValues as Contract;
   }
 }

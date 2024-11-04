@@ -1,12 +1,15 @@
 import {
   Body,
   Controller,
+  ForbiddenException,
   Get,
+  NotAcceptableException,
   NotFoundException,
   Param,
   Patch,
   Post,
   Query,
+  UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
 import {
@@ -19,6 +22,7 @@ import {
   ApiOkResponse,
   ApiOperation,
   ApiQuery,
+  ApiResponse,
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
@@ -27,15 +31,21 @@ import {
   CreateContractDto,
   CreateContractSchema,
   UpdateContractDto,
-} from './dtos/CreateContractDto';
+} from './dtos/create-contract.dto';
 import { Contract } from './models/contract.model';
 import { ContractsService } from './contracts.service';
-import { QueryContractDto, QueryContractSchema } from './dtos/QueryContractDto';
+import {
+  QueryContractDto,
+  QueryContractSchema,
+} from './dtos/query-contract.dto';
 import { FindContractStrategy } from './strategies/find-contract/find-contract-strategy.enum';
 import { RoleGuard } from '@/shared/guards/role.guard';
 import { ContractStatus } from '@/shared/enums/contract-status.enum';
 import { RoleEnum } from '@/shared/enums/roles.enum';
 import { Roles } from '@/shared/decorators/role.decorator';
+import { ValidationError } from '@/shared/classes/validation-error.class';
+import { SuccessResponse } from '@/shared/classes/success-response.class';
+import { createResponseType } from '@/shared/helpers/create-response.mixi';
 
 @ApiTags('Contracts')
 @Controller({
@@ -45,29 +55,65 @@ import { Roles } from '@/shared/decorators/role.decorator';
 export class ContractsController {
   constructor(private contractsService: ContractsService) {}
 
+  @ApiOperation({ summary: 'Create a new contract' })
+  @ApiResponse({
+    status: 201,
+    description: 'Contract created',
+    type: createResponseType('Contract created successfully', Contract),
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Invalid request body',
+    type: ValidationError,
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Authentication is required to create a contract',
+    type: UnauthorizedException,
+    example: new UnauthorizedException(
+      'Only authenticated users can access this resource',
+    ).getResponse(),
+  })
+  @ApiResponse({
+    status: 403,
+    description:
+      'Only user with role: [ADMIN | SALES | ACCOUNTANT] can perform this action',
+    type: ForbiddenException,
+    example: new ForbiddenException(
+      'Only users with the following roles can access this resource: ADMIN, SALES, ACCOUNTANT',
+    ).getResponse(),
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Not found',
+    type: ForbiddenException,
+    examples: {
+      NotFoundEmployee: {
+        summary: 'The provided employeeId does not exist',
+        value: new NotFoundException("Employee doesn't exist").getResponse(),
+      },
+      NotFoundQuotation: {
+        summary: 'The provided quotationId does not exist',
+        value: new NotFoundException("Quotation doesn't exist").getResponse(),
+      },
+    },
+  })
+  @ApiResponse({
+    status: 409,
+    description: 'Conflict',
+    type: ValidationError,
+  })
   @UseGuards(RoleGuard)
   @Roles([RoleEnum.ADMIN, RoleEnum.SALES, RoleEnum.ACCOUTANT])
-  @ApiOperation({ summary: 'Create a new contract' })
-  @ApiBody({ type: CreateContractDto })
-  @ApiCreatedResponse({ description: 'New contract created' })
-  @ApiBadRequestResponse({ description: 'Invalid body' })
-  @ApiUnauthorizedResponse({
-    description: 'Not logged in or account has unappropriate role',
-  })
-  @ApiInternalServerErrorResponse({
-    description: 'Something went terribly wrong. Contact backend team at once',
-  })
   @Post()
   async createContract(
     @Body(new ZodValidationPipe(CreateContractSchema))
     body: CreateContractDto,
-  ): Promise<{ message: string; data: Contract }> {
+  ) {
     const createRes = await this.contractsService.create(body);
-    return { message: 'Contract created successfully', data: createRes };
+    return new SuccessResponse('Contract created successfully', createRes);
   }
 
-  @UseGuards(RoleGuard)
-  @Roles([RoleEnum.ADMIN, RoleEnum.SALES, RoleEnum.ACCOUTANT])
   @ApiOperation({ summary: 'Search for contracts ' })
   @ApiQuery({
     name: 'id',
@@ -76,13 +122,13 @@ export class ContractsController {
     description: 'Search contract by id',
   })
   @ApiQuery({
-    name: 'start date',
+    name: 'startDate',
     type: Date,
     required: false,
     description: 'Search contract by start date',
   })
   @ApiQuery({
-    name: 'end date',
+    name: 'endDate',
     type: Date,
     required: false,
     description: 'Search contract by end date',
@@ -94,97 +140,124 @@ export class ContractsController {
     description: 'Search contract by contract status',
   })
   @ApiQuery({
-    name: 'contract date',
+    name: 'contractDate',
     type: Date,
     required: false,
     description: 'Search contract by contract date',
   })
   @ApiQuery({
-    name: 'employee id',
+    name: 'employeeId',
     type: String,
     required: false,
     description: 'Search contract by employee id',
   })
   @ApiQuery({
-    name: 'quotation id',
+    name: 'quotationId',
     type: String,
     required: false,
     description: 'Search contract by quotation id',
   })
-  @ApiOkResponse({ description: 'contract found' })
-  @ApiNotFoundResponse({ description: 'contract not found' })
-  @ApiInternalServerErrorResponse({
-    description: 'Something went terribly wrong. Contact backend team at once',
+  @ApiResponse({
+    status: 200,
+    description: 'Contract found',
+    type: Contract,
   })
-  @ApiUnauthorizedResponse({
-    description: 'Not logged in or account has unappropriate role',
+  @ApiResponse({
+    status: 400,
+    description: 'Unrecognized key(s) in query',
   })
-  @Get()
-  async findContract(
-    @Query(new ZodValidationPipe(QueryContractSchema))
-    query: QueryContractDto,
-  ): Promise<Contract[]> {
-    if (Object.keys(query).length === 0) {
-      return this.contractsService.find(FindContractStrategy.ALL, '');
-    }
-    const queryFields: { [key: string]: FindContractStrategy } = {
-      id: FindContractStrategy.ID,
-      startDate: FindContractStrategy.START_DATE,
-      endDate: FindContractStrategy.END_DATE,
-      status: FindContractStrategy.STATUS,
-      contractDate: FindContractStrategy.CONTRACT_DATE,
-      employeeId: FindContractStrategy.EMPLOYEE_ID,
-      quotationId: FindContractStrategy.QUOTATION_ID,
-    };
+  @ApiResponse({
+    status: 401,
+    description: "Authentication is required to find contract's information",
+    type: UnauthorizedException,
+    example: new UnauthorizedException(
+      'Only authenticated users can access this resource',
+    ).getResponse(),
+  })
+  @ApiResponse({
+    status: 403,
+    description:
+      'Only user with role: [ADMIN | SALES | ACCOUNTANT] can perform this action',
+    type: ForbiddenException,
 
-    for (const [key, strategy] of Object.entries(queryFields)) {
-      const value = query[key as keyof QueryContractDto];
-      if (value) {
-        const contract = await this.contractsService.find(strategy, value);
-
-        if (contract.length > 0) {
-          if (strategy === FindContractStrategy.ALL || contract.length > 1)
-            return contract;
-          else return [contract[0]];
-        }
-      }
-    }
-
-    throw new NotFoundException('Contract not found');
-  }
-
+    example: new ForbiddenException(
+      'Only users with the following roles can access this resource: ADMIN, SALES, ACCOUNTANT',
+    ).getResponse(),
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Contract not found',
+    type: NotFoundException,
+    example: new NotFoundException('Contract not found').getResponse(),
+  })
+  @ApiResponse({
+    status: 409,
+    description: 'Conflict',
+    type: ValidationError,
+  })
   @UseGuards(RoleGuard)
   @Roles([RoleEnum.ADMIN, RoleEnum.SALES, RoleEnum.ACCOUTANT])
+  @Get()
+  async findContract(
+    @Query(new ZodValidationPipe(QueryContractSchema.strict()))
+    query: QueryContractDto,
+  ) {
+    const foundRes = await this.contractsService.find(query);
+    return new SuccessResponse('Contract found', foundRes);
+  }
+
   @ApiOperation({ summary: "Update contract's information" })
-  @ApiOkResponse({ description: 'New information updated' })
-  @ApiBadRequestResponse({ description: 'Empty body or misspelled property' })
-  @ApiNotFoundResponse({ description: 'Could not find contract to update' })
-  @ApiUnauthorizedResponse({
-    description: 'Not logged in or account has unappropriate role',
-  })
   @ApiBody({
     type: UpdateContractDto,
-    examples: {
-      example: {
-        description: 'Able to update one or more fields in CreateContractDto',
-        value: {
-          startDate: '2024-1-1',
-          status: 'PENDING',
-          endDate: '2024-1-30',
-        },
-      },
-    },
   })
-  @ApiInternalServerErrorResponse({
-    description: 'Something went terribly wrong. Contact backend team at once',
+  @ApiResponse({
+    status: 201,
+    description: 'Contract updated',
+    type: createResponseType('Contract updated successfully', Contract),
   })
+  @ApiResponse({
+    status: 400,
+    description: 'Invalid request body',
+    type: ValidationError,
+  })
+  @ApiResponse({
+    status: 401,
+    description:
+      "Authentication is required to update a contract's information",
+    type: UnauthorizedException,
+    example: new UnauthorizedException(
+      'Only authenticated users can access this resource',
+    ).getResponse(),
+  })
+  @ApiResponse({
+    status: 403,
+    description:
+      'Only user with role: [ADMIN | SALES | ACCOUNTANT] can perform this action',
+    type: ForbiddenException,
+    example: new ForbiddenException(
+      'Only users with the following roles can access this resource: ADMIN, SALES, ACCOUNTANT',
+    ).getResponse(),
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'The provided contract information does not exist',
+    type: NotFoundException,
+    example: new NotFoundException('Contract not found').getResponse(),
+  })
+  @ApiResponse({
+    status: 409,
+    description: 'Conflict',
+    type: ValidationError,
+  })
+  @UseGuards(RoleGuard)
+  @Roles([RoleEnum.ADMIN, RoleEnum.SALES, RoleEnum.ACCOUTANT])
   @Patch(':id')
   async updateContract(
     @Param('id') id: string,
     @Body(new ZodValidationPipe(CreateContractSchema.partial()))
     body: Partial<CreateContractDto>,
-  ): Promise<{ message: string; data: Contract }> {
+  ) {
     const updateRes = await this.contractsService.update(id, body);
-    return { message: 'Contract updated successfully', data: updateRes };
+    return new SuccessResponse('Contract updated successfully', updateRes);
   }
 }

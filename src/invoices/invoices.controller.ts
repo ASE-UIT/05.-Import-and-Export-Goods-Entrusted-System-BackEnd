@@ -1,12 +1,14 @@
 import {
   Body,
   Controller,
+  ForbiddenException,
   Get,
   NotFoundException,
   Param,
   Patch,
   Post,
   Query,
+  UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
 import { ZodValidationPipe } from '@/shared/pipes/zod.pipe';
@@ -15,8 +17,8 @@ import {
   CreateInvoiceDto,
   CreateInvoiceSchema,
   UpdateInvoiceDto,
-} from './dtos/CreateInvoiceDto';
-import { QueryInvoiceDto, QueryInvoiceSchema } from './dtos/QueryInvoiceDto';
+} from './dtos/create-invoice.dto';
+import { QueryInvoiceDto, QueryInvoiceSchema } from './dtos/query-invoice.dto';
 import { Invoice } from './models/invoice.model';
 import { FindInvoiceStrategy } from './strategies/find-invoice/find-invoice-strategy.enum';
 import {
@@ -29,6 +31,7 @@ import {
   ApiOkResponse,
   ApiOperation,
   ApiQuery,
+  ApiResponse,
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
@@ -36,7 +39,9 @@ import { RoleGuard } from '@/shared/guards/role.guard';
 import { RoleEnum } from '@/shared/enums/roles.enum';
 import { Roles } from '@/shared/decorators/role.decorator';
 import { InvoiceStatus } from '@/shared/enums/invoice-status.enum';
-import { DataTypes } from 'sequelize';
+import { DataTypes, ValidationError } from 'sequelize';
+import { createResponseType } from '@/shared/helpers/create-response.mixi';
+import { SuccessResponse } from '@/shared/classes/success-response.class';
 
 @ApiTags('Invoices')
 @Controller({
@@ -46,31 +51,65 @@ import { DataTypes } from 'sequelize';
 export class InvoicesController {
   constructor(private invoicesService: InvoicesService) {}
 
-  //@UseGuards(RoleGuard)
-  //@Roles([RoleEnum.ADMIN, RoleEnum.ACCOUTANT])
+  @ApiOperation({ summary: 'Create a new invoice' })
+  @ApiResponse({
+    status: 201,
+    description: 'Invoice created',
+    type: createResponseType('Invoice created successfully', Invoice),
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Invalid request body',
+    type: ValidationError,
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Authentication is required to create a invoice',
+    type: UnauthorizedException,
+    example: new UnauthorizedException(
+      'Only authenticated users can access this resource',
+    ).getResponse(),
+  })
+  @ApiResponse({
+    status: 403,
+    description:
+      'Only user with role: [ADMIN | ACCOUNTANT] can perform this action',
+    type: ForbiddenException,
+    example: new ForbiddenException(
+      'Only users with the following roles can access this resource: ADMIN, ACCOUNTANT',
+    ).getResponse(),
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Not found',
+    type: ForbiddenException,
+    examples: {
+      NotFoundEmployee: {
+        summary: 'The provided employeeId does not exist',
+        value: new NotFoundException("Employee doesn't exist").getResponse(),
+      },
+      NotFoundContract: {
+        summary: 'The provided contractId does not exist',
+        value: new NotFoundException("Contract doesn't exist").getResponse(),
+      },
+    },
+  })
+  @ApiResponse({
+    status: 409,
+    description: 'Conflict',
+    type: ValidationError,
+  })
+  @UseGuards(RoleGuard)
+  @Roles([RoleEnum.ADMIN, RoleEnum.ACCOUTANT])
   @Post()
-  @ApiOperation({ summary: 'Create new invoice' })
-  @ApiBody({
-    type: CreateInvoiceDto,
-  })
-  @ApiCreatedResponse({ description: 'New invoice created' })
-  @ApiBadRequestResponse({ description: 'Invalid body' })
-  @ApiUnauthorizedResponse({
-    description: 'Not logged in or account has unappropriate role',
-  })
-  @ApiInternalServerErrorResponse({
-    description: 'Something went terribly wrong. Contact backend team at once',
-  })
   async createInvoice(
     @Body(new ZodValidationPipe(CreateInvoiceSchema))
     body: CreateInvoiceDto,
-  ): Promise<{ message: string; data: Invoice }> {
+  ) {
     const createRes = await this.invoicesService.create(body);
-    return { message: 'Invoice created successfully', data: createRes };
+    return new SuccessResponse('Invoice created successfully', createRes);
   }
 
-  //@UseGuards(RoleGuard)
-  //@Roles([RoleEnum.ADMIN, RoleEnum.ACCOUTANT])
   @ApiOperation({ summary: 'Search for invoices' })
   @ApiQuery({
     name: 'id',
@@ -79,13 +118,13 @@ export class InvoicesController {
     description: 'Search invoice by id',
   })
   @ApiQuery({
-    name: 'invoice date',
+    name: 'invoiceDate',
     type: Date,
     required: false,
     description: 'Search invoice by invoice date',
   })
   @ApiQuery({
-    name: 'paid date',
+    name: 'paidDate',
     type: String,
     required: false,
     description: 'Search invoice by paid date',
@@ -97,98 +136,123 @@ export class InvoicesController {
     description: 'Search invoice by invoice status',
   })
   @ApiQuery({
-    name: 'tax amount',
+    name: 'taxAmount',
     type: Number,
     required: false,
     description: 'Search invoice by tax amount',
   })
   @ApiQuery({
-    name: 'total amount',
+    name: 'totalAmount',
     type: Number,
     required: false,
     description: 'Search invoice by total amount',
   })
   @ApiQuery({
-    name: 'employee id',
+    name: 'employeeId',
     type: String,
     required: false,
     description: 'Search invoice by employee id',
   })
   @ApiQuery({
-    name: 'contract id',
+    name: 'invoiceId',
     type: String,
     required: false,
-    description: 'Search invoice by contract id',
+    description: 'Search invoice by invoice id',
   })
-  @ApiOkResponse({ description: 'invoice found' })
-  @ApiNotFoundResponse({ description: 'invoice not found' })
-  @ApiInternalServerErrorResponse({
-    description: 'Something went terribly wrong. Contact backend team at once',
+  @ApiResponse({
+    status: 200,
+    description: 'Invoice found',
+    type: Invoice,
   })
-  @ApiUnauthorizedResponse({
-    description: 'Not logged in or account has unappropriate role',
+  @ApiResponse({
+    status: 400,
+    description: 'Unrecognized key(s) in query',
   })
+  @ApiResponse({
+    status: 401,
+    description: "Authentication is required to find invoice's information",
+    type: UnauthorizedException,
+    example: new UnauthorizedException(
+      'Only authenticated users can access this resource',
+    ).getResponse(),
+  })
+  @ApiResponse({
+    status: 403,
+    description:
+      'Only user with role: [ADMIN | ACCOUNTANT] can perform this action',
+    type: ForbiddenException,
+
+    example: new ForbiddenException(
+      'Only users with the following roles can access this resource: ADMIN, ACCOUNTANT',
+    ).getResponse(),
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Invoice not found',
+    type: NotFoundException,
+    example: new NotFoundException('Invoice not found').getResponse(),
+  })
+  @ApiResponse({
+    status: 409,
+    description: 'Conflict',
+    type: ValidationError,
+  })
+  @UseGuards(RoleGuard)
+  @Roles([RoleEnum.ADMIN, RoleEnum.ACCOUTANT])
   @Get()
   async findInvoice(
-    @Query(new ZodValidationPipe(QueryInvoiceSchema))
+    @Query(new ZodValidationPipe(QueryInvoiceSchema.strict()))
     query: QueryInvoiceDto,
-  ): Promise<Invoice[]> {
-    if (Object.keys(query).length === 0) {
-      return this.invoicesService.find(FindInvoiceStrategy.ALL, '');
-    }
-    const queryFields: { [key: string]: FindInvoiceStrategy } = {
-      id: FindInvoiceStrategy.ID,
-      invoiceDate: FindInvoiceStrategy.INVOICE_DATE,
-      paidDate: FindInvoiceStrategy.PAID_DATE,
-      status: FindInvoiceStrategy.STATUS,
-      taxAmount: FindInvoiceStrategy.TAX_AMOUNT,
-      totalAmount: FindInvoiceStrategy.TOTAL_AMOUNT,
-      employeeId: FindInvoiceStrategy.EMPLOYEE_ID,
-      contractId: FindInvoiceStrategy.CONTRACT_ID,
-    };
-
-    for (const [key, strategy] of Object.entries(queryFields)) {
-      const value = query[key as keyof QueryInvoiceDto];
-      if (value) {
-        const invoice = await this.invoicesService.find(strategy, value);
-
-        if (invoice.length > 0) {
-          if (strategy === FindInvoiceStrategy.ALL || invoice.length > 1)
-            return invoice;
-          else return [invoice[0]];
-        }
-      }
-    }
-
-    throw new NotFoundException('Invoice not found');
+  ) {
+    const foundRes = await this.invoicesService.find(query);
+    return new SuccessResponse('Invoice found', foundRes);
   }
 
-  //@UseGuards(RoleGuard)
-  //@Roles([RoleEnum.ADMIN, RoleEnum.ACCOUTANT])
   @ApiOperation({ summary: "Update invoice's information" })
-  @ApiOkResponse({ description: 'New information updated' })
-  @ApiBadRequestResponse({ description: 'Empty body or misspelled property' })
-  @ApiNotFoundResponse({ description: 'Could not find invoice to update' })
-  @ApiUnauthorizedResponse({
-    description: 'Not logged in or account has unappropriate role',
-  })
   @ApiBody({
     type: UpdateInvoiceDto,
-    examples: {
-      example: {
-        description: 'Able to update one or more fields in CreateInvoiceDto',
-        value: {
-          invoiceDate: '2022-1-1',
-          paidDate: '2022-1-1',
-          status: 'PENDING',
-          totalAmount: 200,
-        },
-      },
-    },
   })
-  @ApiInternalServerErrorResponse({
-    description: 'Something went terribly wrong. Contact backend team at once',
+  @ApiResponse({
+    status: 201,
+    description: 'Invoice updated',
+    type: createResponseType('Invoice updated successfully', Invoice),
   })
+  @ApiResponse({
+    status: 400,
+    description: 'Invalid request body',
+    type: ValidationError,
+  })
+  @ApiResponse({
+    status: 401,
+    description:
+      "Authentication is required to update a contract's information",
+    type: UnauthorizedException,
+    example: new UnauthorizedException(
+      'Only authenticated users can access this resource',
+    ).getResponse(),
+  })
+  @ApiResponse({
+    status: 403,
+    description:
+      'Only user with role: [ADMIN | ACCOUNTANT] can perform this action',
+    type: ForbiddenException,
+    example: new ForbiddenException(
+      'Only users with the following roles can access this resource: ADMIN, ACCOUNTANT',
+    ).getResponse(),
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'The provided contract information does not exist',
+    type: NotFoundException,
+    example: new NotFoundException('Invoice not found').getResponse(),
+  })
+  @ApiResponse({
+    status: 409,
+    description: 'Conflict',
+    type: ValidationError,
+  })
+  @UseGuards(RoleGuard)
+  @Roles([RoleEnum.ADMIN, RoleEnum.ACCOUTANT])
   @Patch(':id')
   async updateInvoice(
     @Param('id') id: string,
@@ -196,6 +260,6 @@ export class InvoicesController {
     body: Partial<CreateInvoiceDto>,
   ): Promise<{ message: string; data: Invoice }> {
     const updateRes = await this.invoicesService.update(id, body);
-    return { message: 'Invoice updated successfully', data: updateRes };
+    return new SuccessResponse('Invoice updated successfully', updateRes);
   }
 }

@@ -1,5 +1,6 @@
 import { Invoice } from '@/invoices/models/invoice.model';
 import { PaymentStatus } from '@/shared/enums/payment-status.enum';
+import { ApiProperty } from '@nestjs/swagger';
 import sequelize from 'sequelize';
 import {
   AllowNull,
@@ -17,19 +18,23 @@ import {
   tableName: 'payments',
 })
 export class Payment extends Model {
+  @ApiProperty()
   @PrimaryKey
   @Default(sequelize.UUIDV4)
   @Column
   id: string;
 
+  @ApiProperty()
   @AllowNull(false)
   @Column({ type: DataType.FLOAT })
   amountPaid: number;
 
+  @ApiProperty()
   @AllowNull(false)
   @Column
   status: PaymentStatus;
 
+  @ApiProperty()
   @ForeignKey(() => Invoice)
   @AllowNull(false)
   @Column

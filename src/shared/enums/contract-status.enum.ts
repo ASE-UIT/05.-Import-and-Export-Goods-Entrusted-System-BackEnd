@@ -1,6 +1,6 @@
 export enum ContractStatus {
   ACTIVE = 'ACTIVE',
   PENDING = 'PENDING',
-  TERMINATED = 'TERMIATED',
+  TERMINATED = 'TERMINATED',
   EXPIRED = 'EXPIRED',
 }

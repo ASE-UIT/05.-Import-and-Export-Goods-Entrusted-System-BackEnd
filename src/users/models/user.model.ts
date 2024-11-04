@@ -1,5 +1,6 @@
 import { Employee } from '@/employees/models/employee.model';
 import { Role } from '@/roles/models/role.model';
+import { ApiOperation, ApiProperty } from '@nestjs/swagger';
 import sequelize from 'sequelize';
 import {
   AllowNull,
@@ -15,13 +16,16 @@ import {
 
 @Table({
   tableName: 'users',
+  timestamps: false,
 })
 export class User extends Model {
+  @ApiProperty()
   @PrimaryKey
   @Default(sequelize.UUIDV4)
   @Column
   id: string;
 
+  @ApiProperty()
   @Unique({
     name: 'username_conflict',
     msg: 'This username is already is already taken',
@@ -42,6 +46,7 @@ export class User extends Model {
   })
   roleId: string;
 
+  @ApiProperty()
   @BelongsTo(() => Role)
   role: Role;
 
@@ -50,6 +55,7 @@ export class User extends Model {
   @Column
   employeeId: string;
 
+  @ApiProperty()
   @BelongsTo(() => Employee)
   employee: Employee;
 }

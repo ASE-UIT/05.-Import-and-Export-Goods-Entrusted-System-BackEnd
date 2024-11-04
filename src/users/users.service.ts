@@ -1,5 +1,6 @@
 import {
   ConflictException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
   UnauthorizedException,
@@ -48,14 +49,12 @@ export class UsersService {
     employeeId,
     role,
   }: CreateUserDto): Promise<void> {
-    // Get default role
     const userRole = await Role.findOne({ where: { name: role } });
     if (!userRole) throw new NotFoundException('Role not found');
 
     // Create a new user
     const user = new User();
     const passwordHash = await argon2.hash(password);
-
     user.username = username;
     user.roleId = userRole.id;
     user.hashedPassword = passwordHash;
@@ -90,8 +89,7 @@ export class UsersService {
       hashedPassword,
       body.oldPassword,
     );
-    if (!oldPasswordCorrect)
-      throw new UnauthorizedException('Incorrect password');
+    if (!oldPasswordCorrect) throw new ForbiddenException('Incorrect password');
     const newHashedPassword = await argon2.hash(body.newPassword);
     await User.update(
       { hashedPassword: newHashedPassword },

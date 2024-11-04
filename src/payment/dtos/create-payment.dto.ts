@@ -27,5 +27,5 @@ export const CreatePaymentSchema = z.object({
 export class CreatePaymentDto extends createZodDto(CreatePaymentSchema) {}
 
 export class UpdatePaymentDto extends createZodDto(
-  CreatePaymentSchema.partial(),
+  CreatePaymentSchema.partial().omit({ invoiceId: true }),
 ) {}

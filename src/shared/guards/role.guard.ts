@@ -1,6 +1,7 @@
 import {
   CanActivate,
   ExecutionContext,
+  ForbiddenException,
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -9,7 +10,6 @@ import { Observable } from 'rxjs';
 import { RoleEnum } from '../enums/roles.enum';
 import { Roles } from '../decorators/role.decorator';
 import { User } from '@/users/models/user.model';
-import { use } from 'passport';
 
 @Injectable()
 export class RoleGuard implements CanActivate {
@@ -38,7 +38,7 @@ export class RoleGuard implements CanActivate {
       return true;
     }
 
-    throw new UnauthorizedException(
+    throw new ForbiddenException(
       'You do not have the required role to perform this action',
     );
   }

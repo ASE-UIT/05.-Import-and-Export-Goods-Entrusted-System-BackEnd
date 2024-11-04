@@ -9,7 +9,3 @@ export enum RoleEnum {
   CUSTOMER_SERVICE = 'CUSTOMER_SERVICE',
   HUMAN_RESOURCES = 'HUMAN_RESOURCES',
 }
-
-// Contract: ?
-// Invoice: ?
-// Payment: ?

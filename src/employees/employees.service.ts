@@ -5,7 +5,7 @@ import {
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
-import { CreateEmployeeDto } from './dtos/CreateEmployeeDto';
+import { CreateEmployeeDto, UpdateEmployeeDto } from './dtos/CreateEmployeeDto';
 import { Employee } from './models/employee.model';
 import { UniqueConstraintError } from 'sequelize';
 
@@ -32,13 +32,10 @@ export class EmployeesService {
       throw new InternalServerErrorException();
     }
 
-    return employee;
+    return;
   }
 
-  async updateEmployee(
-    employeeId: string,
-    updateInfo: Partial<CreateEmployeeDto>,
-  ) {
+  async updateEmployee(employeeId: string, updateInfo: UpdateEmployeeDto) {
     const [affectedRows, [updatedEmployees]] = await Employee.update(
       updateInfo,
       {

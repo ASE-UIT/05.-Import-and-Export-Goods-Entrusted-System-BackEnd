@@ -1,6 +1,11 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotAcceptableException,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateContractStrategy } from './strategies/create-contract/create-contract.strategy';
-import { CreateContractDto } from './dtos/CreateContractDto';
+import { CreateContractDto } from './dtos/create-contract.dto';
 import { Contract } from './models/contract.model';
 import { FindContractByIdStrategy } from './strategies/find-contract/find-by-id.strategy';
 import { FindContractByStartDateStrategy } from './strategies/find-contract/find-by-start-date.strategy';
@@ -11,22 +16,16 @@ import { FindContractByEmployeeIdStrategy } from './strategies/find-contract/fin
 import { FindContractByQuotationIdStrategy } from './strategies/find-contract/find-by-quotation-id.strategy';
 import { UpdateContractStrategy } from './strategies/update-contract/update-contract.strategy';
 import { FindAllContractStrategy } from './strategies/find-contract/find-all.strategy';
-import { FindContractStrategy } from './strategies/find-contract/find-contract-strategy.enum';
 import { IFindContractStrategy } from './strategies/find-contract/find-contract-strategy.interface';
+import { QueryContractDto } from './dtos/query-contract.dto';
+import { FindContractStrategy } from './strategies/find-contract/find-contract.strategy';
 
 @Injectable()
 export class ContractsService {
   constructor(
-    private findAllConTractStrategy: FindAllContractStrategy,
-    private findContractByIdStrategy: FindContractByIdStrategy,
-    private findContractByStartDateStrategy: FindContractByStartDateStrategy,
-    private findContractByEndDateStrategy: FindContractByEndDateStrategy,
-    private findContractByStatusStrategy: FindContractByStatusStrategy,
-    private findContractByContractDateStrategy: FindContractByContractDateStrategy,
-    private findContractByEmployeeIdStrategy: FindContractByEmployeeIdStrategy,
-    private findContractByQuotationIdStrategy: FindContractByQuotationIdStrategy,
     private createContractStrategy: CreateContractStrategy,
     private updateContractStrategy: UpdateContractStrategy,
+    private findContractStrategy: FindContractStrategy,
   ) {}
 
   async create(contractInfo: CreateContractDto): Promise<Contract> {
@@ -35,31 +34,10 @@ export class ContractsService {
     return createdContract;
   }
 
-  find(strategy: FindContractStrategy, contractInfo: any): Promise<Contract[]> {
-    const findStrategy = this.getFindStrategy(strategy);
-    const contract = findStrategy.find(contractInfo);
-    return contract;
-  }
-
-  getFindStrategy(strategy: FindContractStrategy): IFindContractStrategy {
-    switch (strategy) {
-      case FindContractStrategy.ALL:
-        return this.findAllConTractStrategy;
-      case FindContractStrategy.ID:
-        return this.findContractByIdStrategy;
-      case FindContractStrategy.CONTRACT_DATE:
-        return this.findContractByContractDateStrategy;
-      case FindContractStrategy.STATUS:
-        return this.findContractByStatusStrategy;
-      case FindContractStrategy.START_DATE:
-        return this.findContractByStartDateStrategy;
-      case FindContractStrategy.END_DATE:
-        return this.findContractByEndDateStrategy;
-      case FindContractStrategy.QUOTATION_ID:
-        return this.findContractByQuotationIdStrategy;
-      case FindContractStrategy.EMPLOYEE_ID:
-        return this.findContractByEmployeeIdStrategy;
-    }
+  async find(contractInfo: QueryContractDto): Promise<Contract[]> {
+    const foundContract = await this.findContractStrategy.find(contractInfo);
+    if (foundContract.length > 0) return foundContract;
+    else throw new NotFoundException('Contract not found');
   }
 
   async update(
@@ -67,7 +45,7 @@ export class ContractsService {
     updateInfo: Partial<CreateContractDto>,
   ): Promise<Contract> {
     if (Object.keys(updateInfo).length < 1) {
-      throw new BadRequestException('Body is empty');
+      throw new BadRequestException('Body is empty or invalid field names');
     }
     const updatedResponse = await this.updateContractStrategy.update(
       contractID,

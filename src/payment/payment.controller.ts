@@ -1,12 +1,14 @@
 import {
   Body,
   Controller,
+  ForbiddenException,
   Get,
   NotFoundException,
   Param,
   Patch,
   Post,
   Query,
+  UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
 import {
@@ -18,6 +20,7 @@ import {
   ApiOkResponse,
   ApiOperation,
   ApiQuery,
+  ApiResponse,
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
@@ -26,15 +29,18 @@ import {
   CreatePaymentDto,
   CreatePaymentSchema,
   UpdatePaymentDto,
-} from './dtos/CreatePaymentDto';
+} from './dtos/create-payment.dto';
 import { Payment } from './models/payment.model';
 import { PaymentsService } from './payment.service';
-import { QueryPaymentDto, QueryPaymentSchema } from './dtos/QueryPaymentDto';
+import { QueryPaymentDto, QueryPaymentSchema } from './dtos/query-payment.dto';
 import { FindPaymentStrategy } from './strategies/find-payment/find-payment-strategy.enum';
 import { PaymentStatus } from '@/shared/enums/payment-status.enum';
 import { RoleGuard } from '@/shared/guards/role.guard';
 import { RoleEnum } from '@/shared/enums/roles.enum';
 import { Roles } from '@/shared/decorators/role.decorator';
+import { createResponseType } from '@/shared/helpers/create-response.mixi';
+import { ValidationError } from '@/shared/classes/validation-error.class';
+import { SuccessResponse } from '@/shared/classes/success-response.class';
 
 @ApiTags('Payments')
 @Controller({
@@ -44,31 +50,61 @@ import { Roles } from '@/shared/decorators/role.decorator';
 export class PaymentsController {
   constructor(private paymentsService: PaymentsService) {}
 
-  //@UseGuards(RoleGuard)
-  //@Roles([RoleEnum.ADMIN, RoleEnum.ACCOUTANT])
   @ApiOperation({ summary: 'Create new payment' })
-  @ApiBody({
-    type: CreatePaymentDto,
+  @ApiResponse({
+    status: 201,
+    description: 'Payment created',
+    type: createResponseType('Payment created successfully', Payment),
   })
-  @ApiCreatedResponse({ description: 'New payment created' })
-  @ApiBadRequestResponse({ description: 'Invalid body' })
-  @ApiUnauthorizedResponse({
-    description: 'Not logged in or account has unappropriate role',
+  @ApiResponse({
+    status: 400,
+    description: 'Invalid request body',
+    type: ValidationError,
   })
-  @ApiInternalServerErrorResponse({
-    description: 'Something went terribly wrong. Contact backend team at once',
+  @ApiResponse({
+    status: 401,
+    description: 'Authentication is required to create a payment',
+    type: UnauthorizedException,
+    example: new UnauthorizedException(
+      'Only authenticated users can access this resource',
+    ).getResponse(),
   })
+  @ApiResponse({
+    status: 403,
+    description:
+      'Only user with role: [ADMIN | ACCOUNTANT] can perform this action',
+    type: ForbiddenException,
+    example: new ForbiddenException(
+      'Only users with the following roles can access this resource: ADMIN, ACCOUNTANT',
+    ).getResponse(),
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Not found',
+    type: ForbiddenException,
+    examples: {
+      NotFoundInvoice: {
+        summary: 'The provided invoiceId does not exist',
+        value: new NotFoundException("Invoice doesn't exist").getResponse(),
+      },
+    },
+  })
+  @ApiResponse({
+    status: 409,
+    description: 'Conflict',
+    type: ValidationError,
+  })
+  @UseGuards(RoleGuard)
+  @Roles([RoleEnum.ADMIN, RoleEnum.ACCOUTANT])
   @Post()
   async createPayment(
     @Body(new ZodValidationPipe(CreatePaymentSchema))
     body: CreatePaymentDto,
-  ): Promise<{ message: string; data: Payment }> {
+  ) {
     const createRes = await this.paymentsService.create(body);
-    return { message: 'Payment created successfully', data: createRes };
+    return new SuccessResponse('Payment created successfully', createRes);
   }
 
-  //@UseGuards(RoleGuard)
-  //@Roles([RoleEnum.ADMIN, RoleEnum.ACCOUTANT])
   @ApiOperation({ summary: 'Search for payments ' })
   @ApiQuery({
     name: 'id',
@@ -77,7 +113,7 @@ export class PaymentsController {
     description: 'Search payment by id',
   })
   @ApiQuery({
-    name: 'amount paid',
+    name: 'amountPaid',
     type: Number,
     required: false,
     description: 'Search payment by amount paid',
@@ -89,82 +125,110 @@ export class PaymentsController {
     description: 'Search payment by status',
   })
   @ApiQuery({
-    name: 'invoice id',
+    name: 'invoiceId',
     type: String,
     required: false,
     description: 'Search payment by invoice id',
   })
-  @ApiOkResponse({ description: 'payment found' })
-  @ApiNotFoundResponse({ description: 'payment not found' })
-  @ApiInternalServerErrorResponse({
-    description: 'Something went terribly wrong. Contact backend team at once',
+  @ApiResponse({
+    status: 200,
+    description: 'Payment found',
+    type: Payment,
   })
-  @ApiUnauthorizedResponse({
-    description: 'Not logged in or account has unappropriate role',
+  @ApiResponse({
+    status: 400,
+    description: 'Unrecognized key(s) in query',
   })
+  @ApiResponse({
+    status: 401,
+    description: "Authentication is required to find payment's information",
+    type: UnauthorizedException,
+    example: new UnauthorizedException(
+      'Only authenticated users can access this resource',
+    ).getResponse(),
+  })
+  @ApiResponse({
+    status: 403,
+    description:
+      'Only user with role: [ADMIN | ACCOUNTANT] can perform this action',
+    type: ForbiddenException,
+    example: new ForbiddenException(
+      'Only users with the following roles can access this resource: ADMIN, ACCOUNTANT',
+    ).getResponse(),
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Payment not found',
+    type: NotFoundException,
+    example: new NotFoundException('Payment not found').getResponse(),
+  })
+  @ApiResponse({
+    status: 409,
+    description: 'Conflict',
+    type: ValidationError,
+  })
+  @UseGuards(RoleGuard)
+  @Roles([RoleEnum.ADMIN, RoleEnum.ACCOUTANT])
   @Get()
   async findPayment(
-    @Query(new ZodValidationPipe(QueryPaymentSchema))
+    @Query(new ZodValidationPipe(QueryPaymentSchema.strict()))
     query: QueryPaymentDto,
-  ): Promise<Payment[]> {
-    if (Object.keys(query).length === 0) {
-      return this.paymentsService.find(FindPaymentStrategy.ALL, '');
-    }
-
-    const queryFields: { [key: string]: FindPaymentStrategy } = {
-      id: FindPaymentStrategy.ID,
-      amountPaid: FindPaymentStrategy.AMOUNT_PAID,
-      status: FindPaymentStrategy.STATUS,
-      invoiceId: FindPaymentStrategy.INVOICE_ID,
-    };
-
-    for (const [key, strategy] of Object.entries(queryFields)) {
-      const value = query[key as keyof QueryPaymentDto];
-      if (value) {
-        const payment = await this.paymentsService.find(strategy, value);
-
-        if (payment.length > 0) {
-          if (strategy === FindPaymentStrategy.ALL || payment.length > 1)
-            return payment;
-          else return [payment[0]];
-        }
-      }
-    }
-
-    throw new NotFoundException('Payment not found');
+  ) {
+    const foundRes = await this.paymentsService.find(query);
+    return new SuccessResponse('Payment found', foundRes);
   }
 
-  //@UseGuards(RoleGuard)
-  //@Roles([RoleEnum.ADMIN, RoleEnum.ACCOUTANT])
   @ApiOperation({ summary: "Update payment's information" })
-  @ApiOkResponse({ description: 'New information updated' })
-  @ApiBadRequestResponse({ description: 'Empty body or misspelled property' })
-  @ApiNotFoundResponse({ description: 'Could not find payment to update' })
-  @ApiUnauthorizedResponse({
-    description: 'Not logged in or account has unappropriate role',
-  })
   @ApiBody({
     type: UpdatePaymentDto,
-    examples: {
-      example: {
-        description: 'Able to update one or more fields in CreatePaymentDto',
-        value: {
-          amountPaid: 200,
-          status: 'FAILED',
-        },
-      },
-    },
   })
-  @ApiInternalServerErrorResponse({
-    description: 'Something went terribly wrong. Contact backend team at once',
+  @ApiResponse({
+    status: 201,
+    description: 'Payment updated',
+    type: createResponseType('Payment updated successfully', Payment),
   })
+  @ApiResponse({
+    status: 400,
+    description: 'Invalid request body',
+    type: ValidationError,
+  })
+  @ApiResponse({
+    status: 401,
+    description: "Authentication is required to update a payment's information",
+    type: UnauthorizedException,
+    example: new UnauthorizedException(
+      'Only authenticated users can access this resource',
+    ).getResponse(),
+  })
+  @ApiResponse({
+    status: 403,
+    description:
+      'Only user with role: [ADMIN | ACCOUNTANT] can perform this action',
+    type: ForbiddenException,
+    example: new ForbiddenException(
+      'Only users with the following roles can access this resource: ADMIN, ACCOUNTANT',
+    ).getResponse(),
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'The provided payment information does not exist',
+    type: NotFoundException,
+    example: new NotFoundException('Payment not found').getResponse(),
+  })
+  @ApiResponse({
+    status: 409,
+    description: 'Conflict',
+    type: ValidationError,
+  })
+  @UseGuards(RoleGuard)
+  @Roles([RoleEnum.ADMIN, RoleEnum.ACCOUTANT])
   @Patch(':id')
   async updatePayment(
     @Param('id') id: string,
     @Body(new ZodValidationPipe(CreatePaymentSchema.partial()))
     body: Partial<CreatePaymentDto>,
-  ): Promise<{ message: string; data: Payment }> {
+  ) {
     const updateRes = await this.paymentsService.update(id, body);
-    return { message: 'Payment updated successfully', data: updateRes };
+    return new SuccessResponse('Payment updated successfully', updateRes);
   }
 }
