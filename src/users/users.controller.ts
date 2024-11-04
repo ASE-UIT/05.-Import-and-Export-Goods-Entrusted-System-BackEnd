@@ -32,7 +32,7 @@ import { createResponseType } from '@/shared/helpers/create-response.mixin';
   version: '1',
 })
 export class UsersController {
-  constructor(private usersService: UsersService) {}
+  constructor(private usersService: UsersService) { }
 
   @ApiOperation({ summary: 'Create a new user' })
   @ApiResponse({
@@ -106,7 +106,7 @@ export class UsersController {
     status: 403,
     description: 'Not authorized',
     type: ForbiddenException,
-    examples: {
+    example: {
       NotSameUser: {
         summary: "A user can't update another user's password",
         value: new ForbiddenException(

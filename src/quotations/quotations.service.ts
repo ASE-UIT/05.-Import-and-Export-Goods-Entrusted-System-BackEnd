@@ -44,11 +44,11 @@ export class QuotationsService {
     try {
       return await this.createQuotationStrategy.create(quotationInfo);
     } catch (error) {
-      if (error instanceof ForeignKeyConstraintError) {
-        throw new HttpException('Invalid foreign key.', HttpStatus.BAD_REQUEST);
-      }
+      // if (error instanceof ForeignKeyConstraintError) {
+      //   throw new HttpException('Invalid foreign key.', HttpStatus.BAD_REQUEST);
+      // }
       if (error instanceof NotFoundException) {
-        throw new HttpException('Check your data carefully, include all reference', HttpStatus.NOT_FOUND)
+        throw new HttpException('Invalid foreign key.', HttpStatus.BAD_REQUEST)
       }
       throw new Error(error)
     }

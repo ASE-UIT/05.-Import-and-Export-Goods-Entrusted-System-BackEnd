@@ -1,12 +1,15 @@
 import {
+  BadRequestException,
   Body,
   Controller,
+  ForbiddenException,
   Get,
   NotFoundException,
   Param,
   Patch,
   Post,
   Query,
+  UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
 import { ZodValidationPipe } from '@/shared/pipes/zod.pipe';
@@ -27,6 +30,8 @@ import { RoleGuard } from '@/shared/guards/role.guard';
 import { Roles } from '@/shared/decorators/role.decorator';
 import { RoleEnum } from '@/shared/enums/roles.enum';
 import { QuotationStatus } from '@/shared/enums/quotation-status.enum';
+import { ValidationError } from '@/shared/classes/validation-error.class';
+import { createResponseType } from '@/shared/helpers/create-response.mixin';
 
 @ApiTags('quotations')
 @Controller({
@@ -38,20 +43,43 @@ export class QuotationsController {
 
   //query quotation
   @ApiOperation({ summary: 'Retrieve quotation based on query parameters' })
-  @ApiResponse({ status: 200, description: 'Successfully retrieved quotation' })
-  @ApiResponse({ status: 401, description: 'Not logged in or account has unappropriate role' })
-  @ApiResponse({ status: 404, description: 'No quotation found' })
-  @ApiResponse({ status: 500, description: 'Internal server error.' })
+  @ApiResponse({
+    status: 200,
+    description: 'Successfully retrieved quotation',
+    example: {
+      id: "9f79b1dc-f14e-440e-9ede-31592079c80a",
+      totalPrice: 4.5,
+      pickupDate: "2023-04-20T12:00:00.000Z",
+      deliveryDate: "2023-04-26T12:00:00.000Z",
+      quotationDate: "2023-04-19T12:00:00.000Z",
+      expiredDate: "2023-05-06T12:00:00.000Z",
+      status: "DRAFT",
+      quoteReqId: "f1a5d699-5168-439c-8d24-1b01bd3022de",
+      freightId: "0893855a-adb7-45a1-9ad7-65dce8cc0e6a",
+      employeeId: "c67d645e-68b3-4a41-81ff-eeea41e8b663",
+      createdAt: "2024-10-31T13:38:05.867Z",
+      updatedAt: "2024-10-31T13:38:05.867Z"
+    }
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Only authenticated users can access this resource',
+    type: UnauthorizedException,
+    example: new UnauthorizedException(
+      'Only authenticated users can access this resource',
+    ).getResponse(),
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'No quotation found',
+    type: NotFoundException,
+    example: new NotFoundException('No quotation found').getResponse()
+  })
   @ApiQuery({ name: 'customerId', required: false, type: String })
   @ApiQuery({ name: 'employeeId', required: false, type: String })
   @ApiQuery({ name: 'quotationDate', required: false, type: String })
   @ApiQuery({ name: 'status', required: false, enum: QuotationStatus })
   @UseGuards(RoleGuard)
-  @Roles([
-    RoleEnum.ADMIN,
-    RoleEnum.SALES,
-    RoleEnum.MANAGER,
-  ])
   @Get()
   async findQuotation(
     @Query(new ZodValidationPipe(QueryQuotationSchema))
@@ -89,10 +117,36 @@ export class QuotationsController {
 
   //create quotation
   @ApiOperation({ summary: 'Create a new quotation' })
-  @ApiResponse({ status: 201, description: 'Quote request successfully created' })
-  @ApiResponse({ status: 400, description: 'Invalid foreign key.' })
-  @ApiResponse({ status: 401, description: 'Not logged in or account has unappropriate role' })
-  @ApiResponse({ status: 500, description: 'Internal server error.' })
+  @ApiResponse({
+    status: 201,
+    description: 'Quote request successfully created',
+    type: createResponseType('Quote request successfully created', Quotation),
+    example: createResponseType('Quote request successfully created', Quotation)
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Invalid foreign key.',
+    type: BadRequestException,
+    example: new BadRequestException(
+      'Invalid foreign key'
+    ).getResponse()
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Only authenticated users can access this resource',
+    type: UnauthorizedException,
+    example: new UnauthorizedException(
+      'Only authenticated users can access this resource',
+    ).getResponse(),
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'Only the following roles can create users',
+    type: ForbiddenException,
+    example: new ForbiddenException(
+      'Only users with the following roles can access this resource: ADMIN,SALES,MANAGER',
+    ).getResponse(),
+  })
   @ApiBody({
     type: CreateQuotationDto,
     schema: {
@@ -126,11 +180,39 @@ export class QuotationsController {
 
   //update quotation  
   @ApiOperation({ summary: 'Update Quotation' })
-  @ApiResponse({ status: 200, description: 'Quotation successfully updated' })
-  @ApiResponse({ status: 401, description: 'Not logged in or account has unappropriate role' })
-  @ApiResponse({ status: 400, description: 'Invalid foreign key.' })
-  @ApiResponse({ status: 404, description: "Quotation id does not exists in database" })
-  @ApiResponse({ status: 500, description: 'Internal server error.' })
+  @ApiResponse({
+    status: 200,
+    description: 'Quotation successfully updated',
+    type: createResponseType('Quotation successfully updated', Quotation)
+
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Invalid foreign key.',
+    type: ValidationError
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Only authenticated users can access this resource',
+    type: UnauthorizedException,
+    example: new UnauthorizedException(
+      'Only authenticated users can access this resource',
+    ).getResponse(),
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'Only the following roles can create users',
+    type: ForbiddenException,
+    example: new ForbiddenException(
+      'Only users with the following roles can access this resource: ADMIN,SALES,MANAGER',
+    ).getResponse(),
+  })
+  @ApiResponse({
+    status: 404,
+    description: "Quotation id does not exists in database",
+    type: NotFoundException,
+    example: new NotFoundException('Quotation id does not exists in database').getResponse()
+  })
   @ApiBody({
     type: UpdateQuotationDto,
     schema: {

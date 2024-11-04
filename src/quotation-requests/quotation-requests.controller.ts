@@ -1,5 +1,5 @@
-import { BadRequestException, Body, Controller, Get, NotFoundException, Param, Patch, Post, Put, Query, UseGuards } from '@nestjs/common';
-import { QuotationReqsService } from './quotation-request.service';
+import { BadRequestException, Body, Controller, ForbiddenException, Get, NotFoundException, Param, Patch, Post, Put, Query, UnauthorizedException, UseGuards } from '@nestjs/common';
+import { QuotationReqsService } from './quotation-requests.service';
 import { ZodValidationPipe } from '@/shared/pipes/zod.pipe';
 import { QueryQuotationReqDto, QueryQuotationReqSchema } from './dtos/QueryQuotationReqDto';
 import { CreateQuotationReqDto, CreateQuotationReqSchema, UpdateQuotationReqDto } from './dtos/CreateQuotationReqDto';
@@ -9,6 +9,7 @@ import { ApiBody, ApiOperation, ApiQuery, ApiResponse, ApiTags, ApiUnauthorizedR
 import { RoleGuard } from '@/shared/guards/role.guard';
 import { RoleEnum } from '@/shared/enums/roles.enum';
 import { Roles } from '@/shared/decorators/role.decorator';
+import { createResponseType } from '@/shared/helpers/create-response.mixin';
 
 @ApiTags('quote requests')
 @Controller({
@@ -19,19 +20,37 @@ export class QuotationReqsController {
   constructor(private readonly quotationReqsService: QuotationReqsService) { }
 
   @ApiOperation({ summary: 'Retrieve quote requests based on query parameters' })
-  @ApiResponse({ status: 401, description: 'Not logged in or account has unappropriate role' })
-  @ApiResponse({ status: 200, description: 'Successfully retrieved quote requests' })
-  @ApiResponse({ status: 404, description: 'No quote requests found' })
-  @ApiResponse({ status: 500, description: 'Internal server error.' })
+  @ApiResponse({
+    status: 200,
+    description: 'Successfully retrieved quote requests',
+    type: QuotationReq,
+    example: {
+      "id": "f1a5d699-5168-439c-8d24-1b01bd3022de",
+      "requestDate": "2024-10-23T00:00:00.000Z",
+      "status": "PENDING",
+      "customerId": "d476badd-cd71-41be-9544-073b9f44a729",
+      "createdAt": "2024-10-31T03:07:03.407Z",
+      "updatedAt": "2024-10-31T03:07:03.407Z"
+    }
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Not logged in or account has unappropriate role',
+    type: UnauthorizedException,
+    example: new UnauthorizedException(
+      'Only authenticated users can access this resource',
+    ).getResponse(),
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'No quote requests found',
+    type: NotFoundException,
+    example: new NotFoundException('No quote request found').getResponse()
+  })
   @ApiQuery({ name: 'requestDate', required: false, type: String })
   @ApiQuery({ name: 'status', required: false, enum: QuotationReqStatus })
   @ApiQuery({ name: 'customerId', required: false, type: String })
   @UseGuards(RoleGuard)
-  @Roles([
-    RoleEnum.ADMIN,
-    RoleEnum.SALES,
-    RoleEnum.MANAGER,
-  ])
   @Get()
   async getQuotationReqs(
     @Query(new ZodValidationPipe(QueryQuotationReqSchema)) query: QueryQuotationReqDto,
@@ -69,10 +88,35 @@ export class QuotationReqsController {
 
   //create quotation request
   @ApiOperation({ summary: 'Create a new quote request' })
-  @ApiResponse({ status: 201, description: 'Quote request successfully created' })
-  @ApiResponse({ status: 400, description: 'Invalid foreign key.' })
-  @ApiResponse({ status: 401, description: 'Not logged in or account has unappropriate role' })
-  @ApiResponse({ status: 500, description: 'Internal server error.' })
+  @ApiResponse({
+    status: 201,
+    description: 'Quote request successfully created',
+    type: createResponseType('Quote request successfully created', QuotationReq)
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Invalid foreign key.',
+    type: BadRequestException,
+    example: new BadRequestException(
+      'Invalid foreign key'
+    ).getResponse()
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Only authenticated users can access this resource',
+    type: UnauthorizedException,
+    example: new UnauthorizedException(
+      'Only authenticated users can access this resource',
+    ).getResponse(),
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'Only the following roles can create users',
+    type: ForbiddenException,
+    example: new ForbiddenException(
+      'Only users with the following roles can access this resource: ADMIN,SALES,MANAGER',
+    ).getResponse(),
+  })
   @ApiBody({
     type: CreateQuotationReqDto,
     schema: {
@@ -101,10 +145,41 @@ export class QuotationReqsController {
   //update quotation request
 
   @ApiOperation({ summary: 'Update quote request' })
-  @ApiResponse({ status: 200, description: 'Quote request successfully updated' })
-  @ApiResponse({ status: 401, description: 'Not logged in or account has unappropriate role' })
-  @ApiResponse({ status: 404, description: "Quote request id does not exists in database" })
-  @ApiResponse({ status: 500, description: 'Internal server error.' })
+  @ApiResponse({
+    status: 200,
+    description: 'Quote request successfully updated',
+    type: createResponseType('Quote request successfully updated', QuotationReq)
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Invalid foreign key.',
+    type: BadRequestException,
+    example: new BadRequestException(
+      'Invalid foreign key'
+    ).getResponse()
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Only authenticated users can access this resource',
+    type: UnauthorizedException,
+    example: new UnauthorizedException(
+      'Only authenticated users can access this resource',
+    ).getResponse(),
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'Only the following roles can create users',
+    type: ForbiddenException,
+    example: new ForbiddenException(
+      'Only users with the following roles can access this resource: ADMIN,SALES,MANAGER',
+    ).getResponse(),
+  })
+  @ApiResponse({
+    status: 404,
+    description: "Quote request id does not exists in database",
+    type: NotFoundException,
+    example: new NotFoundException('Quote request id does not exists in database').getResponse()
+  })
   @ApiBody({
     type: UpdateQuotationReqDto,
     schema: {

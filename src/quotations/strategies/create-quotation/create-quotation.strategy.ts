@@ -20,12 +20,13 @@ export class CreateQuotationStrategy implements ICreateQuotationStrategy {
     try {
       await quotation.save()
     } catch (error) {
-      if (error instanceof BadRequestException) {
-        throw new BadRequestException('Error message: ', error.message)
-      }
       if (error instanceof ForeignKeyConstraintError) {
         throw new NotFoundException('Invalid foreign key')
       }
+      if (error instanceof BadRequestException) {
+        throw new BadRequestException('Error message: ', error.message)
+      }
+
       throw Error()
     }
     return quotation;

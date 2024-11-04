@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Controller, Get, NotFoundException, Param, Patch, Post, Put, Query, UseGuards } from '@nestjs/common';
+import { BadRequestException, Body, Controller, ForbiddenException, Get, NotFoundException, Param, Patch, Post, Put, Query, UnauthorizedException, UseGuards } from '@nestjs/common';
 import { PackageDetailsService } from './package-details.service';
 import { ZodValidationPipe } from '@/shared/pipes/zod.pipe';
 import { CreatePackageDetailDto, CreatePackageDetailSchema, UpdatePackageDetailDto } from './dtos/CreatePackageDetailDto';
@@ -8,7 +8,8 @@ import { ApiBody, ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/s
 import { Roles } from '@/shared/decorators/role.decorator';
 import { RoleGuard } from '@/shared/guards/role.guard';
 import { RoleEnum } from '@/shared/enums/roles.enum';
-import { PackageType } from './models/packageDetails.model';
+import { PackageDetail, PackageType } from './models/packageDetails.model';
+import { createResponseType } from '@/shared/helpers/create-response.mixin';
 
 @ApiTags('package details')
 @Controller({
@@ -22,18 +23,38 @@ export class PackageDetailsController {
 
     //query package detail
     @ApiOperation({ summary: 'Retrieve package detail based on query parameters' })
-    @ApiResponse({ status: 401, description: 'Not logged in or account has unappropriate role' })
-    @ApiResponse({ status: 200, description: 'Successfully retrieved quote requests' })
-    @ApiResponse({ status: 404, description: 'No package detail found' })
-    @ApiResponse({ status: 500, description: 'Internal server error.' })
+    @ApiResponse({
+        status: 200,
+        description: 'Successfully retrieved quote requests',
+        example: {
+            "id": "10546188-89f8-4588-a1d9-59df2ea9082f",
+            "packageType": "FREEZE",
+            "weight": 4.5,
+            "length": 2.7,
+            "width": 100,
+            "height": 7,
+            "detailId": "d65e47fe-c494-41c1-b1aa-72561da2e8e2",
+            "createdAt": "2024-10-31T07:25:22.958Z",
+            "updatedAt": "2024-10-31T07:26:11.854Z"
+        }
+    })
+    @ApiResponse({
+        status: 401,
+        description: 'Not logged in or account has unappropriate role',
+        type: UnauthorizedException,
+        example: new UnauthorizedException(
+            'Only authenticated users can access this resource',
+        ).getResponse(),
+    })
+    @ApiResponse({
+        status: 404,
+        description: 'No package detail found',
+        type: NotFoundException,
+        example: new NotFoundException('No package detail found').getResponse()
+    })
     @ApiQuery({ name: 'packageType', required: false, enum: PackageType })
     @ApiQuery({ name: 'detailId', required: false, type: String })
     @UseGuards(RoleGuard)
-    @Roles([
-        RoleEnum.ADMIN,
-        RoleEnum.SALES,
-        RoleEnum.MANAGER,
-    ])
     @Get()
     async getQuoteReqDetail(
         @Query(new ZodValidationPipe(QueryPackageDetailSchema)) query: QueryPackageDetailDto
@@ -69,11 +90,35 @@ export class PackageDetailsController {
 
     //create package detail
     @ApiOperation({ summary: 'Create a new package detail' })
-    @ApiResponse({ status: 201, description: 'Package detail successfully created' })
-    @ApiResponse({ status: 201, description: 'Quote request successfully created' })
-    @ApiResponse({ status: 400, description: 'Invalid foreign key.' })
-    @ApiResponse({ status: 401, description: 'Not logged in or account has unappropriate role' })
-    @ApiResponse({ status: 500, description: 'Internal server error.' })
+    @ApiResponse({
+        status: 201,
+        description: 'Package detail successfully created',
+        type: createResponseType('Package detail successfully created', PackageDetail)
+    })
+    @ApiResponse({
+        status: 400,
+        description: 'Invalid foreign key',
+        type: BadRequestException,
+        example: new BadRequestException(
+            'Invalid foreign key'
+        ).getResponse()
+    })
+    @ApiResponse({
+        status: 401,
+        description: 'Only authenticated users can access this resource',
+        type: UnauthorizedException,
+        example: new UnauthorizedException(
+            'Only authenticated users can access this resource',
+        ).getResponse(),
+    })
+    @ApiResponse({
+        status: 403,
+        description: 'Only the following roles can create users',
+        type: ForbiddenException,
+        example: new ForbiddenException(
+            'Only users with the following roles can access this resource: ADMIN,SALES,MANAGER',
+        ).getResponse(),
+    })
     @ApiBody({
         type: CreatePackageDetailDto,
         schema: {
@@ -103,11 +148,41 @@ export class PackageDetailsController {
 
     //update package detail
     @ApiOperation({ summary: 'Update a package detail' })
-    @ApiResponse({ status: 200, description: 'Package detail successfully updated' })
-    @ApiResponse({ status: 400, description: 'Invalid foreign key' })
-    @ApiResponse({ status: 401, description: 'Not logged in or account has unappropriate role' })
-    @ApiResponse({ status: 404, description: "Quote request detail id does not exists in database" })
-    @ApiResponse({ status: 500, description: 'Internal server error.' })
+    @ApiResponse({
+        status: 200,
+        description: 'Package detail successfully updated',
+        type: createResponseType('Package detail successfully updated', PackageDetail)
+    })
+    @ApiResponse({
+        status: 400,
+        description: 'Invalid foreign key.',
+        type: BadRequestException,
+        example: new BadRequestException(
+            'Invalid foreign key'
+        ).getResponse()
+    })
+    @ApiResponse({
+        status: 401,
+        description: 'Only authenticated users can access this resource',
+        type: UnauthorizedException,
+        example: new UnauthorizedException(
+            'Only authenticated users can access this resource',
+        ).getResponse(),
+    })
+    @ApiResponse({
+        status: 403,
+        description: 'Only the following roles can create users',
+        type: ForbiddenException,
+        example: new ForbiddenException(
+            'Only users with the following roles can access this resource: ADMIN,SALES,MANAGER',
+        ).getResponse(),
+    })
+    @ApiResponse({
+        status: 404,
+        description: "Package detail id does not exists in database",
+        type: NotFoundException,
+        example: new NotFoundException('Package detail id does not exists in database').getResponse()
+    })
     @ApiBody({
         type: UpdatePackageDetailDto,
         schema: {

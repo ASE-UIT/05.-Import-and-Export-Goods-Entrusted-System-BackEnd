@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { QuotationReq } from './models/quotationReq.model';
-import { QuotationReqsService } from './quotation-request.service';
+import { QuotationReqsService } from './quotation-requests.service';
 import { QuotationReqsController } from './quotation-requests.controller';
 import { CreateQuotationReqStrategy } from './strategies/create-quotationReq/create-quotationReq.strategy';
 import { FindAllQuotationReqStrategy } from './strategies/find-quotationReq/find-all.strategy';
