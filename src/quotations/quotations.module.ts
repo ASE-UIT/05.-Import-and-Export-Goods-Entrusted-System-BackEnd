@@ -15,9 +15,10 @@ import { UpdateQuotationStrategy } from './strategies/update-quotation/update-qu
 import { FindQuotationByEmployeeId } from './strategies/find-quotation/find-by-employee-id';
 import { FindQuotationByCustomerId } from './strategies/find-quotation/find-by-customer-id';
 import { FindQuotationReqByCustomerIdStrategy } from '@/quotation-requests/strategies/find-quotationReq/find-by-customerId.strategy';
+import { QuotationReq } from '@/quotation-requests/models/quotationReq.model';
 
 @Module({
-  imports: [SequelizeModule.forFeature([Quotation])],
+  imports: [SequelizeModule.forFeature([Quotation, QuotationReq])],
   controllers: [QuotationsController],
   providers: [
     QuotationsService,

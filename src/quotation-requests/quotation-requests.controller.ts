@@ -35,7 +35,7 @@ export class QuotationReqsController {
   })
   @ApiResponse({
     status: 401,
-    description: 'Not logged in or account has unappropriate role',
+    description: 'Only authenticated users can access this resource',
     type: UnauthorizedException,
     example: new UnauthorizedException(
       'Only authenticated users can access this resource',

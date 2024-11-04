@@ -54,12 +54,12 @@ export class QuotationsService {
     }
   }
 
-  find(
+  async find(
     strategy: FindQuotationStrategy,
-    quotationInfo: any,
+    quotationInfo: string,
   ): Promise<Quotation[] | null> {
     const findStrategy = this.getFindStrategy(strategy);
-    const quotation = findStrategy.find(quotationInfo);
+    const quotation: Quotation[] | null = await findStrategy.find(quotationInfo);
     return quotation;
   }
 

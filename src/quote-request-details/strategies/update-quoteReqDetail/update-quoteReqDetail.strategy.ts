@@ -1,13 +1,14 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { QuoteReqDetail } from '@/quote-request-details/models/quoteReqDetail.model';
 import { CreateQuoteReqDetailDto } from '@/quote-request-details/dtos/CreateQuoteReqDetailDto';
+import { InjectModel } from '@nestjs/sequelize';
 
 @Injectable()
 export class UpdateQuoteReqDetailStrategy {
-    constructor() { }
+    constructor(@InjectModel(QuoteReqDetail) private quoteReqDetailModel: typeof QuoteReqDetail) { }
 
     async update(id: string, quoteReqDetailInfo: Partial<CreateQuoteReqDetailDto>): Promise<QuoteReqDetail> {
-        const [affectedRows, [updateData]] = await QuoteReqDetail.update(
+        const [affectedRows, [updateData]] = await this.quoteReqDetailModel.update(
             { ...quoteReqDetailInfo },
             { where: { id: id }, returning: true },
         )

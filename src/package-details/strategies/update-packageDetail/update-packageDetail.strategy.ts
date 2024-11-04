@@ -12,7 +12,7 @@ export class UpdatePackageDetailStrategy {
     ) { }
 
     async update(id: string, packageDetailInfo: Partial<CreatePackageDetailDto>): Promise<PackageDetail> {
-        const [affectedRows, [updateData]] = await PackageDetail.update(
+        const [affectedRows, [updateData]] = await this.packageDetailModel.update(
             { ...packageDetailInfo },
             { where: { id: id }, returning: true },
         )

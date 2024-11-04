@@ -3,16 +3,19 @@ import { Quotation } from '@/quotations/models/quotations.model';
 import { IUpdateQuotationStrategy } from './update-quotation-strategy.interface';
 import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { UniqueConstraintError } from 'sequelize';
+import { InjectModel } from '@nestjs/sequelize';
 
 @Injectable()
 export class UpdateQuotationStrategy implements IUpdateQuotationStrategy {
+  constructor(@InjectModel(Quotation) private quotationModel: typeof Quotation) { }
+
   async update(
     quotationId: string,
     udpateInfo: Partial<CreateQuotationDto>,
   ): Promise<Quotation> {
 
     try {
-      const [affetedRows, [updateData]] = await Quotation.update(
+      const [affetedRows, [updateData]] = await this.quotationModel.update(
         { ...udpateInfo },
         { where: { id: quotationId }, returning: true },
       )

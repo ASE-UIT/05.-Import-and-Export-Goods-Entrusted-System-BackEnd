@@ -86,7 +86,7 @@ export class QuotationsController {
     query: QueryQuotationDto,
   ): Promise<Quotation[]> {
     if (Object.keys(query).length === 0) {
-      return this.quotationsService.find(FindQuotationStrategy.ALL, '');
+      return await this.quotationsService.find(FindQuotationStrategy.ALL, '');
     }
     const queryFields: { [key: string]: FindQuotationStrategy } = {
       deliveryDate: FindQuotationStrategy.DELIVERY_DATE,

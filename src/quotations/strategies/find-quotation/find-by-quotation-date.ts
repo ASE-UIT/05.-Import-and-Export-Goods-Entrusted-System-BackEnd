@@ -1,12 +1,15 @@
 import { Injectable } from '@nestjs/common';
 import { IFindQuotationStrategy } from './find-quotation-strategy.interface';
 import { Quotation } from '@/quotations/models/quotations.model';
+import { InjectModel } from '@nestjs/sequelize';
 
 @Injectable()
 export class FindQuotationByQuotationDate implements IFindQuotationStrategy {
-  find(quotationQuotationDate: Date): Promise<Quotation[] | null> {
-    return Quotation.findAll({
-      where: { quotationDate: quotationQuotationDate },
+  constructor(@InjectModel(Quotation) private quotationModel: typeof Quotation) { }
+
+  async find(quotationQuotationDate: string): Promise<Quotation[] | null> {
+    return await this.quotationModel.findAll({
+      where: { quotationDate: quotationQuotationDate }
     });
   }
 }

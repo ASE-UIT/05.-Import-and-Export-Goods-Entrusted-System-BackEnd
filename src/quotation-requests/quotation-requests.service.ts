@@ -1,4 +1,4 @@
-import { BadRequestException, HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { BadRequestException, HttpException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateQuotationReqDto } from './dtos/CreateQuotationReqDto';
 import { CreateQuotationReqStrategy } from './strategies/create-quotationReq/create-quotationReq.strategy';
 import { FindQuotationReqStrategy } from './strategies/find-quotationReq/find-quotationReq-strategy.enum';
@@ -62,6 +62,17 @@ export class QuotationReqsService {
     data: QuotationReq
   }> {
     const updatedResponse = await this.updateQuotationReqStrategy.update(id, quotationReqInfo)
-    return { message: 'Quote Request updated successfully', data: updatedResponse }
+
+    try {
+      return { message: 'Quote Request updated successfully', data: updatedResponse }
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw new HttpException('Quotation does not exist in database', HttpStatus.NOT_FOUND)
+      }
+      if (error instanceof ForeignKeyConstraintError) {
+        throw new HttpException('Invalid foreign key', HttpStatus.BAD_REQUEST)
+      }
+      throw new Error()
+    }
   }
 }
