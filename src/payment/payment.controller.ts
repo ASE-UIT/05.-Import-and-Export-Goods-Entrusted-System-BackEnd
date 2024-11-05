@@ -95,7 +95,7 @@ export class PaymentsController {
     type: ValidationError,
   })
   @UseGuards(RoleGuard)
-  @Roles([RoleEnum.ADMIN, RoleEnum.ACCOUTANT])
+  @Roles([RoleEnum.ADMIN, RoleEnum.ACCOUNTANT])
   @Post()
   async createPayment(
     @Body(new ZodValidationPipe(CreatePaymentSchema))
@@ -168,7 +168,7 @@ export class PaymentsController {
     type: ValidationError,
   })
   @UseGuards(RoleGuard)
-  @Roles([RoleEnum.ADMIN, RoleEnum.ACCOUTANT])
+  @Roles([RoleEnum.ADMIN, RoleEnum.ACCOUNTANT])
   @Get()
   async findPayment(
     @Query(new ZodValidationPipe(QueryPaymentSchema.strict()))
@@ -221,7 +221,7 @@ export class PaymentsController {
     type: ValidationError,
   })
   @UseGuards(RoleGuard)
-  @Roles([RoleEnum.ADMIN, RoleEnum.ACCOUTANT])
+  @Roles([RoleEnum.ADMIN, RoleEnum.ACCOUNTANT])
   @Patch(':id')
   async updatePayment(
     @Param('id') id: string,

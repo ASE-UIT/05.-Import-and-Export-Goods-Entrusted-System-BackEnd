@@ -100,7 +100,7 @@ export class InvoicesController {
     type: ValidationError,
   })
   @UseGuards(RoleGuard)
-  @Roles([RoleEnum.ADMIN, RoleEnum.ACCOUTANT])
+  @Roles([RoleEnum.ADMIN, RoleEnum.ACCOUNTANT])
   @Post()
   async createInvoice(
     @Body(new ZodValidationPipe(CreateInvoiceSchema))
@@ -198,7 +198,7 @@ export class InvoicesController {
     type: ValidationError,
   })
   @UseGuards(RoleGuard)
-  @Roles([RoleEnum.ADMIN, RoleEnum.ACCOUTANT])
+  @Roles([RoleEnum.ADMIN, RoleEnum.ACCOUNTANT])
   @Get()
   async findInvoice(
     @Query(new ZodValidationPipe(QueryInvoiceSchema.strict()))
@@ -252,7 +252,7 @@ export class InvoicesController {
     type: ValidationError,
   })
   @UseGuards(RoleGuard)
-  @Roles([RoleEnum.ADMIN, RoleEnum.ACCOUTANT])
+  @Roles([RoleEnum.ADMIN, RoleEnum.ACCOUNTANT])
   @Patch(':id')
   async updateInvoice(
     @Param('id') id: string,

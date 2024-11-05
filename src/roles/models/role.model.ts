@@ -1,3 +1,4 @@
+import { RoleEnum } from '@/shared/enums/roles.enum';
 import { User } from '@/users/models/user.model';
 import { ApiProperty } from '@nestjs/swagger';
 import sequelize from 'sequelize';
@@ -26,11 +27,11 @@ export class Role extends Model {
   })
   id: string;
 
-  @ApiProperty()
+  @ApiProperty({ enum: RoleEnum })
   @Unique
   @AllowNull(false)
   @Column
-  name: string;
+  name: RoleEnum;
 
   //Associations
   @HasMany(() => User)

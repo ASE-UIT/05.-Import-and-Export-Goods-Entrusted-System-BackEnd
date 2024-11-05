@@ -10,11 +10,7 @@ import { QueryInvoiceDto } from './dtos/query-invoice.dto';
 import { CreateInvoiceStrategy } from './strategies/create-invoice/create-invoice.strategy';
 import { UpdateInvoiceStrategy } from './strategies/update-invoice/update-invoice.strategy';
 import { FindAllInvoiceStrategy } from './strategies/find-invoice/find-all.strategy';
-import { FindInvoiceByPaidDate } from './strategies/find-invoice/find-by-paid-date.strategy';
-import { FindInvoiceByInvoiceDate } from './strategies/find-invoice/find-by-invoice-date.strategy';
-import { FindInvoiceByStatus } from './strategies/find-invoice/find-by-status.strategy';
-import { FindInvoiceByTaxAmount } from './strategies/find-invoice/find-by-tax-amount.strategy';
-import { FindInvoiceByTotalAmount } from './strategies/find-invoice/find-by-total-amount.strategy';
+
 import { IFindInvoiceStrategy } from './strategies/find-invoice/find-invoice-strategy.interface';
 import { FindInvoiceByEmployeeId } from './strategies/find-invoice/find-by-employee-id.strategy';
 import { FindInvoiceByContractId } from './strategies/find-invoice/find-by-contract-id.strategy';

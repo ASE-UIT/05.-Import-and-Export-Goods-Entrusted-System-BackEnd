@@ -104,7 +104,7 @@ export class ContractsController {
     type: ValidationError,
   })
   @UseGuards(RoleGuard)
-  @Roles([RoleEnum.ADMIN, RoleEnum.SALES, RoleEnum.ACCOUTANT])
+  @Roles([RoleEnum.ADMIN, RoleEnum.SALES, RoleEnum.ACCOUNTANT])
   @Post()
   async createContract(
     @Body(new ZodValidationPipe(CreateContractSchema))
@@ -196,7 +196,7 @@ export class ContractsController {
     type: ValidationError,
   })
   @UseGuards(RoleGuard)
-  @Roles([RoleEnum.ADMIN, RoleEnum.SALES, RoleEnum.ACCOUTANT])
+  @Roles([RoleEnum.ADMIN, RoleEnum.SALES, RoleEnum.ACCOUNTANT])
   @Get()
   async findContract(
     @Query(new ZodValidationPipe(QueryContractSchema.strict()))
@@ -250,7 +250,7 @@ export class ContractsController {
     type: ValidationError,
   })
   @UseGuards(RoleGuard)
-  @Roles([RoleEnum.ADMIN, RoleEnum.SALES, RoleEnum.ACCOUTANT])
+  @Roles([RoleEnum.ADMIN, RoleEnum.SALES, RoleEnum.ACCOUNTANT])
   @Patch(':id')
   async updateContract(
     @Param('id') id: string,
