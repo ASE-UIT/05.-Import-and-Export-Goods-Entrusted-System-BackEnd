@@ -16,6 +16,6 @@ export const CreateShipmentSchema = z.object({
     .describe('Status of the shipment'),
 });
 export class CreateShipmentDto extends createZodDto(CreateShipmentSchema) {}
-export class UpdateShipmentDto extends createZodDto(
-  CreateShipmentSchema.partial().omit({ location: true, status: true }),
-) {}
+// export class UpdateShipmentDto extends createZodDto(
+//   CreateShipmentSchema.partial().omit({ location: true, status: true }),
+// ) {}

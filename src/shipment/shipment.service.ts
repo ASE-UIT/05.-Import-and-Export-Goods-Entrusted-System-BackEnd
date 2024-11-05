@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import {
   CreateShipmentDto,
-  UpdateShipmentDto,
+  //UpdateShipmentDto,
 } from './dtos/create-shipment.dto';
 import { Shipment } from './models/shipment.model';
 import { InjectModel } from '@nestjs/sequelize';
@@ -28,22 +28,22 @@ export class ShipmentService {
     }
   }
 
-  async updateShipment(
-    shipmentId: string,
-    body: UpdateShipmentDto,
-  ): Promise<Shipment> {
-    try {
-      const [affectedRows, [updateData]] = await this.shipmentModel.update(
-        { ...body },
-        { where: { id: shipmentId }, returning: true },
-      );
-      return updateData.dataValues as Shipment;
-    } catch (err) {
-      if (err instanceof TypeError) {
-        throw new NotFoundException('Shipment not found');
-      }
-    }
-  }
+  // async updateShipment(
+  //   shipmentId: string,
+  //   body: UpdateShipmentDto,
+  // ): Promise<Shipment> {
+  //   try {
+  //     const [affectedRows, [updateData]] = await this.shipmentModel.update(
+  //       { ...body },
+  //       { where: { id: shipmentId }, returning: true },
+  //     );
+  //     return updateData.dataValues as Shipment;
+  //   } catch (err) {
+  //     if (err instanceof TypeError) {
+  //       throw new NotFoundException('Shipment not found');
+  //     }
+  //   }
+  // }
 
   async findShipment(query: QueryShipmentDto): Promise<Shipment[]> {
     let shipment: Shipment[];
