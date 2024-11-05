@@ -5,9 +5,13 @@ import {
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
-import { CreateEmployeeDto } from './dtos/CreateEmployeeDto';
+import { CreateEmployeeDto, UpdateEmployeeDto } from './dtos/CreateEmployeeDto';
 import { Employee } from './models/employee.model';
 import { UniqueConstraintError } from 'sequelize';
+import {
+  ValidationError,
+  ValidationErrorDetail,
+} from '@/shared/classes/validation-error.class';
 
 @Injectable()
 export class EmployeesService {
@@ -23,22 +27,20 @@ export class EmployeesService {
     employee.phone = employeeInfo.phone;
 
     try {
-      await employee.save();
+      return await employee.save();
     } catch (err) {
       if (err instanceof UniqueConstraintError) {
-        throw new ConflictException(err.errors[0].message);
+        const errors = err.errors.map(
+          (error) => new ValidationErrorDetail(error.path, error.message),
+        );
+        throw new ConflictException(new ValidationError(errors));
       }
 
       throw new InternalServerErrorException();
     }
-
-    return;
   }
 
-  async updateEmployee(
-    employeeId: string,
-    updateInfo: Partial<CreateEmployeeDto>,
-  ) {
+  async updateEmployee(employeeId: string, updateInfo: UpdateEmployeeDto) {
     const [affectedRows, [updatedEmployees]] = await Employee.update(
       updateInfo,
       {
@@ -49,9 +51,6 @@ export class EmployeesService {
 
     if (affectedRows === 0) throw new NotFoundException('Employee not found');
 
-    return {
-      message: 'Employee updated successfully',
-      data: updatedEmployees[0],
-    };
+    return updatedEmployees[0];
   }
 }

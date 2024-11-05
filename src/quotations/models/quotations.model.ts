@@ -1,7 +1,7 @@
-import { AirFreight } from '@/airFreight/models/airFreight.model';
+import { AirFreight } from '@/air-freights/models/air-freights.model';
 import { Employee } from '@/employees/models/employee.model';
-import { Freight, FreightType } from '@/freight/models/freight.model';
-import { LandFreight } from '@/landFreight/models/landFreight.model';
+import { Freight, FreightType } from '@/freights/models/freights.model';
+import { LandFreight } from '@/land-freights/models/land-freights.model';
 import { PackageDetail } from '@/packageDetails/models/packageDetails.model';
 import { QuotationService } from '@/quotation-services/models/quotation-services.model';
 import { QuotationReq } from '@/quotationReqs/models/quotationReq.model';

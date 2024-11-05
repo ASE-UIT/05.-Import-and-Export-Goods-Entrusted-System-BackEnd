@@ -1,42 +1,41 @@
 import {
   BadRequestException,
   Body,
+  ConflictException,
   Controller,
+  ForbiddenException,
   Get,
   NotFoundException,
   Param,
   Patch,
   Post,
   Query,
+  UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
 import { ProvidersService } from './providers.service';
-import { FindProviderStrategy } from './strategies/find-provider/find-provider-strategy.enum';
-import { ZodValidationPipe } from '@/shared/pipes/zod.pipe';
-import { QueryProviderDto, QueryProviderSchema } from './dtos/QueryProviderDto';
+import { FindProviderStrategy } from './strategies/find-providers/find-providers-strategy.enum';
+import { QueryProviderDto, QueryProviderSchema } from './dtos/query-providers.dto';
 import {
   CreateProviderDto,
   CreateProviderSchema,
   UpdateProviderDto,
-} from './dtos/CreateProviderDto';
+} from './dtos/create-providers.dto';
 import { RoleGuard } from '@/shared/guards/role.guard';
 import { Roles } from '@/shared/decorators/role.decorator';
 import { RoleEnum } from '@/shared/enums/roles.enum';
 import {
-  ApiBadRequestResponse,
   ApiBody,
-  ApiConflictResponse,
-  ApiCreatedResponse,
-  ApiInternalServerErrorResponse,
-  ApiNotFoundResponse,
-  ApiOkResponse,
   ApiOperation,
   ApiQuery,
-  ApiTags,
-  ApiUnauthorizedResponse,
-  PartialType,
+  ApiResponse,
+  ApiTags
 } from '@nestjs/swagger';
-import { ProviderStatus } from './models/provider.model';
+import { Provider, ProviderStatus } from './models/providers.model';
+import { SuccessResponse } from '@/shared/classes/success-response.class';
+import { createResponseType } from '@/shared/helpers/create-response.mixin';
+import { ValidationError } from '@/shared/classes/validation-error.class';
+import { ZodValidationPipe } from 'nestjs-zod';
 
 @ApiTags('Providers')
 @Controller({
@@ -46,13 +45,6 @@ import { ProviderStatus } from './models/provider.model';
 export class ProvidersController {
   constructor(private providerService: ProvidersService) {}
 
-  // @UseGuards(RoleGuard)
-  // @Roles([
-  //   RoleEnum.ADMIN,
-  //   RoleEnum.SALES,
-  //   RoleEnum.CUSTOMER_SERVICE,
-  //   RoleEnum.MANAGER,
-  // ])
   @ApiOperation({ summary: 'Search for providers' })
   @ApiQuery({
     name: 'name',
@@ -88,7 +80,7 @@ export class ProvidersController {
     name: 'contactRepId',
     type: String,
     required: false,
-    description: 'Search provider by contact representative',
+    description: 'Search provider by contact representative id',
   })
   @ApiQuery({
     name: 'status',
@@ -96,138 +88,177 @@ export class ProvidersController {
     required: false,
     description: 'Search provider by status',
   })
-  @ApiOkResponse({ description: 'Provider found' })
-  @ApiNotFoundResponse({ description: 'Provider not found' })
-  @ApiInternalServerErrorResponse({
-    description: 'Something went terribly wrong. Contact backend team at once',
+  @ApiResponse({
+    status: 200,
+    description: 'Provider found',
+    type: Provider,
   })
-  @ApiUnauthorizedResponse({
-    description: 'Not logged in or account has unappropriate role',
+  @ApiResponse({
+    status: 400,
+    description: 'Unrecognized key(s) in query',
   })
-
+  @ApiResponse({
+    status: 401,
+    description: "Authentication is required to find provider's information",
+    type: UnauthorizedException,
+    example: new UnauthorizedException('Only authenticated users can access this resource').getResponse(),
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'Only user with role: [ADMIN | SALES | CUSTOMER_SERVICE | MANAGER] can perform this action',
+    type: ForbiddenException,
+    example: new ForbiddenException('Only users with the following roles can access this resource: ADMIN, SALES, CUSTOMER_SERVICE, MANAGER').getResponse(),
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Provider not found',
+    type: NotFoundException,
+    example: new NotFoundException('Provider not found').getResponse(),
+  })
+  @UseGuards(RoleGuard)
+  @Roles([
+    RoleEnum.ADMIN,
+    RoleEnum.SALES,
+    RoleEnum.CUSTOMER_SERVICE,
+    RoleEnum.MANAGER,
+  ])
   @Get()
   async getProviders(
-    @Query(new ZodValidationPipe(QueryProviderSchema)) query: QueryProviderDto,
+    @Query(new ZodValidationPipe(QueryProviderSchema.strict())) query: QueryProviderDto,
   ) {
-    if (Object.keys(query).length === 0)
-      return await this.providerService.findProvider(
-        FindProviderStrategy.ALL,
-        '',
-      );
-    const queryFields: { [key: string]: FindProviderStrategy } = {
-      name: FindProviderStrategy.NAME,
-      phone: FindProviderStrategy.PHONE,
-      email: FindProviderStrategy.EMAIL,
-      address: FindProviderStrategy.ADDRESS,
-      country: FindProviderStrategy.COUNTRY,
-      status: FindProviderStrategy.STATUS,
-      contactRepId: FindProviderStrategy.CONTACT_REP_ID,
-    };
-
-    for (const [key, strategy] of Object.entries(queryFields)) {
-      const value = query[key as keyof QueryProviderDto];
-      if (value) {
-        const provider = await this.providerService.findProvider(strategy, value);
-        if (provider.length > 0) {
-          if (strategy === FindProviderStrategy.ALL || provider.length > 1)
-            return provider;
-          else return provider[0];
-        }
-      }
-    }
-
-    throw new NotFoundException('Provider not found');
+    const result = await this.providerService.findProvider(query);
+    return new SuccessResponse('Provider found', result);
   }
 
-  // @UseGuards(RoleGuard)
-  // @Roles([
-  //   RoleEnum.ADMIN,
-  //   RoleEnum.SALES,
-  //   RoleEnum.CUSTOMER_SERVICE,
-  //   RoleEnum.MANAGER,
-  // ])
   @ApiOperation({ summary: 'Create new provider' })
-  @ApiBody({
-    type: CreateProviderDto,
+  @ApiResponse({
+    status: 201,
+    description: 'Provider created',
+    type: createResponseType('Provider created', Provider),
+    example: {
+      "name": 'New Provider',
+      "phone": '987654321',
+      "email": 'newprovider@example.com',
+      "address": '123 Main St',
+      "country": 'Vietnam',
+      "contactRepId": '123e4567-e89b-12d3-a456-426614174000',
+      "status": ProviderStatus.INACTIVE,
+    }
   })
-  @ApiCreatedResponse({ description: 'New provider created' })
-  @ApiBadRequestResponse({ description: 'Invalid body' })
-  @ApiConflictResponse({ description: 'Unique information already exist' })
-  @ApiUnauthorizedResponse({
-    description: 'Not logged in or account has unappropriate role',
+  @ApiResponse({
+    status: 400,
+    description: 'Invalid request body',
+    type: ValidationError,
   })
-  @ApiInternalServerErrorResponse({
-    description: 'Something went terribly wrong. Contact backend team at once',
+  @ApiResponse({
+    status: 401,
+    description: 'Authentication is required to create a provider',
+    type: UnauthorizedException,
+    example: new UnauthorizedException('Only authenticated users can access this resource').getResponse(),
   })
-  @ApiBody({
-    type: CreateProviderDto,
-    examples: {
-      example: {
-        description: 'Create a new provider with basic details',
-        value: {
-          name: 'New Provider',
-          phone: '987654321',
-          email: 'newprovider@example.com',
-          address: '123 Main St',
-          country: 'Vietnam',
-          contactRepId: '123e4567-e89b-12d3-a456-426614174000',
-          status: ProviderStatus.ACTIVE,
-        },
-      },
-    },
+  @ApiResponse({
+    status: 403,
+    description:'Only user with role: [ADMIN | SALES | CUSTOMER_SERVICE | MANAGER] can perform this action',
+    type: ForbiddenException,
+    example: new ForbiddenException('Only users with the following roles can access this resource: ADMIN, SALES, CUSTOMER_SERVICE, MANAGER').getResponse(),
   })
+  @ApiResponse({
+    status: 404,
+    description: 'The provided provider information does not exist',
+    type: NotFoundException,
+    example: new NotFoundException('Contact representative not found').getResponse(),
+  })
+  @ApiResponse({
+    status: 409,
+    description: 'Conflict',
+    type: ValidationError,
+  })
+  @UseGuards(RoleGuard)
+  @Roles([
+    RoleEnum.ADMIN,
+    RoleEnum.SALES,
+    RoleEnum.CUSTOMER_SERVICE,
+    RoleEnum.MANAGER,
+  ])
   @Post()
   async createProvider(
     @Body(new ZodValidationPipe(CreateProviderSchema)) body: CreateProviderDto,
   ) {
     const createRes = await this.providerService.createProvider(body);
-    return { message: `Provider created`, data: createRes };
+    return new SuccessResponse('Provider created', createRes);
   }
 
-  // @UseGuards(RoleGuard)
-  // @Roles([
-  //   RoleEnum.ADMIN,
-  //   RoleEnum.SALES,
-  //   RoleEnum.CUSTOMER_SERVICE,
-  //   RoleEnum.MANAGER,
-  // ])
   @ApiOperation({ summary: "Update provider's information" })
-  @ApiOkResponse({ description: 'New information updated' })
-  @ApiBadRequestResponse({ description: 'Empty body or misspelled property' })
-  @ApiNotFoundResponse({ description: 'Could not find provider to update' })
-  @ApiUnauthorizedResponse({
-    description: 'Not logged in or account has unappropriate role',
-  })
   @ApiBody({
     type: UpdateProviderDto,
-    examples: {
-      example: {
-        description: 'Able to update one or more fields',
-        value: {
-          name: 'Updated Provider Name',
-          phone: '111222333',
-          email: 'updatedprovider@example.com',
-          address: 'Updated Address 123',
-          country: 'Vietnam',
-          contactRepId: '123e4567-e89b-12d3-a456-426614174001',
-          status: ProviderStatus.ACTIVE,
-        },
-      },
-    },
   })
-  @ApiInternalServerErrorResponse({
-    description: 'Something went terribly wrong. Contact backend team at once',
+  @ApiResponse({
+    status: 200,
+    description: 'Provider updated',
+    type: createResponseType('Provider updated', Provider),
+    example: {
+      "name": 'Updated Provider Name',
+      "phone": '111222333',
+      "email": 'updatedprovider@example.com',
+      "address": 'Updated Address 123',
+      "country": 'Vietnam',
+      "contactRepId": '123e4567-e89b-12d3-a456-426614174001',
+      "status": ProviderStatus.INACTIVE,
+    }
   })
-
+  @ApiResponse({
+    status: 400,
+    description: 'Invalid request body',
+    type: ValidationError,
+  })
+  @ApiResponse({
+    status: 401,
+    description: "Authentication is required to update a provider's information",
+    type: UnauthorizedException,
+    example: new UnauthorizedException('Only authenticated users can access this resource').getResponse(),
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'Only user with role: [ADMIN | SALES | CUSTOMER_SERVICE | MANAGER] can perform this action',
+    type: ForbiddenException,
+    example: new ForbiddenException('Only users with the following roles can access this resource: ADMIN, SALES, CUSTOMER_SERVICE, MANAGER').getResponse(),
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'The provided provider information does not exist',
+    type: NotFoundException,
+    example: new NotFoundException('Provider not found').getResponse(),
+  })
+  @ApiResponse({
+    status: 406,
+    description: 'Provider must provide at least 4 types of freight to be active',
+    type: ConflictException,
+    example: {
+      "message": "Provider must provide at least 4 types of freight to be active",
+      "error": "Not Acceptable"
+  }
+})
+  @ApiResponse({ 
+    status: 409, 
+    description: 'Conflict', 
+    type: ValidationError 
+  })
+  @UseGuards(RoleGuard)
+  @Roles([
+    RoleEnum.ADMIN,
+    RoleEnum.SALES,
+    RoleEnum.CUSTOMER_SERVICE,
+    RoleEnum.MANAGER,
+  ])
   @Patch(':id')
   async updateProvider(
     @Param('id') id: string,
-    @Body(new ZodValidationPipe(CreateProviderSchema.partial())) 
-    body: Partial<CreateProviderDto>,
+    @Body(new ZodValidationPipe(UpdateProviderDto)) 
+    body: UpdateProviderDto,
   ) {
     if (Object.keys(body).length === 0)
-      throw new BadRequestException('Body is empty');
+      throw new BadRequestException('Body is empty or invalid field names');
     const updateResponse = await this.providerService.updateProvider(id, body);
-    return updateResponse;
+    return new SuccessResponse('Provider updated', updateResponse);
   }
 }

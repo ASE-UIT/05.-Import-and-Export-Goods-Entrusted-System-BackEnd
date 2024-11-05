@@ -4,7 +4,6 @@ import { AppService } from './app.service';
 import { UsersModule } from './users/users.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { SequelizeModule } from '@nestjs/sequelize';
-import { RolesModule } from './roles/roles.module';
 import { EmployeesModule } from './employees/employees.module';
 import { LegalRepsModule } from './legalReps/legalReps.module';
 import { CustomersModule } from './customers/customers.module';
@@ -17,14 +16,15 @@ import { SessionModule } from './session/session.module';
 import { InvoicesModule } from './invoices/invoices.module';
 import { QuoteReqDetailsModule } from './quoteReqDetails/quoteReqDetails.module';
 import { PackageDetailModule } from './packageDetails/packageDetails.module';
-import { FreightModule } from './freight/freight.module';
-import { AirFreightModule } from './airFreight/airFreight.module';
-import { LandFreightModule } from './landFreight/landFreight.module';
-import { ContactRepsModule } from './contactReps/contactReps.module';
+import { FreightModule } from './freights/freights.module';
+import { AirFreightModule } from './air-freights/air-freights.module';
+import { LandFreightModule } from './land-freights/land-freights.module';
+import { ContactRepsModule } from './contact-representatives/contact-representatives.module';
 import { PaymentModule } from './payment/payment.module';
 import { ContractsModule } from './contracts/contracts.module';
-import { FCLModule } from './fcl/fcl.module';
-import { LCLModule } from './lcl/lcl.module';
+import { RolesModule } from './roles/roles.module';
+import { FCLModule } from './fcls/fcls.module';
+import { LCLModule } from './lcls/lcls.module';
 
 @Module({
   imports: [
@@ -47,7 +47,6 @@ import { LCLModule } from './lcl/lcl.module';
       }),
     }),
     UsersModule,
-    RolesModule,
     EmployeesModule,
     FreightModule,
     LegalRepsModule,
@@ -66,8 +65,9 @@ import { LCLModule } from './lcl/lcl.module';
     PaymentModule,
     ContractsModule,
     ContactRepsModule,
+    RolesModule,
     FCLModule,
-    LCLModule
+    LCLModule,
   ],
   controllers: [AppController],
   providers: [AppService],
