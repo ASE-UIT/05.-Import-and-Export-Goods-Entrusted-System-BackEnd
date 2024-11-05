@@ -3,6 +3,7 @@ import { IFindQuoteReqDetailStrategy } from './find-quoteReqDetail-strategy.inte
 import { QuoteReqDetail } from '@/quote-request-details/models/quoteReqDetail.model';
 import { PackageDetail } from '@/package-details/models/packageDetails.model';
 import { InjectModel } from '@nestjs/sequelize';
+import { Sequelize } from 'sequelize';
 
 @Injectable()
 export class FindQuoteReqDetailByShipmentReadyDateStrategy implements IFindQuoteReqDetailStrategy {
@@ -10,7 +11,8 @@ export class FindQuoteReqDetailByShipmentReadyDateStrategy implements IFindQuote
 
     async find(shipmentReadyDate: string): Promise<QuoteReqDetail[] | null> {
         return this.quoteReqDetailModel.findAll({
-            where: { shipmentReadyDate: shipmentReadyDate }
+            //where: { shipmentReadyDate: shipmentReadyDate }
+            where: Sequelize.where(Sequelize.fn('DATE', Sequelize.col('shipmentReadyDate')), shipmentReadyDate)
         });
     }
 }
