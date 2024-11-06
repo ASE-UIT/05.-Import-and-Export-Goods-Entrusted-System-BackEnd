@@ -1,8 +1,11 @@
 export enum FindInvoiceStrategy {
   ALL = 'ALL',
+  ID = 'ID',
   INVOICE_DATE = 'INVOICE_DATE',
   PAID_DATE = 'PAID_DATE',
   STATUS = 'STATUS',
   TAX_AMOUNT = 'TAX_AMOUNT',
   TOTAL_AMOUNT = 'TOTAL_AMOUNT',
+  EMPLOYEE_ID = 'EMPLOYEE_ID',
+  CONTRACT_ID = 'CONTRACT_ID',
 }

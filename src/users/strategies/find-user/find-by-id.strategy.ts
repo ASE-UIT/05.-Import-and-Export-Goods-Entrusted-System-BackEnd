@@ -9,8 +9,10 @@ export class FindUserByIdStrategy implements IFindUserStrategy {
   async find(userInfo: string): Promise<User | null> {
     const result = await User.findOne({
       where: { id: userInfo },
-      attributes: { exclude: ['roleId', 'employeeId'] },
-      include: [Role, Employee],
+      attributes: { exclude: ['employeeId', 'roleId'] },
+      include: {
+        model: Role,
+      },
       raw: true,
       nest: true,
     });
