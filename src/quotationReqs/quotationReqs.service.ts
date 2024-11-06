@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateQuotationReqDto } from './dtos/CreateQuotationReqDto';
 import { CreateQuotationReqStrategy } from './strategies/create-quotationReq/create-quotationReq.strategy';
 import { FindQuotationReqStrategy } from './strategies/find-quotationReq/find-quotationReq-strategy.enum';
@@ -8,8 +8,8 @@ import { FindAllQuotationReqStrategy } from './strategies/find-quotationReq/find
 import { FindQuotationReqByRequestDateStrategy } from './strategies/find-quotationReq/find-by-requestDate.strategy';
 import { FindQuotationReqByStatusStrategy } from './strategies/find-quotationReq/find-by-status.strategy';
 import { FindQuotationReqByCustomerIdStrategy } from './strategies/find-quotationReq/find-by-customerId.strategy';
-import { UpdateQuotationReqDto } from './dtos/UpdateQuotationReqDto';
 import { UpdateQuotationReqStrategy } from './strategies/update-quotationReq/update-quotationReq.strategy';
+import { ForeignKeyConstraintError } from 'sequelize';
 
 @Injectable()
 export class QuotationReqsService {
@@ -49,7 +49,11 @@ export class QuotationReqsService {
     try {
       return await this.createQuotationReqStrategy.create(quotationReqInfo)
     } catch (error) {
-      throw new Error('Error when create quotation request')
+      //throw new BadRequestException('Error when create quotation request:' + error.message)
+      if (error instanceof ForeignKeyConstraintError) {
+        throw new HttpException('Invalid foreign key.', HttpStatus.BAD_REQUEST);
+      }
+      throw new Error()
     }
   }
 

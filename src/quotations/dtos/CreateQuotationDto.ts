@@ -8,6 +8,9 @@ export const CreateQuotationSchema = z.object({
   quotationDate: z.coerce.date(),
   expiredDate: z.coerce.date(),
   status: z.enum([QuotationStatus.DRAFT, QuotationStatus.BOOKED]),
+  quoteReqId: z.string().min(1),
+  freightId: z.string().min(1),
+  employeeId: z.string().min(1),
 });
 
 export type CreateQuotationDto = z.infer<typeof CreateQuotationSchema>;

@@ -5,7 +5,9 @@ import { CreatePackageDetailDto, CreatePackageDetailSchema } from './dtos/Create
 import { UpdatePackageDetailDto, UpdatePackageDetailSchema } from './dtos/UpdatePackageDetailDto';
 import { QueryPackageDetailDto, QueryPackageDetailSchema } from './dtos/QueryPackageDetailDto';
 import { FindPackageDetailStrategy } from './strategies/find-packageDetail/find-packageDetail-strategy.enum';
+import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
+@ApiTags('package details')
 @Controller({
     path: 'package-details',
     version: '1',
@@ -43,6 +45,8 @@ export class PackageDetailsController {
     }
 
     @Post()
+    @ApiOperation({ summary: 'Create a new package detail' })
+    @ApiResponse({ status: 201, description: 'Package detail successfully created' })
     async createPackageDetail(
         @Body(new ZodValidationPipe(CreatePackageDetailSchema)) body: CreatePackageDetailDto
     ) {
@@ -51,6 +55,8 @@ export class PackageDetailsController {
     }
 
     @Patch(':id')
+    @ApiOperation({ summary: 'Update a package detail' })
+    @ApiResponse({ status: 200, description: 'Package detail successfully updated' })
     async updatePackageDetail(
         @Param('id') id: string,
         @Body(new ZodValidationPipe(CreatePackageDetailSchema.partial())) body: Partial<CreatePackageDetailDto>) {

@@ -13,6 +13,9 @@ export class CreateQuotationStrategy implements ICreateQuotationStrategy {
     quotation.quotationDate = quotationInfo.quotationDate;
     quotation.expiredDate = quotationInfo.expiredDate;
     quotation.status = quotationInfo.status;
+    quotation.freightId = quotationInfo.freightId;
+    quotation.quoteReqId = quotationInfo.quoteReqId;
+    quotation.employeeId = quotationInfo.employeeId
     await quotation.save();
     return quotation;
   }

@@ -4,9 +4,11 @@ import sequelize from "sequelize";
 import { AllowNull, BelongsTo, Column, Default, ForeignKey, Model, PrimaryKey, Table } from "sequelize-typescript";
 
 export enum PackageType {
-    CONTAINER = 'CONTAINER',
-    DRUM = 'DRUM',
-    CRATE = 'CRATE'
+    // CONTAINER = 'CONTAINER',
+    // DRUM = 'DRUM',
+    // CRATE = 'CRATE',
+    DRY = 'DRY',
+    FREEZE = 'FREEZE'
 }
 
 @Table({
