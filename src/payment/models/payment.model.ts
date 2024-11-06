@@ -1,39 +1,45 @@
-import { Invoice } from "@/invoices/models/invoice.model";
-import sequelize from "sequelize";
-import { AllowNull, BelongsTo, Column, Default, ForeignKey, Model, PrimaryKey, Table } from "sequelize-typescript";
-
-export enum PaymentStatus {
-    COMPLETED = 'COMPLETED',
-    PENDING = 'PENDING',
-    PAID = 'PAID',
-    CANCELLED = 'CANCELLED',
-    FAILED = 'FAILED',
-    REFUNDED = 'REFUNDED',
-    ONHOLD = 'ONHOLD'
-}
-
+import { Invoice } from '@/invoices/models/invoice.model';
+import { PaymentStatus } from '@/shared/enums/payment-status.enum';
+import { ApiProperty } from '@nestjs/swagger';
+import sequelize from 'sequelize';
+import {
+  AllowNull,
+  BelongsTo,
+  Column,
+  DataType,
+  Default,
+  ForeignKey,
+  Model,
+  PrimaryKey,
+  Table,
+} from 'sequelize-typescript';
 
 @Table({
-    tableName: "payments"
+  tableName: 'payments',
 })
 export class Payment extends Model {
-    @PrimaryKey
-    @Default(sequelize.UUIDV4)
-    @Column
-    id: string;
+  @ApiProperty()
+  @PrimaryKey
+  @Default(sequelize.UUIDV4)
+  @Column
+  id: string;
 
-    @Default(0.0)
-    @Column
-    amountPaid: number;
+  @ApiProperty()
+  @AllowNull(false)
+  @Column({ type: DataType.FLOAT })
+  amountPaid: number;
 
-    @Column
-    status: PaymentStatus;
+  @ApiProperty()
+  @AllowNull(false)
+  @Column
+  status: PaymentStatus;
 
-    @ForeignKey(() => Invoice)
-    @AllowNull(false)
-    @Column
-    invoiceId: string;
+  @ApiProperty()
+  @ForeignKey(() => Invoice)
+  @AllowNull(false)
+  @Column
+  invoiceId: string;
 
-    @BelongsTo(() => Invoice)
-    invoice: Invoice;
+  @BelongsTo(() => Invoice)
+  invoice: Invoice;
 }
