@@ -5,6 +5,8 @@ import { ConfigService } from '@nestjs/config';
 import * as passport from 'passport';
 import * as session from 'express-session';
 import RedisStore from 'connect-redis';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { patchNestJsSwagger } from 'nestjs-zod';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -13,8 +15,6 @@ async function bootstrap() {
     configService.getOrThrow('REDIS_PASSWORD'),
     configService.getOrThrow('REDIS_HOST'),
   );
-
-  //const redisStore = await createRedisStoreDev();
 
   app.use(
     session({
@@ -28,12 +28,25 @@ async function bootstrap() {
     }),
   );
 
+  patchNestJsSwagger();
+
   app.use(passport.initialize());
   app.use(passport.session());
 
   app.enableVersioning();
+
+  const options = new DocumentBuilder()
+    .setTitle('Exim API')
+    .setDescription('Exim API description')
+    .setVersion('1.0')
+    .addTag('exim')
+    .build();
+
+  const document = SwaggerModule.createDocument(app, options);
+  SwaggerModule.setup('api', app, document);
   await app.listen(3000);
 }
+
 bootstrap();
 
 async function createRedisStore(
@@ -45,23 +58,6 @@ async function createRedisStore(
   });
 
   await redisClient.connect();
-
-  return new RedisStore({
-    client: redisClient,
-    prefix: 'exim-session:',
-  });
-}
-
-async function createRedisStoreDev(): Promise<RedisStore> {
-  const redisClient = createClient({
-    url: `redis://default:eshWyijCEavRbgBTUCxNjksbIdJUJlqP@junction.proxy.rlwy.net:41009`,
-  });
-
-  try {
-    await redisClient.connect();
-  } catch (e) {
-    console.log(e);
-  }
 
   return new RedisStore({
     client: redisClient,

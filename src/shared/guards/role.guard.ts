@@ -1,6 +1,7 @@
 import {
   CanActivate,
   ExecutionContext,
+  ForbiddenException,
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -21,7 +22,7 @@ export class RoleGuard implements CanActivate {
 
     if (!request.isAuthenticated()) {
       throw new UnauthorizedException(
-        'You are not authorized to perform this action',
+        'Only authenticated users can access this resource',
       );
     }
 
@@ -37,8 +38,8 @@ export class RoleGuard implements CanActivate {
       return true;
     }
 
-    throw new UnauthorizedException(
-      'You do not have the required role to perform this action',
+    throw new ForbiddenException(
+      'Only users with the following roles can access this resource: ' + roles,
     );
   }
 }
