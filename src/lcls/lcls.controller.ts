@@ -123,9 +123,9 @@ export class LCLController {
   })
   @ApiResponse({
     status: 404,
-    description: 'The provided lcl information does not exist',
+    description: 'The provided freight information does not exist',
     type: NotFoundException,
-    example: new NotFoundException('Lcl not found').getResponse(),
+    example: new NotFoundException('Freight not found').getResponse(),
   })
   @ApiResponse({
     status: 409,

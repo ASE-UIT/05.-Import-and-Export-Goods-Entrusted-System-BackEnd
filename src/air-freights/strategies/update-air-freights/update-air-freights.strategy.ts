@@ -25,6 +25,10 @@ export class UpdateAirFreightStrategy implements IUpdateAirFreightStrategy {
     airFreightId: string,
     updateInfo: Partial<CreateAirFreightDto>,
   ): Promise<AirFreight> {
+    const airFreight = await this.airFreightModel.findByPk(airFreightId);
+    if (!airFreight) {
+      throw new NotFoundException('Air freight not found');
+    }
     try {
       const [affectedRows, [updatedData]] = await this.airFreightModel.update(
         { ...updateInfo },
@@ -41,7 +45,7 @@ export class UpdateAirFreightStrategy implements IUpdateAirFreightStrategy {
         throw new NotFoundException('Air freight not found');
       }
       if (err instanceof ForeignKeyConstraintError) {
-        throw new NotFoundException('Contact representative not found');
+        throw new NotFoundException('Freight not found');
       }
     }
   }

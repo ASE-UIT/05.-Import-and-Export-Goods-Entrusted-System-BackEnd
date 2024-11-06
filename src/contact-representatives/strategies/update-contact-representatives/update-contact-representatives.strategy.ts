@@ -17,6 +17,10 @@ export class UpdateContactRepsStrategy implements IUpdateContactRepsStrategy {
     contactRepId: string,
     updateInfo: CreateContactRepDto,
   ): Promise<ContactRep> {
+    const contactRep = await this.contactRepModel.findByPk(contactRepId);
+    if (!contactRep) {
+      throw new NotFoundException('Contact representative not found');
+    }
     try {
       const [affectedRows, [updateData]] = await this.contactRepModel.update(
         { ...updateInfo },

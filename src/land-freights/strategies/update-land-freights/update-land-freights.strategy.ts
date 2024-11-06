@@ -24,6 +24,10 @@ export class UpdateLandFreightStrategy implements IUpdateLandFreightStrategy {
     landFreightId: string,
     updateInfo: Partial<CreateLandFreightDto>,
   ): Promise<LandFreight> {
+    const landFreight = await this.landFreightModel.findByPk(landFreightId);
+    if (!landFreight) {
+      throw new NotFoundException('Land freight not found');
+    }
     try {
       const [affectedRows, [updatedData]] = await this.landFreightModel.update(
         { ...updateInfo },

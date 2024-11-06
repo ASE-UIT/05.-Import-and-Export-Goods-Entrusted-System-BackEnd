@@ -24,6 +24,10 @@ export class UpdateFclStrategy implements IUpdateFclStrategy {
     fclId: string,
     updateInfo: Partial<CreateFclDto>,
   ): Promise<FCL> {
+    const fcl = await this.fclModel.findByPk(fclId);
+    if (!fcl) {
+      throw new NotFoundException('FCL not found');
+    }
     try {
       const [affectedRows, [updateData]] = await this.fclModel.update(
         { ...updateInfo },

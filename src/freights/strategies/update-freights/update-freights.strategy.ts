@@ -23,6 +23,10 @@ export class UpdateFreightStrategy implements IUpdateFreightStrategy {
     freightId: string,
     updateInfo: UpdateFreightDto,
   ): Promise<Freight> {
+    const freight = await this.freightModel.findByPk(freightId);
+    if (!freight) {
+      throw new NotFoundException('Freight not found');
+    }
     try {
       const [affectedRows, [updatedData]] = await this.freightModel.update(
         { ...updateInfo },

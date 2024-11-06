@@ -24,6 +24,10 @@ export class UpdateLclStrategy implements IUpdateLclStrategy {
     lclId: string,
     updateInfo: Partial<CreateLclDto>,
   ): Promise<LCL> {
+    const lcl = await this.lclModel.findByPk(lclId);
+    if (!lcl) {
+      throw new NotFoundException('LCL not found');
+    }
     try {
       const [affectedRows, [updatedData]] = await this.lclModel.update(
         { ...updateInfo },
