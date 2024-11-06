@@ -1,5 +1,6 @@
 import { LegalRep } from '@/legal-representative/models/legal-rep.model';
-import { QuotationReq } from '@/quotationReqs/models/quotationReq.model';
+//import { QuotationReq } from '@/quotationReqs/models/quotationReq.model';
+import { QuotationReq } from '@/quotation-requests/models/quotationReq.model';
 import { ApiProperty } from '@nestjs/swagger';
 import sequelize, { HasOne } from 'sequelize';
 import {
