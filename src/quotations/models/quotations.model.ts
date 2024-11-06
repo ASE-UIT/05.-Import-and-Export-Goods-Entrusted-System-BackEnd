@@ -1,11 +1,13 @@
-import { AirFreight } from '@/airFreight/models/airFreight.model';
+import { AirFreight } from '@/air-freights/models/air-freights.model';
 import { Contract } from '@/contracts/models/contract.model';
 import { Employee } from '@/employees/models/employee.model';
-import { FCL } from '@/fcl/models/fcl.model';
-import { Freight, FreightType } from '@/freight/models/freight.model';
-import { LandFreight } from '@/landFreight/models/landFreight.model';
-import { LCL } from '@/lcl/models/lcl.model';
+import { FCL } from '@/fcls/models/fcls.model';
+//import { Freight, FreightType} from '@/freights/models/freights.model';
+import { Freight, FreightType } from '@/freights/models/freights.model';
+import { LCL } from '@/lcls/models/lcls.model';
 import { PackageDetail } from '@/package-details/models/packageDetails.model';
+//import { Freight, FreightType } from '@/freights/models/freights.model';
+import { LandFreight } from '@/land-freights/models/land-freights.model';
 import { QuotationService } from '@/quotation-services/models/quotation-services.model';
 import { QuotationReq } from '@/quotation-requests/models/quotationReq.model';
 import { QuoteReqDetail } from '@/quote-request-details/models/quoteReqDetail.model';
@@ -28,6 +30,7 @@ import {
   BelongsTo,
   HasOne,
 } from 'sequelize-typescript';
+import { from } from 'rxjs';
 
 @Table({ tableName: 'quotations' })
 export class Quotation extends Model {

@@ -15,10 +15,10 @@ import { SessionModule } from './session/session.module';
 import { InvoicesModule } from './invoices/invoices.module';
 import { QuoteReqDetailsModule } from './quote-request-details/quote-request-details.module';
 import { PackageDetailModule } from './package-details/package-details.module';
-import { FreightModule } from './freight/freight.module';
-import { AirFreightModule } from './airFreight/airFreight.module';
-import { LandFreightModule } from './landFreight/landFreight.module';
-import { ContactRepsModule } from './contactReps/contactReps.module';
+import { FreightModule } from './freights/freights.module';
+import { AirFreightModule } from './air-freights/air-freights.module';
+import { LandFreightModule } from './land-freights/land-freights.module';
+import { ContactRepsModule } from './contact-representatives/contact-representatives.module';
 import { PaymentModule } from './payment/payment.module';
 import { ContractsModule } from './contracts/contracts.module';
 import { ShipmentModule } from './shipment/shipment.module';
@@ -26,8 +26,8 @@ import { DocumentModule } from './document/document.module';
 import { ShipmentTrackingModule } from './shipment-tracking/shipment-tracking.module';
 import { LegalRepsModule } from './legal-representative/legal-rep.module';
 import { RolesModule } from './roles/roles.module';
-import { FCLModule } from './fcl/fcl.module';
-import { LCLModule } from './lcl/lcl.module';
+import { FCLModule } from './fcls/fcls.module';
+import { LCLModule } from './lcls/lcls.module';
 
 @Module({
   imports: [
@@ -45,7 +45,7 @@ import { LCLModule } from './lcl/lcl.module';
         password: configService.getOrThrow<string>('POSTGRES_PASSWORD'),
         database: configService.getOrThrow<string>('POSTGRES_DB'),
         autoLoadModels: true,
-        sync: { alter: true },
+        sync: { alter: true, force: true },
         logging: false,
       }),
     }),
@@ -73,7 +73,7 @@ import { LCLModule } from './lcl/lcl.module';
     ShipmentTrackingModule,
     RolesModule,
     FCLModule,
-    LCLModule
+    LCLModule,
   ],
   controllers: [AppController],
   providers: [AppService],

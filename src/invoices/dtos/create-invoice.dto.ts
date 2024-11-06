@@ -1,6 +1,4 @@
-import { CreateAirFreightDto } from '@/airFreight/dtos/CreateAirFreightDto';
 import { InvoiceStatus } from '@/shared/enums/invoice-status.enum';
-import { PartialType } from '@nestjs/swagger';
 import { createZodDto } from 'nestjs-zod';
 import { z } from 'zod';
 
@@ -33,8 +31,8 @@ export const CreateInvoiceSchema = z.object({
     .describe('The employee ID associated with the contract'),
 });
 
-export class CreateInvoiceDto extends createZodDto(CreateInvoiceSchema) {}
+export class CreateInvoiceDto extends createZodDto(CreateInvoiceSchema) { }
 
 export class UpdateInvoiceDto extends createZodDto(
   CreateInvoiceSchema.partial().omit({ employeeId: true, contractId: true }),
-) {}
+) { }

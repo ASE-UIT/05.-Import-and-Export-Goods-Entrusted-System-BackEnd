@@ -7,3 +7,4 @@ export enum RoleEnum {
   HUMAN_RESOURCES = 'HUMAN_RESOURCES',
   DOCUMENTATION = 'DOCUMENTATION',
 }
+
