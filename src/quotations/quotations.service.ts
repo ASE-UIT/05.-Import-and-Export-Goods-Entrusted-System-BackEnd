@@ -1,7 +1,5 @@
 import {
   BadRequestException,
-  HttpException,
-  HttpStatus,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -18,9 +16,6 @@ import { FindQuotationStrategy } from './strategies/find-quotation/find-quotatio
 import { IFindQuotationStrategy } from './strategies/find-quotation/find-quotation-strategy.interface';
 import { CreateQuotationStrategy } from './strategies/create-quotation/create-quotation.strategy';
 import { UpdateQuotationStrategy } from './strategies/update-quotation/update-quotation.strategy';
-import { FindQuotationByEmployeeId } from './strategies/find-quotation/find-by-employee-id';
-import { FindQuotationByCustomerId } from './strategies/find-quotation/find-by-customer-id';
-import { ForeignKeyConstraintError } from 'sequelize';
 
 @Injectable()
 export class QuotationsService {
@@ -32,34 +27,24 @@ export class QuotationsService {
     private findQuotationByExpiredDate: FindQuotationByExpiredDate,
     private findQuotationByQuotationDate: FindQuotationByQuotationDate,
     private findQuotationByTotalPrice: FindQuotationByTotalPrice,
-    private findQuotationByEmployeeId: FindQuotationByEmployeeId,
-    private findQuotationByCustomerId: FindQuotationByCustomerId,
     private createQuotationStrategy: CreateQuotationStrategy,
     private updateQuotationStrategy: UpdateQuotationStrategy,
-  ) { }
+  ) {}
 
   async create(
     quotationInfo: CreateQuotationDto,
-  ): Promise<Quotation> {
-    try {
-      return await this.createQuotationStrategy.create(quotationInfo);
-    } catch (error) {
-      // if (error instanceof ForeignKeyConstraintError) {
-      //   throw new HttpException('Invalid foreign key.', HttpStatus.BAD_REQUEST);
-      // }
-      if (error instanceof NotFoundException) {
-        throw new HttpException('Invalid foreign key.', HttpStatus.BAD_REQUEST)
-      }
-      throw new Error(error)
-    }
+  ): Promise<{ message: string; data: Quotation }> {
+    const createdQuotation =
+      await this.createQuotationStrategy.create(quotationInfo);
+    return { message: 'Quotation created', data: createdQuotation };
   }
 
-  async find(
+  find(
     strategy: FindQuotationStrategy,
-    quotationInfo: string,
+    quotationInfo: any,
   ): Promise<Quotation[] | null> {
     const findStrategy = this.getFindStrategy(strategy);
-    const quotation: Quotation[] | null = await findStrategy.find(quotationInfo);
+    const quotation = findStrategy.find(quotationInfo);
     return quotation;
   }
 
@@ -79,30 +64,20 @@ export class QuotationsService {
         return this.findQuotationByStatus;
       case FindQuotationStrategy.TOTAL_PRICE:
         return this.findQuotationByTotalPrice;
-      case FindQuotationStrategy.EMPLOYEE_ID:
-        return this.findQuotationByEmployeeId;
-      case FindQuotationStrategy.CUSTOMER_ID:
-        return this.findQuotationByCustomerId
     }
   }
 
   async update(
     quotationID: string,
     updateInfo: Partial<CreateQuotationDto>,
-  ): Promise<Quotation> {
+  ): Promise<{ message: string; data: Quotation }> {
     if (Object.keys(updateInfo).length < 1) {
       throw new BadRequestException('Body is empty');
     }
-    try {
-      return await this.updateQuotationStrategy.update(quotationID, updateInfo,)
-    } catch (error) {
-      if (error instanceof NotFoundException) {
-        throw new HttpException('Quotation does not exist in database', HttpStatus.NOT_FOUND)
-      }
-      if (error instanceof ForeignKeyConstraintError) {
-        throw new HttpException('Invalid foreign key', HttpStatus.BAD_REQUEST)
-      }
-      throw new Error()
-    }
+    const updatedResponse = await this.updateQuotationStrategy.update(
+      quotationID,
+      updateInfo,
+    );
+    return { message: 'Quotation updated', data: updatedResponse };
   }
 }

@@ -1,7 +1,7 @@
 import { LegalRep } from '@/legalReps/models/legalReps.model';
-import { QuotationReq } from '@/quotation-requests/models/quotationReq.model';
+import { QuotationReq } from '@/quotationReqs/models/quotationReq.model';
 import sequelize from 'sequelize';
-import {
+import{
   AllowNull,
   Column,
   Default,

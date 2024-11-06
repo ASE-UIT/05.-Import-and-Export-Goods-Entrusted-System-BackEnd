@@ -11,18 +11,18 @@ export class CreateFreightStrategy implements ICreateFreightStrategy {
     freight.freightType = freightData.freightType;
     freight.origin = freightData.origin;
     freight.destination = freightData.destination;
+    freight.transit = freightData.transit;
     freight.transitTime = freightData.transitTime;
-    freight.additionFee = freightData.additionFee;
-    freight.addition_fee_breakdown = freightData.addition_fee_breakdown
     freight.validFrom = freightData.validFrom;
     freight.validUntil = freightData.validUntil;
-    freight.schedule = freightData.schedule
-    freight.providerId = freightData.providerId
+    freight.note = freightData.note;
+    freight.freeTime = freightData.freeTime;
+    
     try {
       await freight.save();
       return freight;
     }
-    catch (err) {
+    catch(err) {
       if (err instanceof UniqueConstraintError) {
         throw new ConflictException(err.errors[0].message);
       }

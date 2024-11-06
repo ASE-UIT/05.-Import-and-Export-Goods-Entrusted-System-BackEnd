@@ -13,8 +13,6 @@ export class AuthenticatedGuard implements CanActivate {
     if (request.isAuthenticated()) {
       return true;
     }
-    throw new UnauthorizedException(
-      'Only authenticated users can access this resource',
-    );
+    throw new UnauthorizedException('You are not logged in');
   }
 }
