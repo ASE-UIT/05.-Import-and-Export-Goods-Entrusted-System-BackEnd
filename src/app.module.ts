@@ -5,7 +5,6 @@ import { UsersModule } from './users/users.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { EmployeesModule } from './employees/employees.module';
-import { LegalRepsModule } from './legalReps/legalReps.module';
 import { CustomersModule } from './customers/customers.module';
 import { ProvidersModule } from './providers/providers.module';
 import { QuotationReqsModule } from './quotationReqs/quotationReqs.module';
@@ -22,6 +21,10 @@ import { LandFreightModule } from './land-freights/land-freights.module';
 import { ContactRepsModule } from './contact-representatives/contact-representatives.module';
 import { PaymentModule } from './payment/payment.module';
 import { ContractsModule } from './contracts/contracts.module';
+import { ShipmentModule } from './shipment/shipment.module';
+import { DocumentModule } from './document/document.module';
+import { ShipmentTrackingModule } from './shipment-tracking/shipment-tracking.module';
+import { LegalRepsModule } from './legal-representative/legal-rep.module';
 import { RolesModule } from './roles/roles.module';
 import { FCLModule } from './fcls/fcls.module';
 import { LCLModule } from './lcls/lcls.module';
@@ -65,6 +68,9 @@ import { LCLModule } from './lcls/lcls.module';
     PaymentModule,
     ContractsModule,
     ContactRepsModule,
+    ShipmentModule,
+    DocumentModule,
+    ShipmentTrackingModule,
     RolesModule,
     FCLModule,
     LCLModule,

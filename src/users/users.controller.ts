@@ -32,7 +32,7 @@ import { createResponseType } from '@/shared/helpers/create-response.mixin';
   version: '1',
 })
 export class UsersController {
-  constructor(private usersService: UsersService) {}
+  constructor(private usersService: UsersService) { }
 
   @ApiOperation({ summary: 'Create a new user' })
   @ApiResponse({
