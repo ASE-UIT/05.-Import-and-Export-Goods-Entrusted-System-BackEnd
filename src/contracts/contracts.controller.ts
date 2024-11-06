@@ -53,7 +53,7 @@ import { createResponseType } from '@/shared/helpers/create-response.mixi';
   version: '1',
 })
 export class ContractsController {
-  constructor(private contractsService: ContractsService) {}
+  constructor(private contractsService: ContractsService) { }
 
   @ApiOperation({ summary: 'Create a new contract' })
   @ApiResponse({
@@ -87,7 +87,7 @@ export class ContractsController {
     status: 404,
     description: 'Not found',
     type: ForbiddenException,
-    examples: {
+    example: {
       NotFoundEmployee: {
         summary: 'The provided employeeId does not exist',
         value: new NotFoundException("Employee doesn't exist").getResponse(),

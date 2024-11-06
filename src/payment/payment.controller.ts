@@ -48,7 +48,7 @@ import { SuccessResponse } from '@/shared/classes/success-response.class';
   version: '1',
 })
 export class PaymentsController {
-  constructor(private paymentsService: PaymentsService) {}
+  constructor(private paymentsService: PaymentsService) { }
 
   @ApiOperation({ summary: 'Create new payment' })
   @ApiResponse({
@@ -82,7 +82,7 @@ export class PaymentsController {
     status: 404,
     description: 'Not found',
     type: ForbiddenException,
-    examples: {
+    example: {
       NotFoundInvoice: {
         summary: 'The provided invoiceId does not exist',
         value: new NotFoundException("Invoice doesn't exist").getResponse(),
