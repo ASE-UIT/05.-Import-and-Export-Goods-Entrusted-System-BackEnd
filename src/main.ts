@@ -33,6 +33,11 @@ async function bootstrap() {
   app.use(passport.initialize());
   app.use(passport.session());
 
+  app.enableCors({
+    origin: configService.get('FRONTEND_URL') || "http://localhost:3000",
+    credentials: true,
+  });
+
   app.enableVersioning();
 
   const options = new DocumentBuilder()
@@ -43,7 +48,7 @@ async function bootstrap() {
     .build();
 
   const document = SwaggerModule.createDocument(app, options);
-  SwaggerModule.setup('documents', app, document);
+  SwaggerModule.setup('documentation', app, document);
   await app.listen(3000);
 }
 
