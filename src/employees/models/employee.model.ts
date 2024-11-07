@@ -1,5 +1,7 @@
 import { Contract } from '@/contracts/models/contract.model';
+import { Quotation } from '@/quotations/models/quotations.model';
 import { User } from '@/users/models/user.model';
+import { ApiProperty } from '@nestjs/swagger';
 import sequelize from 'sequelize';
 import {
   AllowNull,
@@ -25,17 +27,21 @@ export enum Position {
 
 @Table({
   tableName: 'employees',
+  timestamps: false,
 })
 export class Employee extends Model {
+  @ApiProperty()
   @PrimaryKey
   @Default(sequelize.UUIDV4)
   @Column
   id: string;
 
+  @ApiProperty()
   @AllowNull(false)
   @Column
   name: string;
 
+  @ApiProperty()
   @AllowNull(false)
   @Unique({
     name: 'email_conflict',
@@ -44,26 +50,32 @@ export class Employee extends Model {
   @Column
   email: string;
 
+  @ApiProperty()
   @AllowNull(false)
   @Column
   phone: string;
 
+  @ApiProperty()
   @AllowNull(false)
   @Column
   address: string;
 
+  @ApiProperty()
   @AllowNull(false)
   @Column
   position: Position;
 
+  @ApiProperty()
   @AllowNull(false)
   @Column
   dob: Date;
 
+  @ApiProperty()
   @AllowNull(false)
   @Column
   coefficientSalary: number;
 
+  @ApiProperty()
   @AllowNull(false)
   @Column
   baseSalary: number;
@@ -71,8 +83,11 @@ export class Employee extends Model {
   @HasOne(() => User)
   user: User;
 
-
   //one employee can make many contracts
   @HasMany(() => Contract)
   contracts: Contract[];
+
+  @HasMany(() => Quotation)
+  quotations: Quotation[]
+
 }

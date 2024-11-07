@@ -1,42 +1,69 @@
-import { Employee } from "@/employees/models/employee.model";
-import { Invoice } from "@/invoices/models/invoice.model";
-import sequelize from "sequelize";
-import { BelongsTo, BelongsToMany, Column, Default, ForeignKey, HasOne, Model, PrimaryKey, Table } from "sequelize-typescript";
-
-export enum ContractStatus {
-    ACTIVE = 'ACTIVE',
-    PENDING = 'PENDING',
-    TERMINATED = 'TERMIATED',
-    EXPIRED = 'EXPIRED'
-}
-
+import { Employee } from '@/employees/models/employee.model';
+import { Invoice } from '@/invoices/models/invoice.model';
+import { Quotation } from '@/quotations/models/quotations.model';
+import { ContractStatus } from '@/shared/enums/contract-status.enum';
+import { ApiProperty } from '@nestjs/swagger';
+import sequelize from 'sequelize';
+import {
+  AllowNull,
+  BelongsTo,
+  BelongsToMany,
+  Column,
+  Default,
+  ForeignKey,
+  HasMany,
+  HasOne,
+  Model,
+  PrimaryKey,
+  Table,
+} from 'sequelize-typescript';
 
 @Table({ tableName: 'contracts' })
 export class Contract extends Model {
-    @PrimaryKey
-    @Default(sequelize.UUIDV4)
-    @Column
-    id: string;
+  @ApiProperty()
+  @PrimaryKey
+  @Default(sequelize.UUIDV4)
+  @Column
+  id: string;
 
-    @Column
-    startDate: Date;
+  @ApiProperty()
+  @AllowNull(false)
+  @Column
+  startDate: Date;
 
-    @Column
-    endDate: Date;
+  @ApiProperty()
+  @AllowNull(false)
+  @Column
+  endDate: Date;
 
-    @Column
-    status: ContractStatus;
+  @ApiProperty()
+  @AllowNull(false)
+  @Column
+  status: ContractStatus;
 
-    @Column
-    contractDate: Date;
+  @ApiProperty()
+  @AllowNull(false)
+  @Column
+  contractDate: Date;
 
-    @ForeignKey(() => Employee)
-    @Column
-    employeeId: string;
+  @ApiProperty()
+  @ForeignKey(() => Employee)
+  @AllowNull(false)
+  @Column
+  employeeId: string;
 
-    @BelongsTo(() => Employee)
-    employee: Employee;
+  @BelongsTo(() => Employee)
+  employee: Employee;
 
-    @HasOne(() => Invoice)
-    invoice: Invoice;
+  @ApiProperty()
+  @ForeignKey(() => Quotation)
+  @AllowNull(false)
+  @Column
+  quotationId: string;
+
+  @BelongsTo(() => Quotation)
+  quotation: Quotation;
+
+  @HasMany(() => Invoice)
+  invoice: Invoice[];
 }

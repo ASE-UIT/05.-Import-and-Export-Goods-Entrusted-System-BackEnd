@@ -1,5 +1,6 @@
 import {
   ConflictException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
   UnauthorizedException,
@@ -9,11 +10,16 @@ import { FindUserByIdStrategy } from './strategies/find-user/find-by-id.strategy
 import { FindUserByUsernameStrategy } from './strategies/find-user/find-by-username.strategy';
 import { FindUserStrategy } from './strategies/find-user/find-user-strategy.enum';
 import { IFindUserStrategy } from './strategies/find-user/find-user-strategy.interface';
-import { CreateUserDto } from './dtos/CreateUserDto';
+import { CreateUserDto } from './dtos/create-user.dto';
 import * as argon2 from 'argon2';
 import { Role } from '@/roles/models/role.model';
 import { ForeignKeyConstraintError, UniqueConstraintError } from 'sequelize';
-import { UpdatePasswordDto } from './dtos/UpdatePasswordDto';
+import { UpdatePasswordDto } from './dtos/update-password.dto';
+import { ArgumentOutOfRangeError } from 'rxjs';
+import {
+  ValidationError,
+  ValidationErrorDetail,
+} from '@/shared/classes/validation-error.class';
 
 @Injectable()
 export class UsersService {
@@ -35,7 +41,9 @@ export class UsersService {
       case FindUserStrategy.ID:
         return this.findUserByIdStrategy;
       default:
-        throw new Error('Invalid strategy');
+        throw new Error(
+          `The strategy ${strategy} is not supported. Available strategies are: ${Object.values(FindUserStrategy)}`,
+        );
     }
   }
 
@@ -43,26 +51,30 @@ export class UsersService {
     username,
     password,
     employeeId,
-  }: CreateUserDto): Promise<void> {
-    // Get default role
-    const defaultRole = await Role.findOne({ where: { name: 'USER' } });
+    role,
+  }: CreateUserDto): Promise<User> {
+    const userRole = await Role.findOne({ where: { name: role } });
+    if (!userRole) throw new NotFoundException('Role not found');
 
     // Create a new user
     const user = new User();
     const passwordHash = await argon2.hash(password);
-
     user.username = username;
-    user.roleId = defaultRole.id;
+    user.roleId = userRole.id;
     user.hashedPassword = passwordHash;
     user.employeeId = employeeId;
 
     try {
-      await user.save();
+      const newUser = await user.save();
+      return newUser;
     } catch (err) {
       if (err instanceof ForeignKeyConstraintError) {
         throw new NotFoundException("Employee doesn't exist");
       } else if (err instanceof UniqueConstraintError) {
-        throw new ConflictException(err.errors[0].message);
+        const errors = err.errors.map(
+          (error) => new ValidationErrorDetail(error.path, error.message),
+        );
+        throw new ConflictException(new ValidationError(errors));
       }
     }
   }
@@ -85,8 +97,7 @@ export class UsersService {
       hashedPassword,
       body.oldPassword,
     );
-    if (!oldPasswordCorrect)
-      throw new UnauthorizedException('Incorrect password');
+    if (!oldPasswordCorrect) throw new ForbiddenException('Incorrect password');
     const newHashedPassword = await argon2.hash(body.newPassword);
     await User.update(
       { hashedPassword: newHashedPassword },

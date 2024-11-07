@@ -1,0 +1,10 @@
+export enum FindContractStrategy {
+  ALL = 'ALL',
+  ID = 'ID',
+  START_DATE = 'START_DATE',
+  END_DATE = 'END_DATE',
+  STATUS = 'STATUS',
+  CONTRACT_DATE = 'CONTRACT_DATE',
+  EMPLOYEE_ID = 'EMPLOYEE_ID',
+  QUOTATION_ID = 'QUOTATION_ID',
+}
