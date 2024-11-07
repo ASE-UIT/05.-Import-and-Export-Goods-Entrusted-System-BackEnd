@@ -41,7 +41,7 @@ import { createResponseType } from '@/shared/helpers/create-response.mixin';
 import { ValidationError } from '@/shared/classes/validation-error.class';
 import { Shipment, ShipmentType } from './models/shipment.model';
 
-@ApiTags('Shipments')
+@ApiTags('Shipment')
 @Controller({ path: 'shipment', version: '1' })
 export class ShipmentController {
   constructor(
@@ -52,11 +52,8 @@ export class ShipmentController {
   @ApiOperation({ summary: 'Create a new shipment along with its tracking' })
   @ApiResponse({
     status: 201,
-    description: 'Shipment and its tracking successfully created',
-    type: createResponseType(
-      'Shipment and its tracking successfully created',
-      Shipment,
-    ),
+    description: 'Shipment and its tracking created',
+    type: createResponseType('Shipment and its tracking created', Shipment),
   })
   @ApiResponse({
     status: 400,
@@ -110,13 +107,10 @@ export class ShipmentController {
     };
     const tracker =
       await this.shipmentTrackingService.createShipmentTracking(trackerBody);
-    return new SuccessResponse(
-      'Shipment and its tracking successfully created',
-      {
-        shipment: shipment,
-        tracking: tracker,
-      },
-    );
+    return new SuccessResponse('Shipment and its tracking created', {
+      shipment: shipment,
+      tracking: tracker,
+    });
   }
 
   // @ApiOperation({ summary: "Update a shipment's information" })
@@ -177,7 +171,7 @@ export class ShipmentController {
   //   return new SuccessResponse('Shipment updated successfully', updateResponse);
   // }
 
-  @ApiOperation({ summary: 'Search for shipments' })
+  @ApiOperation({ summary: 'Search for shipment' })
   @ApiQuery({
     name: 'shipmentType',
     enum: ShipmentType,
@@ -192,7 +186,7 @@ export class ShipmentController {
   })
   @ApiResponse({
     status: 200,
-    description: 'Shipment founded',
+    description: 'Shipment found',
     type: Shipment,
   })
   @ApiResponse({

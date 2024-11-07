@@ -2,6 +2,7 @@ import { Employee } from '@/employees/models/employee.model';
 import { Invoice } from '@/invoices/models/invoice.model';
 import { Quotation } from '@/quotations/models/quotations.model';
 import { ContractStatus } from '@/shared/enums/contract-status.enum';
+import { Shipment } from '@/shipment/models/shipment.model';
 import { ApiProperty } from '@nestjs/swagger';
 import sequelize from 'sequelize';
 import {
@@ -66,4 +67,7 @@ export class Contract extends Model {
 
   @HasMany(() => Invoice)
   invoice: Invoice[];
+
+  @HasOne(() => Shipment)
+  shipment: Shipment;
 }

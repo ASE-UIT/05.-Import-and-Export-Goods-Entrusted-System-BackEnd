@@ -36,7 +36,7 @@ export class CreateCustomerStrategy implements ICreateCustomerStrategy {
         throw new ConflictException(new ValidationError(errors));
       }
       if (err instanceof ForeignKeyConstraintError) {
-        throw new ConflictException('Legal representative not found');
+        throw new ConflictException('Legal representative id not found');
       }
     }
   }

@@ -41,7 +41,7 @@ export class ShipmentTrackingService {
       return updateData.dataValues as ShipmentTracking;
     } catch (err) {
       if (err instanceof TypeError) {
-        throw new NotFoundException('Shipment tracking not found');
+        throw new NotFoundException('Shipment tracking id not found');
       }
     }
   }

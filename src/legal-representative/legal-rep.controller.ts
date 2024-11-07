@@ -47,14 +47,11 @@ import { ZodValidationPipe } from 'nestjs-zod';
 export class LegalRepsController {
   constructor(private legalRepsService: LegalRepsService) {}
 
-  @ApiOperation({ summary: 'Create new customer' })
+  @ApiOperation({ summary: 'Create new legal representative' })
   @ApiResponse({
     status: 201,
-    description: 'Legal representative created successfully',
-    type: createResponseType(
-      'Legal representative created successfully',
-      LegalRep,
-    ),
+    description: 'Legal representative created',
+    type: createResponseType('Legal representative created', LegalRep),
   })
   @ApiResponse({
     status: 400,
@@ -92,23 +89,17 @@ export class LegalRepsController {
   ) {
     const createRes =
       await this.legalRepsService.createLegalReps(legalRepsData);
-    return new SuccessResponse(
-      'Legal representative created successfully',
-      createRes,
-    );
+    return new SuccessResponse('Legal representative created', createRes);
   }
 
-  @ApiOperation({ summary: "Update customer's information" })
+  @ApiOperation({ summary: "Update legal representative's information" })
   @ApiBody({
     type: UpdateLegalRepDto,
   })
   @ApiResponse({
     status: 201,
-    description: 'Legal representative updated successfully',
-    type: createResponseType(
-      'Legal representative updated successfully',
-      LegalRep,
-    ),
+    description: 'Legal representative updated',
+    type: createResponseType('Legal representative updated', LegalRep),
   })
   @ApiResponse({
     status: 400,
@@ -156,30 +147,27 @@ export class LegalRepsController {
       id,
       updateData,
     );
-    return new SuccessResponse(
-      'Legal representative updated successfully',
-      updateResponse,
-    );
+    return new SuccessResponse('Legal representative updated', updateResponse);
   }
 
-  @ApiOperation({ summary: 'Search for legal representatives' })
+  @ApiOperation({ summary: 'Search for legal representative' })
   @ApiQuery({
     name: 'name',
     type: String,
     required: false,
-    description: 'Search legalRep by name',
+    description: 'Search legal-rep by name',
   })
   @ApiQuery({
     name: 'phone',
     type: String,
     required: false,
-    description: 'Search legalRep by phone number',
+    description: 'Search legal-rep by phone number',
   })
   @ApiQuery({
     name: 'email',
     type: String,
     required: false,
-    description: 'Search legalRep by email',
+    description: 'Search legal-rep by email',
   })
   @ApiResponse({
     status: 200,
