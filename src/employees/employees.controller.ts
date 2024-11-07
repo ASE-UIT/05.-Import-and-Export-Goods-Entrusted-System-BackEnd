@@ -31,7 +31,7 @@ import { Employee } from './models/employee.model';
   version: '1',
 })
 export class EmployeesController {
-  constructor(private employeesService: EmployeesService) {}
+  constructor(private employeesService: EmployeesService) { }
 
   @ApiOperation({ description: 'Create a new employee' })
   @ApiResponse({

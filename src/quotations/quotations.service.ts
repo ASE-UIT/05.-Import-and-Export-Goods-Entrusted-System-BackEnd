@@ -1,5 +1,7 @@
 import {
   BadRequestException,
+  HttpException,
+  HttpStatus,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -18,6 +20,7 @@ import { CreateQuotationStrategy } from './strategies/create-quotation/create-qu
 import { UpdateQuotationStrategy } from './strategies/update-quotation/update-quotation.strategy';
 import { FindQuotationByEmployeeId } from './strategies/find-quotation/find-by-employee-id';
 import { FindQuotationByCustomerId } from './strategies/find-quotation/find-by-customer-id';
+import { ForeignKeyConstraintError } from 'sequelize';
 
 @Injectable()
 export class QuotationsService {
@@ -37,18 +40,26 @@ export class QuotationsService {
 
   async create(
     quotationInfo: CreateQuotationDto,
-  ): Promise<{ message: string; data: Quotation }> {
-    const createdQuotation =
-      await this.createQuotationStrategy.create(quotationInfo);
-    return { message: 'Quotation created', data: createdQuotation };
+  ): Promise<Quotation> {
+    try {
+      return await this.createQuotationStrategy.create(quotationInfo);
+    } catch (error) {
+      // if (error instanceof ForeignKeyConstraintError) {
+      //   throw new HttpException('Invalid foreign key.', HttpStatus.BAD_REQUEST);
+      // }
+      if (error instanceof NotFoundException) {
+        throw new HttpException('Invalid foreign key.', HttpStatus.BAD_REQUEST)
+      }
+      throw new Error(error)
+    }
   }
 
-  find(
+  async find(
     strategy: FindQuotationStrategy,
-    quotationInfo: any,
+    quotationInfo: string,
   ): Promise<Quotation[] | null> {
     const findStrategy = this.getFindStrategy(strategy);
-    const quotation = findStrategy.find(quotationInfo);
+    const quotation: Quotation[] | null = await findStrategy.find(quotationInfo);
     return quotation;
   }
 
@@ -78,14 +89,20 @@ export class QuotationsService {
   async update(
     quotationID: string,
     updateInfo: Partial<CreateQuotationDto>,
-  ): Promise<{ message: string; data: Quotation }> {
+  ): Promise<Quotation> {
     if (Object.keys(updateInfo).length < 1) {
       throw new BadRequestException('Body is empty');
     }
-    const updatedResponse = await this.updateQuotationStrategy.update(
-      quotationID,
-      updateInfo,
-    );
-    return { message: 'Quotation updated', data: updatedResponse };
+    try {
+      return await this.updateQuotationStrategy.update(quotationID, updateInfo,)
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw new HttpException('Quotation does not exist in database', HttpStatus.NOT_FOUND)
+      }
+      if (error instanceof ForeignKeyConstraintError) {
+        throw new HttpException('Invalid foreign key', HttpStatus.BAD_REQUEST)
+      }
+      throw new Error()
+    }
   }
 }
