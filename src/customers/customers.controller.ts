@@ -46,7 +46,7 @@ import { ZodValidationPipe } from 'nestjs-zod';
 export class CustomersController {
   constructor(private customerService: CustomersService) {}
 
-  @ApiOperation({ summary: 'Search for customers' })
+  @ApiOperation({ summary: 'Search for customer' })
   @ApiQuery({
     name: 'name',
     type: String,
@@ -147,7 +147,7 @@ export class CustomersController {
     description: 'The provided customer information does not exist',
     type: NotFoundException,
     example: new NotFoundException(
-      'Legal representative not found',
+      'Legal representative id not found',
     ).getResponse(),
   })
   @ApiResponse({
@@ -206,7 +206,7 @@ export class CustomersController {
     status: 404,
     description: 'The provided customer information does not exist',
     type: NotFoundException,
-    example: new NotFoundException('Customer not found').getResponse(),
+    example: new NotFoundException('Customer id not found').getResponse(),
   })
   @ApiResponse({ status: 409, description: 'Conflict', type: ValidationError })
   @UseGuards(RoleGuard)

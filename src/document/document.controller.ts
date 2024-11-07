@@ -38,7 +38,7 @@ import { createResponseType } from '@/shared/helpers/create-response.mixin';
 import { ValidationError } from '@/shared/classes/validation-error.class';
 import { Document } from './models/document.model';
 
-@ApiTags('Document')
+@ApiTags('Documentation')
 @Controller({ path: 'document', version: '1' })
 export class DocumentController {
   constructor(private documentService: DocumentService) {}
@@ -46,7 +46,7 @@ export class DocumentController {
   @ApiOperation({ summary: 'Create a new document' })
   @ApiResponse({
     status: 201,
-    description: 'New document created',
+    description: 'Document created',
     type: createResponseType('New document created', Document),
   })
   @ApiResponse({
@@ -75,7 +75,7 @@ export class DocumentController {
     status: 404,
     description: 'The provided document information does not exist',
     type: NotFoundException,
-    example: new NotFoundException('Shipment not found').getResponse(),
+    example: new NotFoundException('Shipment id not found').getResponse(),
   })
   @ApiResponse({
     status: 409,
@@ -89,10 +89,10 @@ export class DocumentController {
     @Body(new ZodValidationPipe(CreateDocumentSchema)) body: CreateDocumentDto,
   ) {
     const result = await this.documentService.createDocument(body);
-    return new SuccessResponse('New document created', result);
+    return new SuccessResponse('Document created', result);
   }
 
-  @ApiOperation({ summary: "Update a document's information" })
+  @ApiOperation({ summary: 'Update document' })
   @ApiBody({
     type: UpdateDocumentDto,
   })
@@ -145,7 +145,7 @@ export class DocumentController {
     return new SuccessResponse('Document updated', result);
   }
 
-  @ApiOperation({ summary: 'Search for documents' })
+  @ApiOperation({ summary: 'Search for document' })
   @ApiQuery({
     name: 'shipmentId',
     type: String,
@@ -166,7 +166,7 @@ export class DocumentController {
   })
   @ApiResponse({
     status: 200,
-    description: 'Document founded',
+    description: 'Document found',
     type: Document,
   })
   @ApiResponse({
