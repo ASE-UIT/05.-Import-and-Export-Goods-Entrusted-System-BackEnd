@@ -54,7 +54,9 @@ async function bootstrap() {
 
   const document = SwaggerModule.createDocument(app, options);
   SwaggerModule.setup('documentation', app, document);
+
   app.set('trust proxy', 1);
+  
   await app.listen(3000);
 }
 
