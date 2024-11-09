@@ -22,8 +22,11 @@ async function bootstrap() {
       resave: false,
       saveUninitialized: false,
       secret: configService.getOrThrow<string>('SESSION_SECRET'),
+      name: 'exim-session',
       cookie: {
         maxAge: 1000 * 60 * 60 * 24 * 31,
+        sameSite: configService.get('NODE_ENV') === 'production' ? 'none' : 'lax',
+        secure: configService.get('NODE_ENV') === 'production' ? true : false,
       },
     }),
   );
