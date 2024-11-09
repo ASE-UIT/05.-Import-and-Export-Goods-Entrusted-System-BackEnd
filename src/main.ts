@@ -7,9 +7,10 @@ import * as session from 'express-session';
 import RedisStore from 'connect-redis';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { patchNestJsSwagger } from 'nestjs-zod';
+import { NestExpressApplication } from '@nestjs/platform-express';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
   const configService = app.get<ConfigService>(ConfigService);
   const redisStore = await createRedisStore(
     configService.getOrThrow('REDIS_PASSWORD'),
@@ -53,6 +54,7 @@ async function bootstrap() {
 
   const document = SwaggerModule.createDocument(app, options);
   SwaggerModule.setup('documentation', app, document);
+  app.set('trust proxy', 1);
   await app.listen(3000);
 }
 
