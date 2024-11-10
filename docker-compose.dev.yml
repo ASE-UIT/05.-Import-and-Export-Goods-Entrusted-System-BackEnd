@@ -3,7 +3,7 @@ services:
     image: traefik:v3.1
     command: --api.insecure=true --providers.docker --providers.docker.exposedByDefault=false
     ports:
-      - '80:80'
+      - '81:80'
       - '8080:8080'
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
@@ -48,7 +48,8 @@ services:
     command: redis-server --requirepass ${REDIS_PASSWORD}
     volumes:
       - redis-session:/data
-
+    ports:
+      - "6379:6379"
 volumes:
   postgres-data:
   redis-session:
