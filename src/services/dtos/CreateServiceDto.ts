@@ -1,3 +1,4 @@
+import { createZodDto } from 'nestjs-zod';
 import { z } from 'zod';
 
 export const CreateServiceSchema = z.object({
@@ -6,4 +7,5 @@ export const CreateServiceSchema = z.object({
   fee: z.coerce.number().gt(0),
 });
 
-export type CreateServiceDto = z.infer<typeof CreateServiceSchema>;
+export class CreateServiceDto extends createZodDto(CreateServiceSchema) {}
+export class UpdateServiceDto extends createZodDto( CreateServiceSchema.partial()) {}

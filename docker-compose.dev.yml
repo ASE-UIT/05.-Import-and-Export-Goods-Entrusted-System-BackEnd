@@ -48,7 +48,7 @@ services:
     command: redis-server --requirepass ${REDIS_PASSWORD}
     volumes:
       - redis-session:/data
-
+      
 volumes:
   postgres-data:
   redis-session:
