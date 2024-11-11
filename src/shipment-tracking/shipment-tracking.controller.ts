@@ -84,7 +84,9 @@ export class ShipmentTrackingController {
     status: 404,
     description: 'The provided shipment tracking information does not exist',
     type: NotFoundException,
-    example: new NotFoundException('Shipment tracking not found').getResponse(),
+    example: new NotFoundException(
+      'Shipment tracking id not found',
+    ).getResponse(),
   })
   @ApiResponse({ status: 409, description: 'Conflict', type: ValidationError })
   @UseGuards(RoleGuard)
@@ -110,7 +112,7 @@ export class ShipmentTrackingController {
     return new SuccessResponse('Shipment tracking updated', updatedData);
   }
 
-  @ApiOperation({ summary: 'Search for shipment trackings' })
+  @ApiOperation({ summary: 'Search for shipment tracking' })
   @ApiQuery({
     name: 'status',
     enum: ShipmentTrackingStatus,
@@ -131,7 +133,7 @@ export class ShipmentTrackingController {
   })
   @ApiResponse({
     status: 200,
-    description: 'Shipment tracking founded',
+    description: 'Shipment tracking found',
     type: ShipmentTracking,
   })
   @ApiResponse({

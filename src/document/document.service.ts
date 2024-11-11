@@ -34,7 +34,7 @@ export class DocumentService {
       return document;
     } catch (err) {
       if (err instanceof ForeignKeyConstraintError)
-        throw new NotFoundException('Shipment not found');
+        throw new NotFoundException('Shipment id not found');
       if (err instanceof UniqueConstraintError) {
         const errors = err.errors.map(
           (error) => new ValidationErrorDetail(error.path, error.message),

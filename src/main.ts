@@ -7,9 +7,10 @@ import * as session from 'express-session';
 import RedisStore from 'connect-redis';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { patchNestJsSwagger } from 'nestjs-zod';
+import { NestExpressApplication } from '@nestjs/platform-express';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
   const configService = app.get<ConfigService>(ConfigService);
   const redisStore = await createRedisStore(
     configService.getOrThrow('REDIS_PASSWORD'),
@@ -22,8 +23,12 @@ async function bootstrap() {
       resave: false,
       saveUninitialized: false,
       secret: configService.getOrThrow<string>('SESSION_SECRET'),
+      name: 'exim-session',
       cookie: {
         maxAge: 1000 * 60 * 60 * 24 * 31,
+        sameSite: configService.get('NODE_ENV') === 'production' ? 'none' : 'lax',
+        secure: configService.get('NODE_ENV') === 'production' ? true : false,
+        httpOnly: true,
       },
     }),
   );
@@ -32,6 +37,11 @@ async function bootstrap() {
 
   app.use(passport.initialize());
   app.use(passport.session());
+
+  app.enableCors({
+    origin: configService.get('FRONTEND_URL') || "http://localhost:3000",
+    credentials: true,
+  });
 
   app.enableVersioning();
 
@@ -43,7 +53,10 @@ async function bootstrap() {
     .build();
 
   const document = SwaggerModule.createDocument(app, options);
-  SwaggerModule.setup('documents', app, document);
+  SwaggerModule.setup('documentation', app, document);
+
+  app.set('trust proxy', 1);
+  
   await app.listen(3000);
 }
 

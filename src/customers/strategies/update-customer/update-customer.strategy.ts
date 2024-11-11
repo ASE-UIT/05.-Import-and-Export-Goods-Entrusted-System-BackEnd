@@ -34,7 +34,7 @@ export class UpdateCustomerStrategy implements IUpdateCustomerStrategy {
       return updateData.dataValues as Customer;
     } catch (err) {
       if (err instanceof TypeError) {
-        throw new NotFoundException('Customer not found');
+        throw new NotFoundException('Customer id not found');
       }
       if (err instanceof UniqueConstraintError) {
         const errors = err.errors.map(
