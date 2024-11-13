@@ -28,7 +28,7 @@ export class SessionController {
     type: LoginDto,
   })
   @ApiResponse({
-    status: 200,
+    status: 201,
     description: 'User successfully logged in',
     type: createResponseType('User successfully logged in', User),
   })
