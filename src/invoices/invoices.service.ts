@@ -26,6 +26,7 @@ export class InvoicesService {
     private updateInvoiceStrategy: UpdateInvoiceStrategy,
     private findInvoiceStrategy: FindInvoiceStrategy,
   ) {}
+  // Write function to check status of invoice
 
   private async getInvoicesWithPaidAmount(invoices: Invoice[]): Promise<any[]> {
     const invoicesWithPaidAmount = await Promise.all(
