@@ -8,8 +8,11 @@ export const CreateQuoteReqDetailSchema = z.object({
     shipmentDeadline: z.coerce.date(),
     cargoInsurance: z.boolean(),
     quoteReqId: z.string()
-});
+}).refine(data => data.shipmentReadyDate <= data.shipmentDeadline, {
+    message: 'Shipment ready date must be before shipment deadline',
+    path: ['shipmentReadyDate']
+})
 
 //export class CreateQuoteReqDetailDto = z.infer<typeof CreateQuoteReqDetailSchema>;
 export class CreateQuoteReqDetailDto extends createZodDto(CreateQuoteReqDetailSchema) { }
-export class UpdateQuoteReqDetailDto extends createZodDto(CreateQuoteReqDetailSchema.partial()) { }
+//export class UpdateQuoteReqDetailDto extends createZodDto(CreateQuoteReqDetailSchema.partial()) { }

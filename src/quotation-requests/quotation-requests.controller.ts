@@ -1,15 +1,16 @@
-import { BadRequestException, Body, Controller, ForbiddenException, Get, NotFoundException, Param, Patch, Post, Put, Query, UnauthorizedException, UseGuards } from '@nestjs/common';
+import { BadRequestException, Body, Controller, ForbiddenException, Get, NotFoundException, Param, Patch, Post, Query, UnauthorizedException, UseGuards } from '@nestjs/common';
 import { QuotationReqsService } from './quotation-requests.service';
 import { ZodValidationPipe } from '@/shared/pipes/zod.pipe';
 import { QueryQuotationReqDto, QueryQuotationReqSchema } from './dtos/QueryQuotationReqDto';
-import { CreateQuotationReqDto, CreateQuotationReqSchema, UpdateQuotationReqDto } from './dtos/CreateQuotationReqDto';
+import { CreateQuotationReqDto, CreateQuotationReqSchema } from './dtos/CreateQuotationReqDto';
 import { FindQuotationReqStrategy } from './strategies/find-quotationReq/find-quotationReq-strategy.enum';
 import { QuotationReq, QuotationReqStatus } from './models/quotationReq.model';
-import { ApiBody, ApiOperation, ApiQuery, ApiResponse, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
+import { ApiBody, ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { RoleGuard } from '@/shared/guards/role.guard';
 import { RoleEnum } from '@/shared/enums/roles.enum';
 import { Roles } from '@/shared/decorators/role.decorator';
 import { createResponseType } from '@/shared/helpers/create-response.mixin';
+import { UpdateQuotationReqDto, UpdateQuotationReqSchema } from './dtos/UpdateQuotationReqDto';
 
 @ApiTags('quote requests')
 @Controller({
@@ -24,14 +25,14 @@ export class QuotationReqsController {
     status: 200,
     description: 'Successfully retrieved quote requests',
     type: QuotationReq,
-    example: {
+    example: [{
       "id": "f1a5d699-5168-439c-8d24-1b01bd3022de",
       "requestDate": "2024-10-23T00:00:00.000Z",
       "status": "PENDING",
       "customerId": "d476badd-cd71-41be-9544-073b9f44a729",
       "createdAt": "2024-10-31T03:07:03.407Z",
       "updatedAt": "2024-10-31T03:07:03.407Z"
-    }
+    }]
   })
   @ApiResponse({
     status: 401,
@@ -78,12 +79,13 @@ export class QuotationReqsController {
         );
         if (quotationReq.length > 0) {
           if (strategy === FindQuotationReqStrategy.ALL || quotationReq.length > 1)
-            return quotationReq;
-          else return quotationReq[0];
+            return quotationReq
+          else return quotationReq[0]
         }
+        return quotationReq
       }
     }
-    throw new NotFoundException('Quotate Request not found')
+    //throw new NotFoundException('Quotate Request not found')
   }
 
   //create quotation request
@@ -122,7 +124,6 @@ export class QuotationReqsController {
     schema: {
       example: {
         requestDate: '2024-01-01T00:00:00.000Z',
-        status: 'PENDING',
         customerId: '9b16a980-076c-4700-9c48-e9fccbe24766',
       },
     },
@@ -199,7 +200,7 @@ export class QuotationReqsController {
   @Patch(':id')
   async updateQuotationReq(
     @Param('id') id: string,
-    @Body(new ZodValidationPipe(CreateQuotationReqSchema.partial())) body: Partial<CreateQuotationReqDto>
+    @Body(new ZodValidationPipe(UpdateQuotationReqSchema.partial())) body: Partial<UpdateQuotationReqDto>
   ) {
     //check if body is empty 
     if (Object.keys(body).length === 0) {

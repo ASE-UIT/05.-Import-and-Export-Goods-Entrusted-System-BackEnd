@@ -1,7 +1,7 @@
 import { BadRequestException, Body, Controller, ForbiddenException, Get, NotFoundException, Param, Patch, Post, Put, Query, UnauthorizedException, UseGuards } from '@nestjs/common';
 import { QuoteReqDetailsService } from './quote-request-details.service';
 import { ZodValidationPipe } from '@/shared/pipes/zod.pipe';
-import { CreateQuoteReqDetailDto, CreateQuoteReqDetailSchema, UpdateQuoteReqDetailDto } from './dtos/CreateQuoteReqDetailDto';
+import { CreateQuoteReqDetailDto, CreateQuoteReqDetailSchema } from './dtos/CreateQuoteReqDetailDto';
 import { QueryQuoteReqDetailDto, QueryQuoteReqDetailSchema } from './dtos/QueryQuoteReqDetailDto';
 import { FindQuoteReqDetailStrategy } from './strategies/find_quoteReqDetail/find-quoteReqDetail-strategy.enum';
 import { ApiBody, ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
@@ -10,6 +10,8 @@ import { RoleEnum } from '@/shared/enums/roles.enum';
 import { RoleGuard } from '@/shared/guards/role.guard';
 import { QuoteReqDetail } from './models/quoteReqDetail.model';
 import { createResponseType } from '@/shared/helpers/create-response.mixin';
+import { UpdateQuotationReqSchema } from '@/quotation-requests/dtos/UpdateQuotationReqDto';
+import { UpdateQuoteReqDetailDto, UpdateQuoteReqDetailSchema } from './dtos/UpdateQuoteReqDetailDto';
 
 @ApiTags('quote request details')
 @Controller({
@@ -24,7 +26,7 @@ export class QuoteReqDetailsController {
         status: 200,
         description: 'Successfully retrieved quote requests',
         type: QuoteReqDetail,
-        example: {
+        example: [{
             "id": "b8992c5b-4030-4d89-8cd3-515d71949f9f",
             "origin": "Long An",
             "destination": "Tien Giang",
@@ -34,7 +36,7 @@ export class QuoteReqDetailsController {
             "quoteReqId": "b940be0c-2193-4b9c-a825-e5b2ab605b11",
             "createdAt": "2024-10-31T07:13:01.039Z",
             "updatedAt": "2024-10-31T07:13:01.039Z"
-        }
+        }]
     })
     @ApiResponse({
         status: 401,
@@ -77,7 +79,7 @@ export class QuoteReqDetailsController {
 
         // Assign corrisponding strategy to query fields
         for (const [key, strategy] of Object.entries(queryFields)) {
-            const value = query[key as keyof QueryQuoteReqDetailDto];
+            const value = query[key as keyof QueryQuoteReqDetailDto]
             if (value) {
                 const quoteReqDetail = await this.quoteReqDetailsSerivce.findQuoteReqDetail(
                     strategy,
@@ -85,13 +87,13 @@ export class QuoteReqDetailsController {
                 );
                 if (quoteReqDetail.length > 0) {
                     if (strategy === FindQuoteReqDetailStrategy.ALL || quoteReqDetail.length > 1)
-                        return quoteReqDetail;
-                    else return quoteReqDetail[0];
+                        return quoteReqDetail
+                    else return quoteReqDetail[0]
                 }
+                return quoteReqDetail
             }
         }
-
-        throw new NotFoundException('Quote request detail not found')
+        //throw new NotFoundException('Quote request detail not found')
     }
 
     //create new quote request detail
@@ -213,7 +215,7 @@ export class QuoteReqDetailsController {
     @Patch(':id')
     async updateQuoteReqDetail(
         @Param('id') id: string,
-        @Body(new ZodValidationPipe(CreateQuoteReqDetailSchema.partial())) body: Partial<CreateQuoteReqDetailDto>) {
+        @Body(new ZodValidationPipe(UpdateQuoteReqDetailSchema)) body: Partial<UpdateQuoteReqDetailDto>) {
         //check if body is empty 
         if (Object.keys(body).length === 0) {
             throw new BadRequestException('Body cannot be empty')

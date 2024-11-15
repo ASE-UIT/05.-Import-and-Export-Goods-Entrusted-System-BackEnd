@@ -56,7 +56,7 @@ export class QuotationsService {
 
   async find(
     strategy: FindQuotationStrategy,
-    quotationInfo: string,
+    quotationInfo: any,
   ): Promise<Quotation[] | null> {
     const findStrategy = this.getFindStrategy(strategy);
     const quotation: Quotation[] | null = await findStrategy.find(quotationInfo);
