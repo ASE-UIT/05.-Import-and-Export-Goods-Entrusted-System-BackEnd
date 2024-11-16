@@ -156,26 +156,34 @@ export class QuotationReqsController {
         message: 'Quote request successfully created with its associated details',
         data: {
           quoteRequest: {
-            id: 'f23c1d00-d7a7-11ed-b5ea-0242ac120002',
-            requestDate: '2022-04-26T00:00:00.000Z',
-            status: 'PENDING',
-            customerId: 'de0f1618-596c-44fa-b00b-a44c9ed6fe3a',
-            quoteRequestDetail: {
-              id: 'f6b50d42-d7a7-11ed-b5ea-0242ac120002',
-              origin: 'Peso',
-              destination: 'Sepo',
-              shipmentReadyDate: '2023-04-27T00:00:00.000Z',
-              shipmentDeadline: '2023-04-28T00:00:00.000Z',
-              cargoInsurance: true,
-              packageDetail: {
-                id: 'fb0c8cf4-d7a7-11ed-b5ea-0242ac120002',
-                packageType: 'DRY',
-                weight: 2,
-                length: 5,
-                width: 6,
-                height: 7
-              }
-            }
+            id: "b2268d2f-ab44-4d09-98a1-d3a377eb72ac",
+            requestDate: "2022-04-26T00:00:00.000Z",
+            status: "PENDING",
+            customerId: "de0f1618-596c-44fa-b00b-a44c9ed6fe3a",
+            updatedAt: "2024-11-16T14:13:43.580Z",
+            createdAt: "2024-11-16T14:13:43.580Z"
+          },
+          quoteRequestDetail: {
+            id: "6b5b4622-97d2-4c7a-9416-2c4be53a9529",
+            origin: "Peso",
+            destination: "Sepo",
+            shipmentReadyDate: "2023-04-27T00:00:00.000Z",
+            shipmentDeadline: "2023-04-28T00:00:00.000Z",
+            cargoInsurance: true,
+            quoteReqId: "b2268d2f-ab44-4d09-98a1-d3a377eb72ac",
+            updatedAt: "2024-11-16T14:13:43.590Z",
+            createdAt: "2024-11-16T14:13:43.590Z"
+          },
+          packageDetail: {
+            id: "82da928b-cd4a-4cd4-a9aa-a4793421fecf",
+            packageType: "DRY",
+            weight: 2,
+            length: 5,
+            width: 6,
+            height: 7,
+            detailId: "6b5b4622-97d2-4c7a-9416-2c4be53a9529",
+            updatedAt: "2024-11-16T14:13:43.593Z",
+            createdAt: "2024-11-16T14:13:43.593Z"
           }
         }
       }
