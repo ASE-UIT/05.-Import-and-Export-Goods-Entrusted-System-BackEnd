@@ -19,7 +19,7 @@ export const CreateQuotationSchema = z.object({
     data.deliveryDate <= data.expiredDate;
 }, {
   message: 'Dates must be in the following order: quotationDate <= pickupDate <= deliveryDate <= expiredDate.',
-  path: ['quotationDate'],
+  path: ['quotationDate', 'pickupDate', 'deliveryDate', 'expiredDate'],
 })
 
 export class CreateQuotationDto extends createZodDto(CreateQuotationSchema) { }

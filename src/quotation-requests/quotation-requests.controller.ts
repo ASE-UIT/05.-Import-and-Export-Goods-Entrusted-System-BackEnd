@@ -11,6 +11,7 @@ import { RoleEnum } from '@/shared/enums/roles.enum';
 import { Roles } from '@/shared/decorators/role.decorator';
 import { createResponseType } from '@/shared/helpers/create-response.mixin';
 import { UpdateQuotationReqDto, UpdateQuotationReqSchema } from './dtos/UpdateQuotationReqDto';
+import { CreateQuoteReqWithDetailSchema, CreateQuoteReqWithDetailDto } from './dtos/CreateQuoteReqWithDetail';
 
 @ApiTags('quote requests')
 @Controller({
@@ -140,6 +141,101 @@ export class QuotationReqsController {
   ) {
     const quoteReq = await this.quotationReqsService.createQuotationReq(body)
     return { message: 'Quote request successfully created', data: quoteReq }
+  }
+
+  //create quotation request with details
+  @ApiOperation({ summary: 'Create a new quote request with quote request detail and package detail' })
+  @ApiResponse({
+    //status: 201,
+    //description: 'Quote request successfully created',
+    //type: createResponseType('Quote request successfully created', QuotationReq)
+    status: 201,
+    description: 'Quote request successfully created with its associated details',
+    schema: {
+      example: {
+        message: 'Quote request successfully created with its associated details',
+        data: {
+          quoteRequest: {
+            id: 'f23c1d00-d7a7-11ed-b5ea-0242ac120002',
+            requestDate: '2022-04-26T00:00:00.000Z',
+            status: 'PENDING',
+            customerId: 'de0f1618-596c-44fa-b00b-a44c9ed6fe3a',
+            quoteRequestDetail: {
+              id: 'f6b50d42-d7a7-11ed-b5ea-0242ac120002',
+              origin: 'Peso',
+              destination: 'Sepo',
+              shipmentReadyDate: '2023-04-27T00:00:00.000Z',
+              shipmentDeadline: '2023-04-28T00:00:00.000Z',
+              cargoInsurance: true,
+              packageDetail: {
+                id: 'fb0c8cf4-d7a7-11ed-b5ea-0242ac120002',
+                packageType: 'DRY',
+                weight: 2,
+                length: 5,
+                width: 6,
+                height: 7
+              }
+            }
+          }
+        }
+      }
+    }
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Customer not found.',
+    type: BadRequestException,
+    example: new BadRequestException(
+      'Invalid foreign key'
+    ).getResponse()
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Only authenticated users can access this resource',
+    type: UnauthorizedException,
+    example: new UnauthorizedException(
+      'Only authenticated users can access this resource',
+    ).getResponse(),
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'Only the following roles can create users',
+    type: ForbiddenException,
+    example: new ForbiddenException(
+      'Only users with the following roles can access this resource: ADMIN,SALES,MANAGER',
+    ).getResponse(),
+  })
+  @ApiBody({
+    type: CreateQuoteReqWithDetailDto,
+    schema: {
+      example: {
+        requestDate: "2022-04-26T00:00:00.000Z",
+        customerId: "de0f1618-596c-44fa-b00b-a44c9ed6fe3a",
+        origin: "Peso",
+        destination: "Sepo",
+        shipmentReadyDate: "2023-04-27T00:00:00.000Z",
+        shipmentDeadline: "2023-04-28T00:00:00.000Z",
+        cargoInsurance: true,
+        packageType: "DRY",
+        weight: 2,
+        length: 5,
+        width: 6,
+        height: 7
+      }
+    }
+  })
+  @UseGuards(RoleGuard)
+  @Roles([
+    RoleEnum.ADMIN,
+    RoleEnum.SALES,
+    RoleEnum.MANAGER,
+  ])
+  @Post('with-details')
+  async createQuoteRequest(
+    @Body(new ZodValidationPipe(CreateQuoteReqWithDetailSchema)) data: CreateQuoteReqWithDetailDto
+  ) {
+    const result = await this.quotationReqsService.createQuoteRequestWithDetails(data)
+    return { message: 'Quote request successfully created with its associated details', data: result }
   }
 
 
