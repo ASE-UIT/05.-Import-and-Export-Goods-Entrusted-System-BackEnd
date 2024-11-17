@@ -27,17 +27,29 @@ export class FreightService {
 
   async find(freightInfo: QueryFreightDto): Promise<Freight[]> {
     let freight: Freight[];
-    const whereCondition = freightInfo ? { where: freightInfo } : {};
+    if (!freightInfo || Object.keys(freightInfo).length === 0) {
     freight = await Freight.findAll({
-      ...whereCondition,
+      include: [
+        {
+          model: Provider,
+          attributes: ['status'],
+          where: { status: 'active' },
+        },
+      ],
+    });
+
+    if (freight.length === 0) return [];
+    } else {
+    freight = await Freight.findAll({
+      where: freightInfo,
       include: [
         {
           model: Provider,
           attributes: ['status'],
         },
-      ],  
+      ],
     });
-
+    }
     if (freight.length > 0) {
       const inactiveFreight = freight.find(f => f.provider?.status === 'inactive');
       if (inactiveFreight) {
