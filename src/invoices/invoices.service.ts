@@ -34,7 +34,7 @@ export class InvoicesService {
     private updatePaidDateInvoiceStrategy: UpdatePaidDateInvoiceStrategy,
     private updatePaidAmountInvoiceStrategy: UpdatePaidAmountInvoiceStrategy,
   ) {}
-
+  //
   async updateInvoice(invoiceId: string, invoicePayment: Payment) {
     const foundInvoices = await this.find({ id: invoiceId });
     const findInvoice = foundInvoices[0];
