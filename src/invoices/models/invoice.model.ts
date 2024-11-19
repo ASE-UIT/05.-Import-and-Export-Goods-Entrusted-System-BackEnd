@@ -16,6 +16,7 @@ import {
   Table,
   BelongsTo,
 } from 'sequelize-typescript';
+import { Col } from 'sequelize/types/utils';
 
 @Table({ tableName: 'invoices' })
 export class Invoice extends Model {
@@ -27,16 +28,18 @@ export class Invoice extends Model {
 
   @ApiProperty()
   @AllowNull(false)
+  @Default(new Date())
   @Column
   invoiceDate: Date;
 
   @ApiProperty()
-  @AllowNull(false)
+  @AllowNull(true)
   @Column
   paidDate: Date;
 
   @ApiProperty()
   @AllowNull(false)
+  @Default(InvoiceStatus.PENDING)
   @Column
   status: InvoiceStatus;
 
@@ -49,6 +52,11 @@ export class Invoice extends Model {
   @AllowNull(false)
   @Column({ type: DataType.FLOAT })
   totalAmount: number;
+
+  @ApiProperty()
+  @AllowNull(false)
+  @Column
+  expiredDate: Date;
 
   @HasMany(() => Payment)
   payments: Payment[];
@@ -70,4 +78,10 @@ export class Invoice extends Model {
 
   @BelongsTo(() => Contract)
   contract: Contract;
+
+  @ApiProperty()
+  @AllowNull(false)
+  @Default(0)
+  @Column
+  paidAmount: number;
 }

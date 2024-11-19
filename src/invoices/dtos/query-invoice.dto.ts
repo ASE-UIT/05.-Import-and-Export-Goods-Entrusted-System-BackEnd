@@ -5,6 +5,7 @@ export const QueryInvoiceSchema = z.object({
   id: z.string().uuid().optional(),
   invoiceDate: z.coerce.date().optional(),
   paidDate: z.coerce.date().optional(),
+  expiredDate: z.coerce.date().optional(),
   status: z
     .enum([
       InvoiceStatus.PENDING,
@@ -19,6 +20,7 @@ export const QueryInvoiceSchema = z.object({
   totalAmount: z.coerce.number().optional(),
   employeeId: z.string().uuid().optional(),
   contractId: z.string().uuid().optional(),
+  paidAmount: z.coerce.number().optional(),
 });
 
 export type QueryInvoiceDto = z.infer<typeof QueryInvoiceSchema>;

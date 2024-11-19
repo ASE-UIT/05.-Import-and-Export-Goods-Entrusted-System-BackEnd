@@ -35,6 +35,11 @@ export class Payment extends Model {
   status: PaymentStatus;
 
   @ApiProperty()
+  @Default(new Date())
+  @Column
+  createdAt: Date;
+
+  @ApiProperty()
   @ForeignKey(() => Invoice)
   @AllowNull(false)
   @Column

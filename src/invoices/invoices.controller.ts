@@ -16,7 +16,6 @@ import { InvoicesService } from './invoices.service';
 import {
   CreateInvoiceDto,
   CreateInvoiceSchema,
-  UpdateInvoiceDto,
 } from './dtos/create-invoice.dto';
 import { QueryInvoiceDto, QueryInvoiceSchema } from './dtos/query-invoice.dto';
 import { Invoice } from './models/invoice.model';
@@ -42,6 +41,10 @@ import { InvoiceStatus } from '@/shared/enums/invoice-status.enum';
 import { DataTypes, ValidationError } from 'sequelize';
 import { createResponseType } from '@/shared/helpers/create-response.mixi';
 import { SuccessResponse } from '@/shared/classes/success-response.class';
+import {
+  UpdateInvoiceDto,
+  UpdateInvoiceSchema,
+} from './dtos/update-invoice.dto';
 
 @ApiTags('Invoices')
 @Controller({
@@ -49,7 +52,7 @@ import { SuccessResponse } from '@/shared/classes/success-response.class';
   version: '1',
 })
 export class InvoicesController {
-  constructor(private invoicesService: InvoicesService) { }
+  constructor(private invoicesService: InvoicesService) {}
 
   @ApiOperation({ summary: 'Create a new invoice' })
   @ApiResponse({
@@ -130,6 +133,12 @@ export class InvoicesController {
     description: 'Search invoice by paid date',
   })
   @ApiQuery({
+    name: 'expiredDate',
+    type: Date,
+    required: false,
+    description: 'Search invoice by expired date',
+  })
+  @ApiQuery({
     name: 'status',
     enum: InvoiceStatus,
     required: false,
@@ -205,6 +214,7 @@ export class InvoicesController {
     query: QueryInvoiceDto,
   ) {
     const foundRes = await this.invoicesService.find(query);
+    if (foundRes === null) return new SuccessResponse('Invoice found', []);
     return new SuccessResponse('Invoice found', foundRes);
   }
 
@@ -256,8 +266,8 @@ export class InvoicesController {
   @Patch(':id')
   async updateInvoice(
     @Param('id') id: string,
-    @Body(new ZodValidationPipe(CreateInvoiceSchema.partial()))
-    body: Partial<CreateInvoiceDto>,
+    @Body(new ZodValidationPipe(UpdateInvoiceSchema.partial()))
+    body: UpdateInvoiceDto,
   ): Promise<{ message: string; data: Invoice }> {
     const updateRes = await this.invoicesService.update(id, body);
     return new SuccessResponse('Invoice updated successfully', updateRes);
