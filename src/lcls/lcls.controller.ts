@@ -52,6 +52,12 @@ export class LCLController {
     required: false,
     description: 'Search LCL by freight ID',
   })
+  @ApiQuery({
+    name: 'lcl_id',
+    type: String,
+    required: false,
+    description: 'Search LCL by ID',
+  })
   @ApiResponse({
     status: 200,
     description: 'LCL found',

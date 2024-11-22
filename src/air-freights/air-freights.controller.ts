@@ -76,6 +76,12 @@ export class AirFreightController {
     required: false,
     description: 'Search air freight by freight id',
   })
+  @ApiQuery({
+    name: 'airFreight_id',
+    type: String,
+    required: false,
+    description: 'Search air freight by id',
+  })
   @ApiResponse({
     status: 200,
     description: 'Air freight found',
