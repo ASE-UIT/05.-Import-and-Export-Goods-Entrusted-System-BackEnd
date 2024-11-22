@@ -1,15 +1,17 @@
-import { BadRequestException, Body, Controller, ForbiddenException, Get, NotFoundException, Param, Patch, Post, Put, Query, UnauthorizedException, UseGuards } from '@nestjs/common';
+import { BadRequestException, Body, Controller, ForbiddenException, Get, NotFoundException, Param, Patch, Post, Query, UnauthorizedException, UseGuards } from '@nestjs/common';
 import { QuotationReqsService } from './quotation-requests.service';
 import { ZodValidationPipe } from '@/shared/pipes/zod.pipe';
 import { QueryQuotationReqDto, QueryQuotationReqSchema } from './dtos/QueryQuotationReqDto';
-import { CreateQuotationReqDto, CreateQuotationReqSchema, UpdateQuotationReqDto } from './dtos/CreateQuotationReqDto';
+import { CreateQuotationReqDto, CreateQuotationReqSchema } from './dtos/CreateQuotationReqDto';
 import { FindQuotationReqStrategy } from './strategies/find-quotationReq/find-quotationReq-strategy.enum';
 import { QuotationReq, QuotationReqStatus } from './models/quotationReq.model';
-import { ApiBody, ApiOperation, ApiQuery, ApiResponse, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
+import { ApiBody, ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { RoleGuard } from '@/shared/guards/role.guard';
 import { RoleEnum } from '@/shared/enums/roles.enum';
 import { Roles } from '@/shared/decorators/role.decorator';
 import { createResponseType } from '@/shared/helpers/create-response.mixin';
+import { UpdateQuotationReqDto, UpdateQuotationReqSchema } from './dtos/UpdateQuotationReqDto';
+import { CreateQuoteReqWithDetailSchema, CreateQuoteReqWithDetailDto } from './dtos/CreateQuoteReqWithDetail';
 
 @ApiTags('quote requests')
 @Controller({
@@ -24,14 +26,14 @@ export class QuotationReqsController {
     status: 200,
     description: 'Successfully retrieved quote requests',
     type: QuotationReq,
-    example: {
+    example: [{
       "id": "f1a5d699-5168-439c-8d24-1b01bd3022de",
       "requestDate": "2024-10-23T00:00:00.000Z",
       "status": "PENDING",
       "customerId": "d476badd-cd71-41be-9544-073b9f44a729",
       "createdAt": "2024-10-31T03:07:03.407Z",
       "updatedAt": "2024-10-31T03:07:03.407Z"
-    }
+    }]
   })
   @ApiResponse({
     status: 401,
@@ -78,12 +80,13 @@ export class QuotationReqsController {
         );
         if (quotationReq.length > 0) {
           if (strategy === FindQuotationReqStrategy.ALL || quotationReq.length > 1)
-            return quotationReq;
-          else return quotationReq[0];
+            return quotationReq
+          else return quotationReq[0]
         }
+        return quotationReq
       }
     }
-    throw new NotFoundException('Quotate Request not found')
+    //throw new NotFoundException('Quotate Request not found')
   }
 
   //create quotation request
@@ -122,7 +125,6 @@ export class QuotationReqsController {
     schema: {
       example: {
         requestDate: '2024-01-01T00:00:00.000Z',
-        status: 'PENDING',
         customerId: '9b16a980-076c-4700-9c48-e9fccbe24766',
       },
     },
@@ -139,6 +141,109 @@ export class QuotationReqsController {
   ) {
     const quoteReq = await this.quotationReqsService.createQuotationReq(body)
     return { message: 'Quote request successfully created', data: quoteReq }
+  }
+
+  //create quotation request with details
+  @ApiOperation({ summary: 'Create a new quote request with quote request detail and package detail' })
+  @ApiResponse({
+    //status: 201,
+    //description: 'Quote request successfully created',
+    //type: createResponseType('Quote request successfully created', QuotationReq)
+    status: 201,
+    description: 'Quote request successfully created with its associated details',
+    schema: {
+      example: {
+        message: 'Quote request successfully created with its associated details',
+        data: {
+          quoteRequest: {
+            id: "b2268d2f-ab44-4d09-98a1-d3a377eb72ac",
+            requestDate: "2022-04-26T00:00:00.000Z",
+            status: "PENDING",
+            customerId: "de0f1618-596c-44fa-b00b-a44c9ed6fe3a",
+            updatedAt: "2024-11-16T14:13:43.580Z",
+            createdAt: "2024-11-16T14:13:43.580Z"
+          },
+          quoteRequestDetail: {
+            id: "6b5b4622-97d2-4c7a-9416-2c4be53a9529",
+            origin: "Peso",
+            destination: "Sepo",
+            shipmentReadyDate: "2023-04-27T00:00:00.000Z",
+            shipmentDeadline: "2023-04-28T00:00:00.000Z",
+            cargoInsurance: true,
+            quoteReqId: "b2268d2f-ab44-4d09-98a1-d3a377eb72ac",
+            updatedAt: "2024-11-16T14:13:43.590Z",
+            createdAt: "2024-11-16T14:13:43.590Z"
+          },
+          packageDetail: {
+            id: "82da928b-cd4a-4cd4-a9aa-a4793421fecf",
+            packageType: "DRY",
+            weight: 2,
+            length: 5,
+            width: 6,
+            height: 7,
+            detailId: "6b5b4622-97d2-4c7a-9416-2c4be53a9529",
+            updatedAt: "2024-11-16T14:13:43.593Z",
+            createdAt: "2024-11-16T14:13:43.593Z"
+          }
+        }
+      }
+    }
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Customer not found.',
+    type: BadRequestException,
+    example: new BadRequestException(
+      'Invalid foreign key'
+    ).getResponse()
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Only authenticated users can access this resource',
+    type: UnauthorizedException,
+    example: new UnauthorizedException(
+      'Only authenticated users can access this resource',
+    ).getResponse(),
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'Only the following roles can create users',
+    type: ForbiddenException,
+    example: new ForbiddenException(
+      'Only users with the following roles can access this resource: ADMIN,SALES,MANAGER',
+    ).getResponse(),
+  })
+  @ApiBody({
+    type: CreateQuoteReqWithDetailDto,
+    schema: {
+      example: {
+        requestDate: "2022-04-26T00:00:00.000Z",
+        customerId: "de0f1618-596c-44fa-b00b-a44c9ed6fe3a",
+        origin: "Peso",
+        destination: "Sepo",
+        shipmentReadyDate: "2023-04-27T00:00:00.000Z",
+        shipmentDeadline: "2023-04-28T00:00:00.000Z",
+        cargoInsurance: true,
+        packageType: "DRY",
+        weight: 2,
+        length: 5,
+        width: 6,
+        height: 7
+      }
+    }
+  })
+  @UseGuards(RoleGuard)
+  @Roles([
+    RoleEnum.ADMIN,
+    RoleEnum.SALES,
+    RoleEnum.MANAGER,
+  ])
+  @Post('with-details')
+  async createQuoteRequest(
+    @Body(new ZodValidationPipe(CreateQuoteReqWithDetailSchema)) data: CreateQuoteReqWithDetailDto
+  ) {
+    const result = await this.quotationReqsService.createQuoteRequestWithDetails(data)
+    return { message: 'Quote request successfully created with its associated details', data: result }
   }
 
 
@@ -199,7 +304,7 @@ export class QuotationReqsController {
   @Patch(':id')
   async updateQuotationReq(
     @Param('id') id: string,
-    @Body(new ZodValidationPipe(CreateQuotationReqSchema.partial())) body: Partial<CreateQuotationReqDto>
+    @Body(new ZodValidationPipe(UpdateQuotationReqSchema.partial())) body: Partial<UpdateQuotationReqDto>
   ) {
     //check if body is empty 
     if (Object.keys(body).length === 0) {

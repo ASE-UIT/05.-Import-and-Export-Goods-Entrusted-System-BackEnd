@@ -8,6 +8,6 @@ export class FindPackageDetailByDetailIdStrategy implements IFindPackageDetailSt
     constructor(@InjectModel(PackageDetail) private packageDetailModel: typeof PackageDetail) { }
 
     async find(detailId: string): Promise<PackageDetail[] | null> {
-        return await this.packageDetailModel.findAll({ where: { id: detailId } });
+        return await this.packageDetailModel.findAll({ where: { detailId: detailId } });
     }
 }

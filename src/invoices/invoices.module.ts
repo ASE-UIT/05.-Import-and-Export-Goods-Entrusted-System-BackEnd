@@ -13,6 +13,9 @@ import { Contract } from '@/contracts/models/contract.model';
 import { Employee } from '@/employees/models/employee.model';
 import { FindInvoiceById } from './strategies/find-invoice/find-by-id.strategy';
 import { FindInvoiceStrategy } from './strategies/find-invoice/find-invoice.strategy';
+import { UpdateStatusInvoiceStrategy } from './strategies/update-invoice/update-status-invoice.strategy';
+import { UpdatePaidDateInvoiceStrategy } from './strategies/update-invoice/update-paid-date-invoice.strategy';
+import { UpdatePaidAmountInvoiceStrategy } from './strategies/update-invoice/update-paid-amount-invoice.strategy';
 
 @Module({
   imports: [SequelizeModule.forFeature([Invoice, Contract, Employee])],
@@ -20,8 +23,20 @@ import { FindInvoiceStrategy } from './strategies/find-invoice/find-invoice.stra
     InvoicesService,
     CreateInvoiceStrategy,
     UpdateInvoiceStrategy,
+    UpdateStatusInvoiceStrategy,
     FindInvoiceStrategy,
+    UpdatePaidDateInvoiceStrategy,
+    UpdatePaidAmountInvoiceStrategy,
   ],
   controllers: [InvoicesController],
+  exports: [
+    InvoicesService,
+    CreateInvoiceStrategy, // Export các chiến lược để các module khác sử dụng
+    UpdateInvoiceStrategy,
+    UpdateStatusInvoiceStrategy,
+    FindInvoiceStrategy,
+    UpdatePaidDateInvoiceStrategy,
+    UpdatePaidAmountInvoiceStrategy,
+  ],
 })
 export class InvoicesModule {}

@@ -16,6 +16,7 @@ export const QueryPaymentSchema = z.object({
     ])
     .optional(),
   invoiceId: z.string().uuid().optional(),
+  createdAt: z.coerce.date().optional(),
 });
 
 export type QueryPaymentDto = z.infer<typeof QueryPaymentSchema>;

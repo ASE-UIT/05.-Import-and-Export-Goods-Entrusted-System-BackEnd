@@ -4,6 +4,7 @@ import { CreateQuotationDto } from '@/quotations/dtos/CreateQuotationDto';
 import { Quotation } from '@/quotations/models/quotations.model';
 import { ForeignKeyConstraintError } from 'sequelize';
 import { InjectModel } from '@nestjs/sequelize';
+import { QuotationStatus } from '@/shared/enums/quotation-status.enum';
 
 @Injectable()
 export class CreateQuotationStrategy implements ICreateQuotationStrategy {
@@ -28,7 +29,7 @@ export class CreateQuotationStrategy implements ICreateQuotationStrategy {
         deliveryDate: quotationInfo.deliveryDate,
         quotationDate: quotationInfo.quotationDate,
         expiredDate: quotationInfo.expiredDate,
-        status: quotationInfo.status,
+        status: QuotationStatus.DRAFT,
         freightId: quotationInfo.freightId,
         quoteReqId: quotationInfo.quoteReqId,
         employeeId: quotationInfo.employeeId

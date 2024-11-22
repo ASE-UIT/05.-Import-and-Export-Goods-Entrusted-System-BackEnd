@@ -18,6 +18,7 @@ export class CreatePaymentStrategy implements ICreatePaymentStrategy {
         amountPaid: paymentInfo.amountPaid,
         status: paymentInfo.status,
         invoiceId: paymentInfo.invoiceId,
+        createdAt: new Date(),
       });
       return payment;
     } catch (err) {

@@ -4,6 +4,7 @@ import { IUpdateQuotationStrategy } from './update-quotation-strategy.interface'
 import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { UniqueConstraintError } from 'sequelize';
 import { InjectModel } from '@nestjs/sequelize';
+import { UpdateQuotationDto } from '@/quotations/dtos/UpdateQuotationDto';
 
 @Injectable()
 export class UpdateQuotationStrategy implements IUpdateQuotationStrategy {
@@ -11,7 +12,7 @@ export class UpdateQuotationStrategy implements IUpdateQuotationStrategy {
 
   async update(
     quotationId: string,
-    udpateInfo: Partial<CreateQuotationDto>,
+    udpateInfo: Partial<UpdateQuotationDto>,
   ): Promise<Quotation> {
 
     try {

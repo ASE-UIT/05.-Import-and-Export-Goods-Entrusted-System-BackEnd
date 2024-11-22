@@ -4,7 +4,7 @@ import { createZodDto } from 'nestjs-zod';
 import { z } from 'zod';
 
 export const CreatePaymentSchema = z.object({
-  amountPaid: z.coerce.number().min(0).describe("The payment's amount paid"),
+  amountPaid: z.coerce.number().min(1).describe("The payment's amount paid"),
   status: z
     .enum([
       PaymentStatus.COMPLETED,
@@ -25,7 +25,3 @@ export const CreatePaymentSchema = z.object({
 });
 
 export class CreatePaymentDto extends createZodDto(CreatePaymentSchema) {}
-
-export class UpdatePaymentDto extends createZodDto(
-  CreatePaymentSchema.partial().omit({ invoiceId: true }),
-) {}

@@ -26,7 +26,7 @@ export class PackageDetailsController {
     @ApiResponse({
         status: 200,
         description: 'Successfully retrieved quote requests',
-        example: {
+        example: [{
             "id": "10546188-89f8-4588-a1d9-59df2ea9082f",
             "packageType": "FREEZE",
             "weight": 4.5,
@@ -36,7 +36,7 @@ export class PackageDetailsController {
             "detailId": "d65e47fe-c494-41c1-b1aa-72561da2e8e2",
             "createdAt": "2024-10-31T07:25:22.958Z",
             "updatedAt": "2024-10-31T07:26:11.854Z"
-        }
+        }]
     })
     @ApiResponse({
         status: 401,
@@ -83,9 +83,10 @@ export class PackageDetailsController {
                         return packageDetail;
                     else return packageDetail[0];
                 }
+                return packageDetail;
             }
         }
-        throw new NotFoundException('Package detail not found')
+        //throw new NotFoundException('Package detail not found')
     }
 
     //create package detail

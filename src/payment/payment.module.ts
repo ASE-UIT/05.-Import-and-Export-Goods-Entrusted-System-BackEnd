@@ -13,9 +13,12 @@ import { FindPaymentByStatusStrategy } from './strategies/find-payment/find-by-s
 import { FindPaymentByInvoiceIdStrategy } from './strategies/find-payment/find-by-invoice-id.strategy';
 import { UpdatePaymentStrategy } from './strategies/update-payment/update-payment.strategy';
 import { FindPaymentStrategy } from './strategies/find-payment/find-payment.strategy';
+import { UpdatePaidDateInvoiceStrategy } from '@/invoices/strategies/update-invoice/update-paid-date-invoice.strategy';
+import { InvoicesService } from '@/invoices/invoices.service';
+import { InvoicesModule } from '@/invoices/invoices.module';
 
 @Module({
-  imports: [SequelizeModule.forFeature([Payment, Invoice])],
+  imports: [SequelizeModule.forFeature([Payment, Invoice]), InvoicesModule],
   controllers: [PaymentsController],
   providers: [
     PaymentsService,
@@ -27,6 +30,7 @@ import { FindPaymentStrategy } from './strategies/find-payment/find-payment.stra
     UpdatePaymentStrategy,
     CreatePaymentStrategy,
     FindPaymentStrategy,
+    UpdatePaidDateInvoiceStrategy,
   ],
 })
 export class PaymentModule {}
