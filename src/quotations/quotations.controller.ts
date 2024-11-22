@@ -16,7 +16,6 @@ import { ZodValidationPipe } from '@/shared/pipes/zod.pipe';
 import {
   CreateQuotationDto,
   CreateQuotationSchema,
-  UpdateQuotationDto,
 } from './dtos/CreateQuotationDto';
 import {
   QueryQuotationDto,
@@ -32,6 +31,7 @@ import { RoleEnum } from '@/shared/enums/roles.enum';
 import { QuotationStatus } from '@/shared/enums/quotation-status.enum';
 import { ValidationError } from '@/shared/classes/validation-error.class';
 import { createResponseType } from '@/shared/helpers/create-response.mixin';
+import { UpdateQuotationDto, UpdateQuotationSchema } from './dtos/UpdateQuotationDto';
 
 @ApiTags('quotations')
 @Controller({
@@ -46,7 +46,7 @@ export class QuotationsController {
   @ApiResponse({
     status: 200,
     description: 'Successfully retrieved quotation',
-    example: {
+    example: [{
       id: "9f79b1dc-f14e-440e-9ede-31592079c80a",
       totalPrice: 4.5,
       pickupDate: "2023-04-20T12:00:00.000Z",
@@ -59,7 +59,7 @@ export class QuotationsController {
       employeeId: "c67d645e-68b3-4a41-81ff-eeea41e8b663",
       createdAt: "2024-10-31T13:38:05.867Z",
       updatedAt: "2024-10-31T13:38:05.867Z"
-    }
+    }]
   })
   @ApiResponse({
     status: 401,
@@ -109,10 +109,10 @@ export class QuotationsController {
             return quotation;
           else return [quotation[0]];
         }
+        return quotation
       }
     }
-
-    throw new NotFoundException('Quotation not found');
+    //throw new NotFoundException('Quotation not found');
   }
 
   //create quotation
@@ -157,7 +157,6 @@ export class QuotationsController {
         quotationDate: "2023-04-19T12:00:00.000Z",
         expiredDate: "2023-05-06T12:00:00.000Z",
         freightId: "badf2914-b569-4b65-9bdb-a62ad8913d91",
-        status: "DRAFT",
         employeeId: "a4233408-bd61-44e2-a953-257c48cfae57"
       },
     },
@@ -232,8 +231,8 @@ export class QuotationsController {
   @Patch(':id')
   async updateQuotation(
     @Param('id') id: string,
-    @Body(new ZodValidationPipe(CreateQuotationSchema.partial()))
-    body: Partial<CreateQuotationDto>,
+    @Body(new ZodValidationPipe(UpdateQuotationSchema))
+    body: Partial<UpdateQuotationDto>,
   ): Promise<{ message: string; data: Quotation }> {
     const quotation = await this.quotationsService.update(id, body);
     return { message: 'Quotation updated successfully', data: quotation };
