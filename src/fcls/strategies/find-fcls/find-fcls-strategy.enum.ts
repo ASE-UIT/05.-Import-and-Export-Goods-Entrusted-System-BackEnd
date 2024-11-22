@@ -5,5 +5,6 @@ export enum FindFclStrategy {
   PRICE_20RF = 'PRICE_20RF',
   PRICE_40RF = 'PRICE_40RF',
   ALL = 'ALL',
-  FREIGHT_ID = 'FREIGHT_ID'
+  FREIGHT_ID = 'FREIGHT_ID',
+  FCL_ID = 'FCL_ID',
 }

@@ -172,6 +172,12 @@ export class ContactRepsController {
     required: false,
     description: 'Search contact representative by email',
   })
+  @ApiQuery({
+    name: 'contactRepId',
+    type: String,
+    required: false,
+    description: 'Search contact representative by id',
+  })
   @ApiResponse({
     status: 200,
     description: 'Contact representative found',

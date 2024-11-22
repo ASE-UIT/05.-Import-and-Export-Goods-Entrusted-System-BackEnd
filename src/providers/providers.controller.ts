@@ -88,6 +88,12 @@ export class ProvidersController {
     required: false,
     description: 'Search provider by status',
   })
+  @ApiQuery({
+    name: 'providerId',
+    type: String,
+    required: false,
+    description: 'Search provider by id',
+  })
   @ApiResponse({
     status: 200,
     description: 'Provider found',

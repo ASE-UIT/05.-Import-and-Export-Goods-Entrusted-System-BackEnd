@@ -105,6 +105,12 @@ export class FreightController {
     required: false,
     description: 'Search freight by provider id',
   })
+  @ApiQuery({
+    name: 'freightId',
+    type: String,
+    required: false,
+    description: 'Search freight by id',
+  })
   @ApiResponse({
     status: 200,
     description: 'Freight found',

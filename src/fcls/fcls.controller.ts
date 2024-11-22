@@ -76,6 +76,12 @@ export class FCLController {
     required: false,
     description: 'Search FCL by freight id',
   })
+  @ApiQuery({
+    name: 'fcl_id',
+    type: String,
+    required: false,
+    description: 'Search FCL by id',
+  })
   @ApiResponse({
     status: 200,
     description: 'FCL found',
