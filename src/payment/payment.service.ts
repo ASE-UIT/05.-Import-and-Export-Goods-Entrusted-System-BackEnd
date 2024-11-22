@@ -16,6 +16,10 @@ import { UpdatePaymentStrategy } from './strategies/update-payment/update-paymen
 import { IFindPaymentStrategy } from './strategies/find-payment/find-payment-strategy.interface';
 import { FindPaymentStrategy } from './strategies/find-payment/find-payment.strategy';
 import { QueryPaymentDto } from './dtos/query-payment.dto';
+import { PaymentStatus } from '@/shared/enums/payment-status.enum';
+import { UpdatePaidDateInvoiceStrategy } from '@/invoices/strategies/update-invoice/update-paid-date-invoice.strategy';
+import { InvoicesService } from '@/invoices/invoices.service';
+import { UpdatePaymentDto } from './dtos/update-payment.dto';
 
 @Injectable()
 export class PaymentsService {
@@ -23,22 +27,26 @@ export class PaymentsService {
     private updatePaymentStrategy: UpdatePaymentStrategy,
     private createPaymentStrategy: CreatePaymentStrategy,
     private findPaymentStrategy: FindPaymentStrategy,
+    private invoiceService: InvoicesService,
   ) {}
 
   async create(paymentInfo: CreatePaymentDto): Promise<Payment> {
     const createdPayment = await this.createPaymentStrategy.create(paymentInfo);
+    if (createdPayment.status === PaymentStatus.COMPLETED) {
+      const invoiceId = createdPayment.invoiceId;
+      await this.invoiceService.updateInvoice(invoiceId, createdPayment);
+    }
     return createdPayment;
   }
 
   async find(paymentInfo: QueryPaymentDto): Promise<Payment[]> {
     const foundPayment = await this.findPaymentStrategy.find(paymentInfo);
-    if (foundPayment.length > 0) return foundPayment;
-    else throw new NotFoundException('Payment not found');
+    return foundPayment;
   }
 
   async update(
     paymentID: string,
-    updateInfo: Partial<CreatePaymentDto>,
+    updateInfo: UpdatePaymentDto,
   ): Promise<Payment> {
     if (Object.keys(updateInfo).length < 1) {
       throw new BadRequestException('Body is empty or invalid field names');

@@ -28,7 +28,6 @@ import { ZodValidationPipe } from 'nestjs-zod';
 import {
   CreatePaymentDto,
   CreatePaymentSchema,
-  UpdatePaymentDto,
 } from './dtos/create-payment.dto';
 import { Payment } from './models/payment.model';
 import { PaymentsService } from './payment.service';
@@ -41,6 +40,10 @@ import { Roles } from '@/shared/decorators/role.decorator';
 import { createResponseType } from '@/shared/helpers/create-response.mixi';
 import { ValidationError } from '@/shared/classes/validation-error.class';
 import { SuccessResponse } from '@/shared/classes/success-response.class';
+import {
+  UpdatePaymentDto,
+  UpdatePaymentSchema,
+} from './dtos/update-payment.dto';
 
 @ApiTags('Payments')
 @Controller({
@@ -48,7 +51,7 @@ import { SuccessResponse } from '@/shared/classes/success-response.class';
   version: '1',
 })
 export class PaymentsController {
-  constructor(private paymentsService: PaymentsService) { }
+  constructor(private paymentsService: PaymentsService) {}
 
   @ApiOperation({ summary: 'Create new payment' })
   @ApiResponse({
@@ -175,6 +178,7 @@ export class PaymentsController {
     query: QueryPaymentDto,
   ) {
     const foundRes = await this.paymentsService.find(query);
+    if (foundRes === null) return new SuccessResponse('Payment found', []);
     return new SuccessResponse('Payment found', foundRes);
   }
 
@@ -225,8 +229,8 @@ export class PaymentsController {
   @Patch(':id')
   async updatePayment(
     @Param('id') id: string,
-    @Body(new ZodValidationPipe(CreatePaymentSchema.partial()))
-    body: Partial<CreatePaymentDto>,
+    @Body(new ZodValidationPipe(UpdatePaymentSchema))
+    body: UpdatePaymentDto,
   ) {
     const updateRes = await this.paymentsService.update(id, body);
     return new SuccessResponse('Payment updated successfully', updateRes);

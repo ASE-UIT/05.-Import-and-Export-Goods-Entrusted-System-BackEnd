@@ -3,20 +3,14 @@ import { createZodDto } from 'nestjs-zod';
 import { z } from 'zod';
 
 export const CreateInvoiceSchema = z.object({
-  invoiceDate: z.coerce.date().describe("The invoice's invoice date"),
-  paidDate: z.coerce.date().describe("The invoice's paid date"),
-  status: z
-    .enum([
-      InvoiceStatus.PENDING,
-      InvoiceStatus.PARTIALLY_PAID,
-      InvoiceStatus.PAID,
-      InvoiceStatus.CANCELLED,
-      InvoiceStatus.OVERDUE,
-      InvoiceStatus.REFUNDED,
-    ])
-    .describe("The invoice's status"),
-  taxAmount: z.coerce.number().min(0).describe("The invoice's tax amount"),
-  totalAmount: z.coerce.number().min(0).describe("The invoice's total amount"),
+  taxAmount: z.coerce.number().min(1).describe("The invoice's tax amount"),
+  totalAmount: z.coerce.number().min(1).describe("The invoice's total amount"),
+  expiredDate: z.coerce
+    .date()
+    .describe("The invoice's expired date")
+    .refine((date) => date > new Date(), {
+      message: 'The expired date must be greater than current date',
+    }),
   employeeId: z
     .string({
       message: 'An employee association is needed to create an invoice',
@@ -31,8 +25,4 @@ export const CreateInvoiceSchema = z.object({
     .describe('The employee ID associated with the contract'),
 });
 
-export class CreateInvoiceDto extends createZodDto(CreateInvoiceSchema) { }
-
-export class UpdateInvoiceDto extends createZodDto(
-  CreateInvoiceSchema.partial().omit({ employeeId: true, contractId: true }),
-) { }
+export class CreateInvoiceDto extends createZodDto(CreateInvoiceSchema) {}
