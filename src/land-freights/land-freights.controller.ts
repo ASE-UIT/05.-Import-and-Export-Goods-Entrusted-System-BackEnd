@@ -88,6 +88,12 @@ export class LandFreightController {
     required: false,
     description: 'Search land freight by freight ID',
   })
+  @ApiQuery({
+    name: 'landFreight_id',
+    type: String,
+    required: false,
+    description: 'Search land freight by ID',
+  })
   @ApiResponse({
     status: 200,
     description: 'Land freight found',

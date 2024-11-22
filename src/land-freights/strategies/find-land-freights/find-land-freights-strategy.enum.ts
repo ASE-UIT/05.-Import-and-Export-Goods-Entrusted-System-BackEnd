@@ -8,4 +8,5 @@ export enum FindLandFreightStrategy {
   PRICE_10000 = 'PRICE_10000',
   FREIGHT_ID = 'FREIGHT_ID',
   ALL = 'ALL',
+  LAND_FREIGHT_ID = 'LAND_FREIGHT_ID',
 }

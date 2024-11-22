@@ -7,4 +7,5 @@ export enum FindProviderStrategy {
   ADDRESS = 'ADDRESS',
   CONTACT_REP_ID = 'CONTACT_REP_ID',
   STATUS = 'STATUS',
+  PROVIDER_ID = 'PROVIDER_ID',
 }

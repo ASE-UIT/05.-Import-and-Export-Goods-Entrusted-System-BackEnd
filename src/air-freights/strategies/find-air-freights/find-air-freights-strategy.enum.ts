@@ -6,4 +6,5 @@ export enum FindAirFreightStrategy {
   PRICE_500K = 'PRICE_500K',
   ALL = 'ALL',
   FREIGHT_ID = 'FREIGHT_ID',
+  AIR_FREIGHT_ID = 'AIR_FREIGHT_ID',
 }
