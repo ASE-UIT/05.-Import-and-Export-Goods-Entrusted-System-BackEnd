@@ -7,7 +7,8 @@ export const QueryProviderSchema = z.object({
   phone: z.string().min(1).optional(),
   address: z.string().min(1).optional(),
   country: z.string().min(1).optional(),
-  status: z.nativeEnum(ProviderStatus).default(ProviderStatus.ACTIVE).optional(), 
+  status: z.nativeEnum(ProviderStatus).default(ProviderStatus.ACTIVE).optional(),
+  id: z.string().min(0).uuid().optional(),
   contactRepId: z
     .string()
     .min(1)

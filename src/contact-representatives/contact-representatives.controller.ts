@@ -173,7 +173,7 @@ export class ContactRepsController {
     description: 'Search contact representative by email',
   })
   @ApiQuery({
-    name: 'contactRepId',
+    name: 'id',
     type: String,
     required: false,
     description: 'Search contact representative by id',

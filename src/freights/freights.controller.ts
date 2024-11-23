@@ -106,7 +106,7 @@ export class FreightController {
     description: 'Search freight by provider id',
   })
   @ApiQuery({
-    name: 'freightId',
+    name: 'id',
     type: String,
     required: false,
     description: 'Search freight by id',
