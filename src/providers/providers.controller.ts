@@ -89,7 +89,7 @@ export class ProvidersController {
     description: 'Search provider by status',
   })
   @ApiQuery({
-    name: 'providerId',
+    name: 'id',
     type: String,
     required: false,
     description: 'Search provider by id',

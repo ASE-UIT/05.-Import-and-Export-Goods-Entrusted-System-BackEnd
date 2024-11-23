@@ -8,7 +8,8 @@ export const QueryLandFreightSchema = z.object({
   price_1500_5000: z.number().min(0).optional(),
   price_5000_10000: z.number().min(0).optional(),
   price_10000: z.number().min(0).optional(),
-  freight_id: z.string().min(0).optional(),
+  freight_id: z.string().min(0).uuid().optional(),
+  land_freight_id: z.string().min(0).uuid().optional(),
 });
 
 export type QueryLandFreightDto = z.infer<typeof QueryLandFreightSchema>;
