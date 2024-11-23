@@ -13,6 +13,7 @@ export const QueryFreightSchema = z.object({
   additionFeeBreakdown: z.string().optional(),
   schedule: z.nativeEnum(WeekDay).optional(),
   providerId: z.string().min(1).uuid().optional(),
+  id: z.string().min(1).uuid().optional(),
 });
 
 export type QueryFreightDto = z.infer<typeof QueryFreightSchema>;

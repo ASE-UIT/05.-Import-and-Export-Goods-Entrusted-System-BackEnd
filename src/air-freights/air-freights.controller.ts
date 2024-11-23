@@ -77,7 +77,7 @@ export class AirFreightController {
     description: 'Search air freight by freight id',
   })
   @ApiQuery({
-    name: 'airFreight_id',
+    name: 'air_freight_id',
     type: String,
     required: false,
     description: 'Search air freight by id',
