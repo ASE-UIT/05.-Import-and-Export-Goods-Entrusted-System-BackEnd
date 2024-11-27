@@ -76,7 +76,7 @@ export class FreightController {
     description: 'Search freight by additional fee',
   })
   @ApiQuery({
-    name: 'additionFeeBreakDown',
+    name: 'addition_fee_breakdown',
     type: String,
     required: false,
     description: 'Search freight by additional fee break down',
