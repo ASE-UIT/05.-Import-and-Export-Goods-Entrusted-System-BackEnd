@@ -26,39 +26,30 @@ export class FreightService {
   ) {}
 
   async find(freightInfo: QueryFreightDto): Promise<Freight[]> {
-    let freight: Freight[];
-    if (!freightInfo || Object.keys(freightInfo).length === 0) {
-    freight = await Freight.findAll({
-      include: [
-        {
-          model: Provider,
-          attributes: ['status'],
-          where: { status: 'active' },
-        },
-      ],
-    });
+  const freight = await Freight.findAll({
+    where: freightInfo || {}, 
+    include: [
+      {
+        model: Provider,
+        attributes: ['status'], 
+      },
+    ],
+  });
 
-    if (freight.length === 0) return [];
-    } else {
-    freight = await Freight.findAll({
-      where: freightInfo,
-      include: [
-        {
-          model: Provider,
-          attributes: ['status'],
-        },
-      ],
-    });
-    }
-    if (freight.length > 0) {
-      const inactiveFreight = freight.find(f => f.provider?.status === 'inactive');
-      if (inactiveFreight) {
-        throw new ConflictException('Freight not available because provider is inactive');
-      }
-
-      return freight;
-    } else throw new NotFoundException('Freight not found');
+  if (freight.length === 0) {
+    throw new NotFoundException('Freight not found');
   }
+
+  const activeFreight = freight.filter(f => f.provider?.status === 'active');
+  const inactiveFreight = freight.filter(f => f.provider?.status === 'inactive');
+
+  if (activeFreight.length === 0 && inactiveFreight.length > 0) {
+    throw new ConflictException('Freight not available because all providers are inactive');
+  }
+
+  return activeFreight;
+}
+
 
   async create(freightInfo: CreateFreightDto): Promise<Freight> {
     return await this.createFreightStrategy.create(freightInfo);

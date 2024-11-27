@@ -6,7 +6,7 @@ import { IFindFreightStrategy } from './find-freights-strategy.interface';
 export class FindFreightByAdditionFeeBreakdownStrategy implements IFindFreightStrategy {
   async find(freightAdditionFeeBreakdown: string): Promise<Freight[] | null> {
     return Freight.findAll({
-      where: {additionFeeBreakdown: freightAdditionFeeBreakdown},
+      where: {addition_fee_breakdown: freightAdditionFeeBreakdown},
     });
   }
 }
