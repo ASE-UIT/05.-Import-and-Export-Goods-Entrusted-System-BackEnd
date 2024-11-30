@@ -6,7 +6,7 @@ export const QueryQuotationSchema = z.object({
   deliveryDate: z.string().optional(),
   quotationDate: z.string().optional(),
   expiredDate: z.string().optional(),
-  status: z.enum([QuotationStatus.DRAFT, QuotationStatus.BOOKED]).optional(),
+  status: z.nativeEnum(QuotationStatus).optional(),
   employeeId: z.string().optional(),
   customerId: z.string().optional(),
 });

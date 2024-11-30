@@ -16,6 +16,7 @@ import { QuoteReqDetail } from '@/quote-request-details/models/quoteReqDetail.mo
 import { PackageDetail } from '@/package-details/models/packageDetails.model';
 import { CreateQuoteReqWithDetailDto } from './dtos/CreateQuoteReqWithDetail';
 import { z } from 'zod';
+import { UpdateQuoteReqWithDetailDto } from './dtos/UpdateQuotationReqWithDetail';
 
 @Injectable()
 export class QuotationReqsService {
@@ -31,6 +32,27 @@ export class QuotationReqsService {
     @InjectModel(QuoteReqDetail) private quoteReqDetailModel: typeof QuoteReqDetail,
     @InjectModel(PackageDetail) private packageDetailModel: typeof PackageDetail,
   ) { }
+
+  async getQuoteRequestWithDetails(id: string) {
+    const quoteRequest = await this.quotationReqModel.findByPk(id, {
+      include: [
+        {
+          model: this.quoteReqDetailModel,
+          include: [
+            {
+              model: this.packageDetailModel
+            }
+          ]
+        }
+      ]
+    })
+
+    if (!quoteRequest) {
+      throw new NotFoundException('Quote request id does not exists in database')
+    }
+
+    return quoteRequest
+  }
 
   async createQuoteRequestWithDetails(data: CreateQuoteReqWithDetailDto) {
     const transaction = await this.sequelize.transaction()
@@ -48,6 +70,7 @@ export class QuotationReqsService {
         shipmentReadyDate: data.shipmentReadyDate,
         shipmentDeadline: data.shipmentDeadline,
         cargoInsurance: data.cargoInsurance,
+        shipmentType: data.shipmentType,
         quoteReqId: quoteRequest.id
       }, { transaction })
 
@@ -83,6 +106,91 @@ export class QuotationReqsService {
       throw new HttpException('Error when creating quote request', HttpStatus.INTERNAL_SERVER_ERROR)
     }
   }
+
+  async updateQuoteRequestWithDetails(
+    id: string,
+    data: UpdateQuoteReqWithDetailDto
+  ) {
+    const transaction = await this.sequelize.transaction();
+  
+    try {
+      const quoteRequest = await this.quotationReqModel.findByPk(id, { transaction });
+      if (!quoteRequest) {
+        throw new NotFoundException('Quote Request not found.');
+      }
+  
+      await quoteRequest.update(
+        {
+          requestDate: data.requestDate,
+          status: data.status, 
+          customerId: data.customerId,
+        },
+        { transaction }
+      );
+  
+      const quoteRequestDetail = await this.quoteReqDetailModel.findOne({
+        where: { quoteReqId: quoteRequest.id },
+        transaction,
+      });
+  
+      if (!quoteRequestDetail) {
+        throw new NotFoundException('Quote Request Detail not found.');
+      }
+  
+      await quoteRequestDetail.update(
+        {
+          origin: data.origin,
+          destination: data.destination,
+          shipmentReadyDate: data.shipmentReadyDate,
+          shipmentDeadline: data.shipmentDeadline,
+          cargoInsurance: data.cargoInsurance,
+          shipmentType: data.shipmentType,
+        },
+        { transaction }
+      );
+  
+      const packageDetail = await this.packageDetailModel.findOne({
+        where: { detailId: quoteRequestDetail.id },
+        transaction,
+      });
+  
+      if (!packageDetail) {
+        throw new NotFoundException('Package Detail not found.');
+      }
+  
+      await packageDetail.update(
+        {
+          packageType: data.packageType,
+          weight: data.weight,
+          length: data.length,
+          width: data.width,
+          height: data.height,
+        },
+        { transaction }
+      );
+  
+      await transaction.commit();
+  
+      return { quoteRequest, quoteRequestDetail, packageDetail };
+    } catch (error) {
+      await transaction.rollback();
+      console.log("Check error", error)
+      if (error instanceof ForeignKeyConstraintError) {
+        throw new HttpException('Customer not found.', HttpStatus.BAD_REQUEST);
+      }
+      if (error instanceof z.ZodError) {
+        throw new HttpException(error.errors, HttpStatus.BAD_REQUEST)
+      }
+      if (error instanceof NotFoundException) {
+        throw new HttpException('Quote Request not found.', HttpStatus.NOT_FOUND);
+      }
+      throw new HttpException(
+        'Error when updating quote request',
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
+    }
+  }
+  
 
   // finding services
   async findQuotationReq(

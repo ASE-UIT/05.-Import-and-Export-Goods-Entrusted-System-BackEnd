@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { createZodDto } from 'nestjs-zod';
 import { PackageType } from '@/package-details/models/packageDetails.model';
+import { ShipmentType } from '@/quote-request-details/models/quoteReqDetail.model';
 
 export const CreateQuoteReqWithDetailSchema = z.object({
     requestDate: z.coerce.date().describe("The request date of the quote request"),
@@ -10,6 +11,7 @@ export const CreateQuoteReqWithDetailSchema = z.object({
     shipmentReadyDate: z.coerce.date().describe("The ready date for the shipment"),
     shipmentDeadline: z.coerce.date().describe("The deadline for the shipment"),
     cargoInsurance: z.boolean().describe("Whether the shipment has insurance"),
+    shipmentType: z.nativeEnum(ShipmentType).describe("The type of shipment"),
     packageType: z.nativeEnum(PackageType).describe("The type of package being shipped"),
     weight: z.number().gt(0, "Weight must be greater than 0"),
     length: z.number().gt(0, "Length must be greater than 0"),

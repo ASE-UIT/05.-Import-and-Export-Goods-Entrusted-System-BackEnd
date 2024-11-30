@@ -1,4 +1,6 @@
 export enum QuotationStatus {
   DRAFT = 'DRAFT',
-  BOOKED = 'BOOKED',
+  ACCEPTED = 'ACCEPTED',
+  REJECTED = 'REJECTED',
+  EXPIRED = 'EXPRIED',
 }
