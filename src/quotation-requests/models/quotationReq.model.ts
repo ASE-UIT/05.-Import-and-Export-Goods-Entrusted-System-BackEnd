@@ -17,10 +17,8 @@ import {
 
 export enum QuotationReqStatus {
   PENDING = 'PENDING',
-  REJECTED = 'REJECTED',
   INPROGRESS = 'INPROGRESS',
   COMPLETED = 'COMPLETED',
-  ACCEPTED = 'ACCEPTED',
   CANCELLED = 'CANCELLED'
 }
 

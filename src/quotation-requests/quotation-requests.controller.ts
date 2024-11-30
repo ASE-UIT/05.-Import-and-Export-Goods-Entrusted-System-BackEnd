@@ -12,6 +12,7 @@ import { Roles } from '@/shared/decorators/role.decorator';
 import { createResponseType } from '@/shared/helpers/create-response.mixin';
 import { UpdateQuotationReqDto, UpdateQuotationReqSchema } from './dtos/UpdateQuotationReqDto';
 import { CreateQuoteReqWithDetailSchema, CreateQuoteReqWithDetailDto } from './dtos/CreateQuoteReqWithDetail';
+import { UpdateQuoteReqWithDetailDto, UpdateQuoteReqWithDetailSchema } from './dtos/UpdateQuotationReqWithDetail';
 
 @ApiTags('quote requests')
 @Controller({
@@ -143,12 +144,137 @@ export class QuotationReqsController {
     return { message: 'Quote request successfully created', data: quoteReq }
   }
 
+    //update quotation request
+
+    @ApiOperation({ summary: 'Update quote request' })
+    @ApiResponse({
+      status: 200,
+      description: 'Quote request successfully updated',
+      type: createResponseType('Quote request successfully updated', QuotationReq)
+    })
+    @ApiResponse({
+      status: 400,
+      description: 'Invalid foreign key.',
+      type: BadRequestException,
+      example: new BadRequestException(
+        'Invalid foreign key'
+      ).getResponse()
+    })
+    @ApiResponse({
+      status: 401,
+      description: 'Only authenticated users can access this resource',
+      type: UnauthorizedException,
+      example: new UnauthorizedException(
+        'Only authenticated users can access this resource',
+      ).getResponse(),
+    })
+    @ApiResponse({
+      status: 403,
+      description: 'Only the following roles can create users',
+      type: ForbiddenException,
+      example: new ForbiddenException(
+        'Only users with the following roles can access this resource: ADMIN,SALES,MANAGER',
+      ).getResponse(),
+    })
+    @ApiResponse({
+      status: 404,
+      description: "Quote request id does not exists in database",
+      type: NotFoundException,
+      example: new NotFoundException('Quote request id does not exists in database').getResponse()
+    })
+    @ApiBody({
+      type: UpdateQuotationReqDto,
+      schema: {
+        example: {
+          requestDate: '2024-01-01T00:00:00.000Z',
+          status: 'PENDING',
+          customerId: '9b16a980-076c-4700-9c48-e9fccbe24766',
+        },
+      },
+    })
+    @UseGuards(RoleGuard)
+    @Roles([
+      RoleEnum.ADMIN,
+      RoleEnum.SALES,
+      RoleEnum.MANAGER,
+    ])
+    @Patch(':id')
+    async updateQuotationReq(
+      @Param('id') id: string,
+      @Body(new ZodValidationPipe(UpdateQuotationReqSchema.partial())) body: Partial<UpdateQuotationReqDto>
+    ) {
+      //check if body is empty 
+      if (Object.keys(body).length === 0) {
+        throw new BadRequestException('Body cannot be empty')
+      }
+      return await this.quotationReqsService.updateQuotationReq(id, body)
+    }
+
+
+
+
+  //get quote request with details
+  @ApiOperation({ summary: 'Retrieve quote requests with its associated details' })
+  @ApiResponse({
+    status: 200,
+    description: 'Successfully retrieved quote request with its associated details',
+    schema:{
+      example: {
+        "id": "e1b71029-1799-44e6-8208-90ba23275658",
+        "requestDate": "2022-04-26T00:00:00.000Z",
+        "status": "COMPLETED",
+        "customerId": "1e449385-bc44-4010-a81b-f416a71b7432",
+        "createdAt": "2024-11-29T04:07:54.197Z",
+        "updatedAt": "2024-11-29T04:23:48.829Z",
+        "quoteReqDetails": {
+            "id": "5b97008d-c6fb-4f1c-b4eb-12ccc5c99ae5",
+            "origin": "Peso",
+            "destination": "Sepo",
+            "shipmentReadyDate": "2023-04-27T00:00:00.000Z",
+            "shipmentDeadline": "2023-04-28T00:00:00.000Z",
+            "cargoInsurance": true,
+            "shipmentType": "AIR",
+            "quoteReqId": "e1b71029-1799-44e6-8208-90ba23275658",
+            "createdAt": "2024-11-29T04:07:54.199Z",
+            "updatedAt": "2024-11-29T04:23:15.110Z",
+            "packageDetails": {
+                "id": "3b336caf-7ca8-4874-99d6-3eee7bc6cf9f",
+                "packageType": "DRY",
+                "weight": 2,
+                "length": 5,
+                "width": 6,
+                "height": 7,
+                "detailId": "5b97008d-c6fb-4f1c-b4eb-12ccc5c99ae5",
+                "createdAt": "2024-11-29T04:07:54.201Z",
+                "updatedAt": "2024-11-29T04:07:54.201Z"
+            }
+        }
+    }
+    }
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Only authenticated users can access this resource',
+    type: UnauthorizedException,
+    example: new UnauthorizedException(
+      'Only authenticated users can access this resource',
+    ).getResponse(),
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Quote request id does not exists in database',
+    type: NotFoundException,
+    example: new NotFoundException('Quote request id does not exists in database').getResponse()
+  })
+  @UseGuards(RoleGuard)
+  @Get('with-details/:id')
+  async getQuoteRequestWithDetails(@Param('id') id: string) {
+    return await this.quotationReqsService.getQuoteRequestWithDetails(id)
+  }
+
   //create quotation request with details
   @ApiOperation({ summary: 'Create a new quote request with quote request detail and package detail' })
   @ApiResponse({
-    //status: 201,
-    //description: 'Quote request successfully created',
-    //type: createResponseType('Quote request successfully created', QuotationReq)
     status: 201,
     description: 'Quote request successfully created with its associated details',
     schema: {
@@ -246,14 +372,49 @@ export class QuotationReqsController {
     return { message: 'Quote request successfully created with its associated details', data: result }
   }
 
-
-  //update quotation request
-
-  @ApiOperation({ summary: 'Update quote request' })
+  // Update quote request with details
+  @ApiOperation({ summary: 'Update quote request with its associated details' })
   @ApiResponse({
     status: 200,
-    description: 'Quote request successfully updated',
-    type: createResponseType('Quote request successfully updated', QuotationReq)
+    description: 'Quote request successfully updated with its associated details',
+    schema: {
+      example: {
+        "message": "Quote request successfully updated with its associated details",
+        "data": {
+            "quoteRequest": {
+                "id": "e1b71029-1799-44e6-8208-90ba23275658",
+                "requestDate": "2022-04-26T00:00:00.000Z",
+                "status": "COMPLETED",
+                "customerId": "1e449385-bc44-4010-a81b-f416a71b7432",
+                "createdAt": "2024-11-29T04:07:54.197Z",
+                "updatedAt": "2024-11-29T04:23:48.829Z"
+            },
+            "quoteRequestDetail": {
+                "id": "5b97008d-c6fb-4f1c-b4eb-12ccc5c99ae5",
+                "origin": "Peso",
+                "destination": "Sepo",
+                "shipmentReadyDate": "2023-04-27T00:00:00.000Z",
+                "shipmentDeadline": "2023-04-28T00:00:00.000Z",
+                "cargoInsurance": true,
+                "shipmentType": "AIR",
+                "quoteReqId": "e1b71029-1799-44e6-8208-90ba23275658",
+                "createdAt": "2024-11-29T04:07:54.199Z",
+                "updatedAt": "2024-11-29T04:23:15.110Z"
+            },
+            "packageDetail": {
+                "id": "3b336caf-7ca8-4874-99d6-3eee7bc6cf9f",
+                "packageType": "DRY",
+                "weight": 2,
+                "length": 5,
+                "width": 6,
+                "height": 7,
+                "detailId": "5b97008d-c6fb-4f1c-b4eb-12ccc5c99ae5",
+                "createdAt": "2024-11-29T04:07:54.201Z",
+                "updatedAt": "2024-11-29T04:07:54.201Z"
+            }
+        }
+    }
+    }
   })
   @ApiResponse({
     status: 400,
@@ -286,14 +447,7 @@ export class QuotationReqsController {
     example: new NotFoundException('Quote request id does not exists in database').getResponse()
   })
   @ApiBody({
-    type: UpdateQuotationReqDto,
-    schema: {
-      example: {
-        requestDate: '2024-01-01T00:00:00.000Z',
-        status: 'PENDING',
-        customerId: '9b16a980-076c-4700-9c48-e9fccbe24766',
-      },
-    },
+    type: UpdateQuoteReqWithDetailDto,
   })
   @UseGuards(RoleGuard)
   @Roles([
@@ -301,15 +455,15 @@ export class QuotationReqsController {
     RoleEnum.SALES,
     RoleEnum.MANAGER,
   ])
-  @Patch(':id')
-  async updateQuotationReq(
+  @Patch('with-details/:id')
+  async updateQuoteRequestWithDetails(
     @Param('id') id: string,
-    @Body(new ZodValidationPipe(UpdateQuotationReqSchema.partial())) body: Partial<UpdateQuotationReqDto>
+    @Body(new ZodValidationPipe(UpdateQuoteReqWithDetailSchema)) body: UpdateQuoteReqWithDetailDto
   ) {
-    //check if body is empty 
     if (Object.keys(body).length === 0) {
       throw new BadRequestException('Body cannot be empty')
     }
-    return await this.quotationReqsService.updateQuotationReq(id, body)
+    const result = await this.quotationReqsService.updateQuoteRequestWithDetails(id, body)
+    return { message: 'Quote request successfully updated with its associated details', data: result }
   }
 }

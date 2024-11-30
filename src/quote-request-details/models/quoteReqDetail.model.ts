@@ -2,6 +2,13 @@ import { PackageDetail } from '@/package-details/models/packageDetails.model'; i
 import sequelize from "sequelize";
 import { AllowNull, BelongsTo, Column, Default, ForeignKey, HasMany, HasOne, Model, PrimaryKey, Table } from "sequelize-typescript";
 
+export enum ShipmentType {
+    AIR = "AIR",
+    LAND = "LAND",
+    FCL = "FCL",
+    LCL = "LCL"
+}
+
 @Table({
     tableName: "quote_req_details"
 })
@@ -30,6 +37,10 @@ export class QuoteReqDetail extends Model {
     @AllowNull(false)
     @Column
     cargoInsurance: boolean
+
+    @AllowNull(false)
+    @Column
+    shipmentType: ShipmentType
 
     // Associations
     @ForeignKey(() => QuotationReq)
