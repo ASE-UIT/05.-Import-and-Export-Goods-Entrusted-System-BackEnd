@@ -1,4 +1,4 @@
-import { Injectable, NotAcceptableException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { Customer } from './models/customer.model';
 import { CreateCustomerStrategy } from './strategies/create-customer/create-customer.strategy';
 import {
@@ -7,6 +7,7 @@ import {
 } from './dtos/create-customer.dto';
 import { UpdateCustomerStrategy } from './strategies/update-customer/update-customer.strategy';
 import { QueryCustomerDto } from './dtos/query-customer.dto';
+import { LegalRep } from '@/legal-representative/models/legal-rep.model';
 
 @Injectable()
 export class CustomersService {
@@ -18,13 +19,20 @@ export class CustomersService {
   async findCustomer(customerInfo: QueryCustomerDto): Promise<Customer[]> {
     let customer: Customer[];
     if (customerInfo) {
-      customer = await Customer.findAll({ where: customerInfo });
+      customer = await Customer.findAll({
+        where: customerInfo,
+        attributes: { exclude: ['legalRepId'] },
+        include: LegalRep,
+      });
     } else {
-      customer = await Customer.findAll();
+      customer = await Customer.findAll({
+        include: LegalRep,
+        attributes: { exclude: ['legalRepId'] },
+      });
     }
 
     if (customer.length > 0) return customer;
-    else throw new NotAcceptableException('Customer not found');
+    else throw new NotFoundException('Customer not found');
   }
 
   // creating services

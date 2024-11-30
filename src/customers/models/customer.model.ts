@@ -80,12 +80,12 @@ export class Customer extends Model {
   @HasMany(() => QuotationReq)
   quotationReqs: QuotationReq[];
 
-  @ApiProperty()
   @ForeignKey(() => LegalRep)
   @AllowNull(true)
   @Column
   legalRepId: string;
 
+  @ApiProperty()
   @BelongsTo(() => LegalRep)
   legalRep: LegalRep;
 }

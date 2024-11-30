@@ -7,6 +7,7 @@ import {
 import { LegalRep } from './models/legal-rep.model';
 import { UpdateLegalRepsStrategy } from './strategies/update-legal-rep/update-legal-rep.strategy';
 import { QueryLegalRepsDto } from './dtos/query-legal-rep.dto';
+import { Customer } from '@/customers/models/customer.model';
 
 @Injectable()
 export class LegalRepsService {
@@ -27,7 +28,10 @@ export class LegalRepsService {
 
   async findLegalReps(query: QueryLegalRepsDto): Promise<LegalRep[]> {
     let legalRep: LegalRep[];
-    if (query) legalRep = await LegalRep.findAll({ where: query });
+    if (query)
+      legalRep = await LegalRep.findAll({
+        where: query,
+      });
     else legalRep = await LegalRep.findAll();
 
     if (legalRep.length > 0) return legalRep;

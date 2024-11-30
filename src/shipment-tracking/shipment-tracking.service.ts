@@ -52,7 +52,6 @@ export class ShipmentTrackingService {
     let tracker: ShipmentTracking[];
     if (query) tracker = await ShipmentTracking.findAll({ where: query });
     else tracker = await ShipmentTracking.findAll();
-
     if (tracker.length > 0) return tracker;
     else throw new NotFoundException('Shipment tracking not found');
   }
