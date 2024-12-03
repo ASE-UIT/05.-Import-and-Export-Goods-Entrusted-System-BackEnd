@@ -7,6 +7,9 @@ import { Shipment } from './models/shipment.model';
 import { InjectModel } from '@nestjs/sequelize';
 import { ForeignKeyConstraintError } from 'sequelize';
 import { QueryShipmentDto } from './dtos/query-shipment.dto';
+import { PaginationDto } from '@/shared/dto/pagination.dto';
+import { PaginatedResponse } from '@/shared/dto/paginated-response.dto';
+import { PaginationResponse } from '@/shared/dto/paginantion-response.dto';
 
 @Injectable()
 export class ShipmentService {
@@ -45,12 +48,37 @@ export class ShipmentService {
   //   }
   // }
 
-  async findShipment(query: QueryShipmentDto): Promise<Shipment[]> {
-    let shipment: Shipment[];
-    if (query) shipment = await Shipment.findAll({ where: query });
-    else shipment = await Shipment.findAll();
+  async findShipment(
+    query: QueryShipmentDto,
+    pagination: PaginationDto,
+  ): Promise<PaginatedResponse<Shipment>> {
+    const { page, limit } = pagination;
+    const offset = (page - 1) * limit;
 
-    if (shipment.length > 0) return shipment;
-    else throw new NotFoundException('Shipment not found');
+    const { count, rows } = await this.shipmentModel.findAndCountAll({
+      where: query,
+      offset: offset,
+      limit: limit,
+    });
+
+    const paginationInfo: PaginationResponse = {
+      currentPage: page,
+      records: count,
+      totalPages: Math.ceil(count / limit),
+      nextPage: page * limit < count ? page + 1 : null,
+      prevPage: (page - 1) * limit > 0 ? page - 1 : null,
+    };
+
+    const response: PaginatedResponse<Shipment> = {
+      pagination: paginationInfo,
+      results: rows,
+    };
+    return response;
+  }
+
+  async findShipmentById(id: string): Promise<Shipment> {
+    const shipment = await this.shipmentModel.findOne({ where: { id: id } });
+    if (!shipment) throw new NotFoundException('Shipment not found');
+    return shipment;
   }
 }

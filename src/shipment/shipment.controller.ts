@@ -40,6 +40,7 @@ import { SuccessResponse } from '@/shared/classes/success-response.class';
 import { createResponseType } from '@/shared/helpers/create-response.mixin';
 import { ValidationError } from '@/shared/classes/validation-error.class';
 import { Shipment, ShipmentType } from './models/shipment.model';
+import { PaginationDto, PaginationSchema } from '@/shared/dto/pagination.dto';
 
 @ApiTags('Shipment')
 @Controller({ path: 'shipment', version: '1' })
@@ -173,6 +174,18 @@ export class ShipmentController {
 
   @ApiOperation({ summary: 'Search for shipment' })
   @ApiQuery({
+    name: 'page',
+    type: Number,
+    required: true,
+    description: 'Current page',
+  })
+  @ApiQuery({
+    name: 'limit',
+    type: Number,
+    required: true,
+    description: 'Total records per page',
+  })
+  @ApiQuery({
     name: 'shipmentType',
     enum: ShipmentType,
     required: false,
@@ -186,7 +199,7 @@ export class ShipmentController {
   })
   @ApiResponse({
     status: 200,
-    description: 'Shipment found',
+    description: 'Success',
     type: Shipment,
   })
   @ApiResponse({
@@ -226,10 +239,58 @@ export class ShipmentController {
   ])
   @Get()
   async findShipment(
-    @Query(new ZodValidationPipe(QueryShipmentSchema.partial().strict()))
+    @Query(new ZodValidationPipe(QueryShipmentSchema.partial()))
     query: Partial<QueryShipmentDto>,
+    @Query(new ZodValidationPipe(PaginationSchema))
+    pagination: PaginationDto,
   ) {
-    const result = await this.shipmentService.findShipment(query);
-    return new SuccessResponse('shipment found', result);
+    const result = await this.shipmentService.findShipment(query, pagination);
+    return new SuccessResponse('Success', result);
+  }
+
+  @ApiOperation({ summary: 'Search for shipment by id' })
+  @ApiResponse({
+    status: 200,
+    description: 'Success',
+    type: Shipment,
+  })
+  @ApiResponse({
+    status: 401,
+    description: "Authentication is required to find shipment's information",
+    type: UnauthorizedException,
+    example: new UnauthorizedException(
+      'Only authenticated users can access this resource',
+    ).getResponse(),
+  })
+  @ApiResponse({
+    status: 403,
+    description:
+      'Only user with role: [ADMIN | SALES | CUSTOMER_SERVICE | DOCUMENTATION] can perform this action',
+    type: ForbiddenException,
+
+    example: new ForbiddenException(
+      'Only users with the following roles can access this resource: ADMIN, SALES, CUSTOMER_SERVICE, DOCUMENTATION',
+    ).getResponse(),
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Shipment not found',
+    type: NotFoundException,
+    example: new NotFoundException('Shipment not found').getResponse(),
+  })
+  @UseGuards(RoleGuard)
+  @Roles([
+    RoleEnum.ADMIN,
+    RoleEnum.SALES,
+    RoleEnum.CUSTOMER_SERVICE,
+    RoleEnum.DOCUMENTATION,
+  ])
+  @Get(':id')
+  async findShipmentById(
+    @Query('id')
+    id: string,
+  ) {
+    const result = await this.shipmentService.findShipmentById(id);
+    return new SuccessResponse('Success', result);
   }
 }

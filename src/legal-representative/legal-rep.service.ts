@@ -7,11 +7,16 @@ import {
 import { LegalRep } from './models/legal-rep.model';
 import { UpdateLegalRepsStrategy } from './strategies/update-legal-rep/update-legal-rep.strategy';
 import { QueryLegalRepsDto } from './dtos/query-legal-rep.dto';
-import { Customer } from '@/customers/models/customer.model';
+import { PaginationDto } from '@/shared/dto/pagination.dto';
+import { PaginatedResponse } from '@/shared/dto/paginated-response.dto';
+import { PaginationResponse } from '@/shared/dto/paginantion-response.dto';
+import { InjectModel } from '@nestjs/sequelize';
 
 @Injectable()
 export class LegalRepsService {
   constructor(
+    @InjectModel(LegalRep)
+    private legalRepModel: typeof LegalRep,
     private createLegalRepStrategy: CreateLegalRepsStrategy,
     private updateLegalRepsStrategy: UpdateLegalRepsStrategy,
   ) {}
@@ -26,15 +31,38 @@ export class LegalRepsService {
     return await this.updateLegalRepsStrategy.update(legalRepId, updateData);
   }
 
-  async findLegalReps(query: QueryLegalRepsDto): Promise<LegalRep[]> {
-    let legalRep: LegalRep[];
-    if (query)
-      legalRep = await LegalRep.findAll({
-        where: query,
-      });
-    else legalRep = await LegalRep.findAll();
+  async findLegalRepById(id: string): Promise<LegalRep> {
+    const legalRep = await this.legalRepModel.findOne({ where: { id: id } });
+    if (!legalRep)
+      throw new NotFoundException('Legal representative not found');
+    return legalRep;
+  }
 
-    if (legalRep.length > 0) return legalRep;
-    else throw new NotFoundException('Legal representative not found');
+  async findLegalReps(
+    query: QueryLegalRepsDto,
+    pagination: PaginationDto,
+  ): Promise<PaginatedResponse<LegalRep>> {
+    const { page, limit } = pagination;
+    const offset = (page - 1) * limit;
+
+    const { count, rows } = await this.legalRepModel.findAndCountAll({
+      where: query,
+      offset: offset,
+      limit: limit,
+    });
+
+    const paginationInfo: PaginationResponse = {
+      currentPage: page,
+      records: count,
+      totalPages: Math.ceil(count / limit),
+      nextPage: page * limit < count ? page + 1 : null,
+      prevPage: (page - 1) * limit > 0 ? page - 1 : null,
+    };
+
+    const response: PaginatedResponse<LegalRep> = {
+      pagination: paginationInfo,
+      results: rows,
+    };
+    return response;
   }
 }

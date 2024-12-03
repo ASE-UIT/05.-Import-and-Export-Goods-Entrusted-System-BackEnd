@@ -42,6 +42,7 @@ import {
 } from './models/shipment-tracking.model';
 import { ValidationError } from '@/shared/classes/validation-error.class';
 import { ZodError, ZodIssueCode } from 'zod';
+import { PaginationDto, PaginationSchema } from '@/shared/dto/pagination.dto';
 
 @ApiTags('Shipment trackings')
 @Controller({ path: 'shipment-tracking', version: '1' })
@@ -114,6 +115,18 @@ export class ShipmentTrackingController {
 
   @ApiOperation({ summary: 'Search for shipment tracking' })
   @ApiQuery({
+    name: 'page',
+    type: Number,
+    required: true,
+    description: 'Current page',
+  })
+  @ApiQuery({
+    name: 'limit',
+    type: Number,
+    required: true,
+    description: 'Total records per page',
+  })
+  @ApiQuery({
     name: 'status',
     enum: ShipmentTrackingStatus,
     required: false,
@@ -133,7 +146,7 @@ export class ShipmentTrackingController {
   })
   @ApiResponse({
     status: 200,
-    description: 'Shipment tracking found',
+    description: 'Success',
     type: ShipmentTracking,
   })
   @ApiResponse({
@@ -175,12 +188,63 @@ export class ShipmentTrackingController {
   ])
   @Get()
   async getShipmentTracking(
-    @Query(
-      new ZodValidationPipe(QueryShipmentTrackingSchema.partial().strict()),
-    )
+    @Query(new ZodValidationPipe(QueryShipmentTrackingSchema.partial()))
     query: Partial<QueryShipmentTrackingDto>,
+    @Query(new ZodValidationPipe(PaginationSchema))
+    pagination: PaginationDto,
   ) {
-    const result = await this.shipTrackingService.findShipmentTracking(query);
-    return new SuccessResponse('Shipment tracking found', result);
+    const result = await this.shipTrackingService.findShipmentTracking(
+      query,
+      pagination,
+    );
+    return new SuccessResponse('Success', result);
+  }
+
+  @ApiOperation({ summary: 'Search for shipment tracking by id' })
+  @ApiResponse({
+    status: 200,
+    description: 'Success',
+    type: ShipmentTracking,
+  })
+  @ApiResponse({
+    status: 401,
+    description:
+      "Authentication is required to find a shipment's tracking information",
+    type: UnauthorizedException,
+    example: new UnauthorizedException(
+      'Only authenticated users can access this resource',
+    ).getResponse(),
+  })
+  @ApiResponse({
+    status: 403,
+    description:
+      'Only user with role: [ADMIN | SALES | CUSTOMER_SERVICE | DOCUMENTATION | MANAGER] can perform this action',
+    type: ForbiddenException,
+
+    example: new ForbiddenException(
+      'Only users with the following roles can access this resource: ADMIN, SALES, CUSTOMER_SERVICE, DOCUMENTATION, MANAGER',
+    ).getResponse(),
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Shipment tracking not found',
+    type: NotFoundException,
+    example: new NotFoundException('Tracking not found').getResponse(),
+  })
+  @UseGuards(RoleGuard)
+  @Roles([
+    RoleEnum.ADMIN,
+    RoleEnum.SALES,
+    RoleEnum.CUSTOMER_SERVICE,
+    RoleEnum.DOCUMENTATION,
+    RoleEnum.MANAGER,
+  ])
+  @Get(':id')
+  async getShipmentTrackingById(
+    @Query('id')
+    id: string,
+  ) {
+    const result = await this.shipTrackingService.findShipmentTrackingById(id);
+    return new SuccessResponse('Success', result);
   }
 }

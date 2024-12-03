@@ -38,6 +38,7 @@ import { createResponseType } from '@/shared/helpers/create-response.mixin';
 import { LegalRep } from './models/legal-rep.model';
 import { ValidationError } from '@/shared/classes/validation-error.class';
 import { ZodValidationPipe } from 'nestjs-zod';
+import { PaginationDto, PaginationSchema } from '@/shared/dto/pagination.dto';
 
 @ApiTags('Legal representatives')
 @Controller({
@@ -152,6 +153,18 @@ export class LegalRepsController {
 
   @ApiOperation({ summary: 'Search for legal representative' })
   @ApiQuery({
+    name: 'page',
+    type: Number,
+    required: true,
+    description: 'Current page',
+  })
+  @ApiQuery({
+    name: 'limit',
+    type: Number,
+    required: true,
+    description: 'Total records per page',
+  })
+  @ApiQuery({
     name: 'name',
     type: String,
     required: false,
@@ -171,7 +184,7 @@ export class LegalRepsController {
   })
   @ApiResponse({
     status: 200,
-    description: 'Legal representative found',
+    description: 'Success',
     type: LegalRep,
   })
   @ApiResponse({
@@ -208,10 +221,55 @@ export class LegalRepsController {
   @Roles([RoleEnum.ADMIN, RoleEnum.MANAGER])
   @Get()
   async findLegalReps(
-    @Query(new ZodValidationPipe(QueryLegalRepsSchema.partial().strict()))
+    @Query(new ZodValidationPipe(QueryLegalRepsSchema.partial()))
     query: QueryLegalRepsDto,
+    @Query(new ZodValidationPipe(PaginationSchema))
+    pagination: PaginationDto,
   ) {
-    const result = await this.legalRepsService.findLegalReps(query);
-    return new SuccessResponse('Legal representative found', result);
+    const result = await this.legalRepsService.findLegalReps(query, pagination);
+    return new SuccessResponse('Success', result);
+  }
+
+  @ApiOperation({ summary: 'Search for legal representative by id' })
+  @ApiResponse({
+    status: 200,
+    description: 'Success',
+    type: LegalRep,
+  })
+  @ApiResponse({
+    status: 401,
+    description: "Authentication is required to find legal-rep's information",
+    type: UnauthorizedException,
+    example: new UnauthorizedException(
+      'Only authenticated users can access this resource',
+    ).getResponse(),
+  })
+  @ApiResponse({
+    status: 403,
+    description:
+      'Only user with role: [ADMIN | MANAGER] can perform this action',
+    type: ForbiddenException,
+
+    example: new ForbiddenException(
+      'Only users with the following roles can access this resource: ADMIN, MANAGER',
+    ).getResponse(),
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Legal representative not found',
+    type: NotFoundException,
+    example: new NotFoundException(
+      'Legal representative not found',
+    ).getResponse(),
+  })
+  @UseGuards(RoleGuard)
+  @Roles([RoleEnum.ADMIN, RoleEnum.MANAGER])
+  @Get(':id')
+  async findLegalRepsById(
+    @Query('id')
+    id: string,
+  ) {
+    const result = await this.legalRepsService.findLegalRepById(id);
+    return new SuccessResponse('Success', result);
   }
 }
