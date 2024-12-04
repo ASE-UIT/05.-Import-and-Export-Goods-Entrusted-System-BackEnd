@@ -10,6 +10,21 @@ import { QueryShipmentDto } from './dtos/query-shipment.dto';
 import { PaginationDto } from '@/shared/dto/pagination.dto';
 import { PaginatedResponse } from '@/shared/dto/paginated-response.dto';
 import { PaginationResponse } from '@/shared/dto/paginantion-response.dto';
+import { ShipmentTracking } from '@/shipment-tracking/models/shipment-tracking.model';
+import { Contract } from '@/contracts/models/contract.model';
+import { Customer } from '@/customers/models/customer.model';
+import { Quotation } from '@/quotations/models/quotations.model';
+import { QuotationReq } from '@/quotation-requests/models/quotationReq.model';
+import { QuoteReqDetail } from '@/quote-request-details/models/quoteReqDetail.model';
+import { Invoice } from '@/invoices/models/invoice.model';
+
+type ShipemntResponse = {
+  shipment: Shipment;
+  tracking: ShipmentTracking;
+  contract: Contract;
+  quotationReqDetail: QuoteReqDetail;
+  customer: Customer;
+};
 
 @Injectable()
 export class ShipmentService {
@@ -57,6 +72,42 @@ export class ShipmentService {
 
     const { count, rows } = await this.shipmentModel.findAndCountAll({
       where: query,
+      include: [
+        {
+          model: ShipmentTracking,
+          attributes: ['status', 'location'],
+        },
+        {
+          model: Contract,
+          attributes: ['quotationId', 'endDate'],
+          include: [
+            {
+              model: Invoice,
+              attributes: ['totalAmount'],
+            },
+            {
+              model: Quotation,
+              attributes: ['quoteReqId'],
+              include: [
+                {
+                  model: QuotationReq,
+                  attributes: ['customerId'],
+                  include: [
+                    {
+                      model: Customer,
+                      attributes: ['id', 'name'],
+                    },
+                    {
+                      model: QuoteReqDetail,
+                      attributes: ['destination', 'origin'],
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+      ],
       offset: offset,
       limit: limit,
     });
@@ -77,7 +128,45 @@ export class ShipmentService {
   }
 
   async findShipmentById(id: string): Promise<Shipment> {
-    const shipment = await this.shipmentModel.findOne({ where: { id: id } });
+    const shipment = await this.shipmentModel.findOne({
+      where: { id: id },
+      include: [
+        {
+          model: ShipmentTracking,
+          attributes: ['status', 'location'],
+        },
+        {
+          model: Contract,
+          attributes: ['quotationId', 'endDate'],
+          include: [
+            {
+              model: Invoice,
+              attributes: ['totalAmount'],
+            },
+            {
+              model: Quotation,
+              attributes: ['quoteReqId'],
+              include: [
+                {
+                  model: QuotationReq,
+                  attributes: ['customerId'],
+                  include: [
+                    {
+                      model: Customer,
+                      attributes: ['id', 'name'],
+                    },
+                    {
+                      model: QuoteReqDetail,
+                      attributes: ['destination', 'origin'],
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    });
     if (!shipment) throw new NotFoundException('Shipment not found');
     return shipment;
   }

@@ -167,7 +167,7 @@ export class CustomersController {
   ])
   @Get(':id')
   async getCustomersById(
-    @Query('id')
+    @Param('id')
     id: string,
   ) {
     const result = await this.customerService.findCustomerById(id);

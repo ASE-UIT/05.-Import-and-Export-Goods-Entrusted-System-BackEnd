@@ -266,7 +266,7 @@ export class LegalRepsController {
   @Roles([RoleEnum.ADMIN, RoleEnum.MANAGER])
   @Get(':id')
   async findLegalRepsById(
-    @Query('id')
+    @Param('id')
     id: string,
   ) {
     const result = await this.legalRepsService.findLegalRepById(id);

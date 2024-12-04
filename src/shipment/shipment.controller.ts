@@ -287,9 +287,10 @@ export class ShipmentController {
   ])
   @Get(':id')
   async findShipmentById(
-    @Query('id')
+    @Param('id')
     id: string,
   ) {
+    console.log(id);
     const result = await this.shipmentService.findShipmentById(id);
     return new SuccessResponse('Success', result);
   }

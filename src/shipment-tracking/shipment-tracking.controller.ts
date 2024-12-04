@@ -241,7 +241,7 @@ export class ShipmentTrackingController {
   ])
   @Get(':id')
   async getShipmentTrackingById(
-    @Query('id')
+    @Param('id')
     id: string,
   ) {
     const result = await this.shipTrackingService.findShipmentTrackingById(id);
