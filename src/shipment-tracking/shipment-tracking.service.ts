@@ -6,6 +6,9 @@ import {
 import { ShipmentTracking } from './models/shipment-tracking.model';
 import { InjectModel } from '@nestjs/sequelize';
 import { QueryShipmentTrackingDto } from './dtos/query-shipment-tracking.dto';
+import { PaginationDto } from '@/shared/dto/pagination.dto';
+import { PaginatedResponse } from '@/shared/dto/paginated-response.dto';
+import { PaginationResponse } from '@/shared/dto/paginantion-response.dto';
 
 @Injectable()
 export class ShipmentTrackingService {
@@ -48,11 +51,37 @@ export class ShipmentTrackingService {
 
   async findShipmentTracking(
     query: QueryShipmentTrackingDto,
-  ): Promise<ShipmentTracking[]> {
-    let tracker: ShipmentTracking[];
-    if (query) tracker = await ShipmentTracking.findAll({ where: query });
-    else tracker = await ShipmentTracking.findAll();
-    if (tracker.length > 0) return tracker;
-    else throw new NotFoundException('Shipment tracking not found');
+    pagination: PaginationDto,
+  ): Promise<PaginatedResponse<ShipmentTracking>> {
+    const { page, limit } = pagination;
+    const offset = (page - 1) * limit;
+
+    const { count, rows } = await this.shipmentTrackingModel.findAndCountAll({
+      where: query,
+      offset: offset,
+      limit: limit,
+    });
+
+    const paginationInfo: PaginationResponse = {
+      currentPage: page,
+      records: count,
+      totalPages: Math.ceil(count / limit),
+      nextPage: page * limit < count ? page + 1 : null,
+      prevPage: (page - 1) * limit > 0 ? page - 1 : null,
+    };
+
+    const response: PaginatedResponse<ShipmentTracking> = {
+      pagination: paginationInfo,
+      results: rows,
+    };
+    return response;
+  }
+
+  async findShipmentTrackingById(id: string): Promise<ShipmentTracking> {
+    const tracking = await this.shipmentTrackingModel.findOne({
+      where: { id: id },
+    });
+    if (!tracking) throw new NotFoundException('Shipment tracking not found');
+    return tracking;
   }
 }

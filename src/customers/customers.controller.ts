@@ -37,6 +37,7 @@ import { createResponseType } from '@/shared/helpers/create-response.mixin';
 import { Customer } from './models/customer.model';
 import { ValidationError } from '@/shared/classes/validation-error.class';
 import { ZodValidationPipe } from 'nestjs-zod';
+import { PaginationDto, PaginationSchema } from '@/shared/dto/pagination.dto';
 
 @ApiTags('Customers')
 @Controller({
@@ -47,6 +48,18 @@ export class CustomersController {
   constructor(private customerService: CustomersService) {}
 
   @ApiOperation({ summary: 'Search for customer' })
+  @ApiQuery({
+    name: 'page',
+    type: Number,
+    required: true,
+    description: 'Current page',
+  })
+  @ApiQuery({
+    name: 'limit',
+    type: Number,
+    required: true,
+    description: 'Total records per page',
+  })
   @ApiQuery({
     name: 'name',
     type: String,
@@ -67,7 +80,7 @@ export class CustomersController {
   })
   @ApiResponse({
     status: 200,
-    description: 'Customer found',
+    description: 'Success',
     type: Customer,
   })
   @ApiResponse({
@@ -107,11 +120,58 @@ export class CustomersController {
   ])
   @Get()
   async getCustomers(
-    @Query(new ZodValidationPipe(QueryCustomerSchema.strict()))
+    @Query(new ZodValidationPipe(QueryCustomerSchema))
     query: QueryCustomerDto,
+    @Query(new ZodValidationPipe(PaginationSchema)) pagination: PaginationDto,
   ) {
-    const result = await this.customerService.findCustomer(query);
-    return new SuccessResponse('Customer found', result);
+    const result = await this.customerService.findCustomer(query, pagination);
+    return new SuccessResponse('Success', result);
+  }
+
+  @ApiOperation({ summary: 'Search for customer by id' })
+  @ApiResponse({
+    status: 200,
+    description: 'Success',
+    type: Customer,
+  })
+  @ApiResponse({
+    status: 401,
+    description: "Authentication is required to find customer's information",
+    type: UnauthorizedException,
+    example: new UnauthorizedException(
+      'Only authenticated users can access this resource',
+    ).getResponse(),
+  })
+  @ApiResponse({
+    status: 403,
+    description:
+      'Only user with role: [ADMIN | SALES | CUSTOMER_SERVICE | MANAGER] can perform this action',
+    type: ForbiddenException,
+
+    example: new ForbiddenException(
+      'Only users with the following roles can access this resource: ADMIN, SALES, CUSTOMER_SERVICE, MANAGER',
+    ).getResponse(),
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Customer not found',
+    type: NotFoundException,
+    example: new NotFoundException('Customer not found').getResponse(),
+  })
+  @UseGuards(RoleGuard)
+  @Roles([
+    RoleEnum.ADMIN,
+    RoleEnum.SALES,
+    RoleEnum.CUSTOMER_SERVICE,
+    RoleEnum.MANAGER,
+  ])
+  @Get(':id')
+  async getCustomersById(
+    @Param('id')
+    id: string,
+  ) {
+    const result = await this.customerService.findCustomerById(id);
+    return new SuccessResponse('Success', result);
   }
 
   @ApiOperation({ summary: 'Create new customer' })
