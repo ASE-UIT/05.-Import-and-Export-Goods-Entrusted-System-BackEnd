@@ -40,28 +40,35 @@ export class LegalRepsService {
 
   async findLegalReps(
     query: QueryLegalRepsDto,
-    pagination: PaginationDto,
+    pagination: Partial<PaginationDto>,
   ): Promise<PaginatedResponse<LegalRep>> {
     const { page, limit } = pagination;
     const offset = (page - 1) * limit;
 
-    const { count, rows } = await this.legalRepModel.findAndCountAll({
-      where: query,
-      offset: offset,
-      limit: limit,
-    });
+    let legalRep: { count: number; rows: LegalRep[] };
+    if (page && limit) {
+      legalRep = await this.legalRepModel.findAndCountAll({
+        where: query,
+        offset: offset,
+        limit: limit,
+      });
+    } else {
+      legalRep = await this.legalRepModel.findAndCountAll({
+        where: query,
+      });
+    }
 
     const paginationInfo: PaginationResponse = {
-      currentPage: page,
-      records: count,
-      totalPages: Math.ceil(count / limit),
-      nextPage: page * limit < count ? page + 1 : null,
+      currentPage: page && limit ? page : null,
+      records: legalRep.count,
+      totalPages: page && limit ? Math.ceil(legalRep.count / limit) : null,
+      nextPage: page * limit < legalRep.count ? page + 1 : null,
       prevPage: (page - 1) * limit > 0 ? page - 1 : null,
     };
 
     const response: PaginatedResponse<LegalRep> = {
       pagination: paginationInfo,
-      results: rows,
+      results: legalRep.rows,
     };
     return response;
   }

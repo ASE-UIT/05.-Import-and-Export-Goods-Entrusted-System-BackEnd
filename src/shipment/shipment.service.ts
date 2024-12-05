@@ -65,64 +65,107 @@ export class ShipmentService {
 
   async findShipment(
     query: QueryShipmentDto,
-    pagination: PaginationDto,
+    pagination: Partial<PaginationDto>,
   ): Promise<PaginatedResponse<Shipment>> {
     const { page, limit } = pagination;
     const offset = (page - 1) * limit;
 
-    const { count, rows } = await this.shipmentModel.findAndCountAll({
-      where: query,
-      include: [
-        {
-          model: ShipmentTracking,
-          attributes: ['status', 'location'],
-        },
-        {
-          model: Contract,
-          attributes: ['quotationId', 'endDate'],
-          include: [
-            {
-              model: Invoice,
-              attributes: ['totalAmount'],
-            },
-            {
-              model: Quotation,
-              attributes: ['quoteReqId'],
-              include: [
-                {
-                  model: QuotationReq,
-                  attributes: ['customerId'],
-                  include: [
-                    {
-                      model: Customer,
-                      attributes: ['id', 'name'],
-                    },
-                    {
-                      model: QuoteReqDetail,
-                      attributes: ['destination', 'origin'],
-                    },
-                  ],
-                },
-              ],
-            },
-          ],
-        },
-      ],
-      offset: offset,
-      limit: limit,
-    });
+    let shipment: { count: number; rows: Shipment[] };
+    if (page && limit) {
+      shipment = await this.shipmentModel.findAndCountAll({
+        where: query,
+        include: [
+          {
+            model: ShipmentTracking,
+            attributes: ['status', 'location'],
+          },
+          {
+            model: Contract,
+            attributes: ['quotationId', 'endDate'],
+            include: [
+              {
+                model: Invoice,
+                attributes: ['totalAmount'],
+              },
+              {
+                model: Quotation,
+                attributes: ['quoteReqId'],
+                include: [
+                  {
+                    model: QuotationReq,
+                    attributes: ['customerId'],
+                    include: [
+                      {
+                        model: Customer,
+                        attributes: ['id', 'name'],
+                      },
+                      {
+                        model: QuoteReqDetail,
+                        attributes: ['destination', 'origin'],
+                      },
+                    ],
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+        offset: offset,
+        limit: limit,
+      });
+    } else {
+      shipment = await this.shipmentModel.findAndCountAll({
+        where: query,
+        include: [
+          {
+            model: ShipmentTracking,
+            attributes: ['status', 'location'],
+          },
+          {
+            model: Contract,
+            attributes: ['quotationId', 'endDate'],
+            include: [
+              {
+                model: Invoice,
+                attributes: ['totalAmount'],
+              },
+              {
+                model: Quotation,
+                attributes: ['quoteReqId'],
+                include: [
+                  {
+                    model: QuotationReq,
+                    attributes: ['customerId'],
+                    include: [
+                      {
+                        model: Customer,
+                        attributes: ['id', 'name'],
+                      },
+                      {
+                        model: QuoteReqDetail,
+                        attributes: ['destination', 'origin'],
+                      },
+                    ],
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      });
+    }
 
     const paginationInfo: PaginationResponse = {
-      currentPage: page,
-      records: count,
-      totalPages: Math.ceil(count / limit),
-      nextPage: page * limit < count ? page + 1 : null,
+      currentPage: page && limit ? page : null,
+      records: shipment.count,
+      totalPages: page && limit ? Math.ceil(shipment.count / limit) : null,
+      nextPage: page * limit < shipment.count ? page + 1 : null,
       prevPage: (page - 1) * limit > 0 ? page - 1 : null,
     };
 
     const response: PaginatedResponse<Shipment> = {
       pagination: paginationInfo,
-      results: rows,
+      results: shipment.rows,
     };
     return response;
   }
