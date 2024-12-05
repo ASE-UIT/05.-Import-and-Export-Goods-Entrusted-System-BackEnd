@@ -51,13 +51,13 @@ export class CustomersController {
   @ApiQuery({
     name: 'page',
     type: Number,
-    required: true,
+    required: false,
     description: 'Current page',
   })
   @ApiQuery({
     name: 'limit',
     type: Number,
-    required: true,
+    required: false,
     description: 'Total records per page',
   })
   @ApiQuery({
@@ -122,7 +122,8 @@ export class CustomersController {
   async getCustomers(
     @Query(new ZodValidationPipe(QueryCustomerSchema))
     query: QueryCustomerDto,
-    @Query(new ZodValidationPipe(PaginationSchema)) pagination: PaginationDto,
+    @Query(new ZodValidationPipe(PaginationSchema.partial()))
+    pagination: Partial<PaginationDto>,
   ) {
     const result = await this.customerService.findCustomer(query, pagination);
     return new SuccessResponse('Success', result);

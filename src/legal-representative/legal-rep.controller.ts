@@ -155,13 +155,13 @@ export class LegalRepsController {
   @ApiQuery({
     name: 'page',
     type: Number,
-    required: true,
+    required: false,
     description: 'Current page',
   })
   @ApiQuery({
     name: 'limit',
     type: Number,
-    required: true,
+    required: false,
     description: 'Total records per page',
   })
   @ApiQuery({
@@ -223,8 +223,8 @@ export class LegalRepsController {
   async findLegalReps(
     @Query(new ZodValidationPipe(QueryLegalRepsSchema.partial()))
     query: QueryLegalRepsDto,
-    @Query(new ZodValidationPipe(PaginationSchema))
-    pagination: PaginationDto,
+    @Query(new ZodValidationPipe(PaginationSchema.partial()))
+    pagination: Partial<PaginationDto>,
   ) {
     const result = await this.legalRepsService.findLegalReps(query, pagination);
     return new SuccessResponse('Success', result);

@@ -176,13 +176,13 @@ export class ShipmentController {
   @ApiQuery({
     name: 'page',
     type: Number,
-    required: true,
+    required: false,
     description: 'Current page',
   })
   @ApiQuery({
     name: 'limit',
     type: Number,
-    required: true,
+    required: false,
     description: 'Total records per page',
   })
   @ApiQuery({
@@ -241,8 +241,8 @@ export class ShipmentController {
   async findShipment(
     @Query(new ZodValidationPipe(QueryShipmentSchema.partial()))
     query: Partial<QueryShipmentDto>,
-    @Query(new ZodValidationPipe(PaginationSchema))
-    pagination: PaginationDto,
+    @Query(new ZodValidationPipe(PaginationSchema.partial()))
+    pagination: Partial<PaginationDto>,
   ) {
     const result = await this.shipmentService.findShipment(query, pagination);
     return new SuccessResponse('Success', result);

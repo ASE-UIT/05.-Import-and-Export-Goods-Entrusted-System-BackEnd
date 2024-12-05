@@ -25,20 +25,10 @@ export class CustomersService {
 
   async findCustomer(
     customerInfo: QueryCustomerDto,
-    pagination: PaginationDto,
+    pagination: Partial<PaginationDto>,
   ): Promise<PaginatedResponse<Customer>> {
     const { page, limit } = pagination;
     const offset = (page - 1) * limit;
-
-    // const { count, rows } = await Customer.findAndCountAll({
-    //   where: customerInfo,
-    //   attributes: { exclude: ['legalRepId'] },
-    //   include: LegalRep,
-    //   offset: offset,
-    //   limit: limit,
-    //   subQuery: true,
-    //   distinct: true,
-    // });
 
     const count = await this.customerModel.count({
       where: customerInfo,
@@ -46,19 +36,29 @@ export class CustomersService {
       distinct: true,
     });
 
-    const rows = await this.customerModel.findAll({
-      where: customerInfo,
-      attributes: { exclude: ['legalRepId'] },
-      include: LegalRep,
-      offset: offset,
-      limit: limit,
-      subQuery: true,
-    });
+    let rows: Customer[];
+    if (page && limit) {
+      rows = await this.customerModel.findAll({
+        where: customerInfo,
+        attributes: { exclude: ['legalRepId'] },
+        include: LegalRep,
+        offset: offset,
+        limit: limit,
+        subQuery: true,
+      });
+    } else {
+      rows = await this.customerModel.findAll({
+        where: customerInfo,
+        attributes: { exclude: ['legalRepId'] },
+        include: LegalRep,
+        subQuery: true,
+      });
+    }
 
     const paginationInfo: PaginationResponse = {
-      currentPage: page,
+      currentPage: page && limit ? page : null,
       records: count,
-      totalPages: Math.ceil(count / limit),
+      totalPages: page && limit ? Math.ceil(count / limit) : null,
       nextPage: page * limit < count ? page + 1 : null,
       prevPage: (page - 1) * limit > 0 ? page - 1 : null,
     };

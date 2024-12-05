@@ -1,6 +1,6 @@
 import { PaginationResponse } from './paginantion-response.dto';
 
 export interface PaginatedResponse<T> {
-  pagination: PaginationResponse;
+  pagination?: PaginationResponse;
   results: T[];
 }

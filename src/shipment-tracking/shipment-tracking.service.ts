@@ -51,28 +51,35 @@ export class ShipmentTrackingService {
 
   async findShipmentTracking(
     query: QueryShipmentTrackingDto,
-    pagination: PaginationDto,
+    pagination: Partial<PaginationDto>,
   ): Promise<PaginatedResponse<ShipmentTracking>> {
     const { page, limit } = pagination;
     const offset = (page - 1) * limit;
 
-    const { count, rows } = await this.shipmentTrackingModel.findAndCountAll({
-      where: query,
-      offset: offset,
-      limit: limit,
-    });
+    let tracking: { count: number; rows: ShipmentTracking[] };
+    if (page && limit) {
+      tracking = await this.shipmentTrackingModel.findAndCountAll({
+        where: query,
+        offset: offset,
+        limit: limit,
+      });
+    } else {
+      tracking = await this.shipmentTrackingModel.findAndCountAll({
+        where: query,
+      });
+    }
 
     const paginationInfo: PaginationResponse = {
-      currentPage: page,
-      records: count,
-      totalPages: Math.ceil(count / limit),
-      nextPage: page * limit < count ? page + 1 : null,
+      currentPage: page && limit ? page : null,
+      records: tracking.count,
+      totalPages: page && limit ? Math.ceil(tracking.count / limit) : null,
+      nextPage: page * limit < tracking.count ? page + 1 : null,
       prevPage: (page - 1) * limit > 0 ? page - 1 : null,
     };
 
     const response: PaginatedResponse<ShipmentTracking> = {
       pagination: paginationInfo,
-      results: rows,
+      results: tracking.rows,
     };
     return response;
   }
