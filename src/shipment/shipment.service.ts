@@ -84,12 +84,8 @@ export class ShipmentService {
             attributes: ['quotationId', 'endDate'],
             include: [
               {
-                model: Invoice,
-                attributes: ['totalAmount'],
-              },
-              {
                 model: Quotation,
-                attributes: ['quoteReqId'],
+                attributes: ['quoteReqId', 'totalPrice'],
                 include: [
                   {
                     model: QuotationReq,
@@ -126,12 +122,8 @@ export class ShipmentService {
             attributes: ['quotationId', 'endDate'],
             include: [
               {
-                model: Invoice,
-                attributes: ['totalAmount'],
-              },
-              {
                 model: Quotation,
-                attributes: ['quoteReqId'],
+                attributes: ['quoteReqId', 'totalPrice'],
                 include: [
                   {
                     model: QuotationReq,
