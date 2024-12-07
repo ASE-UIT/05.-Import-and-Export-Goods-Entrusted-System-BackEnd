@@ -48,7 +48,7 @@ export class PackageDetailsService {
         'Package detail id does not exists in database',
       );
     }
-    return;
+    return packageDetail;
   }
 
   getFindStrategy(
