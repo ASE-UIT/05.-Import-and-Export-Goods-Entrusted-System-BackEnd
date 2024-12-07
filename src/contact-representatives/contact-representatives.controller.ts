@@ -41,6 +41,7 @@ import { createResponseType } from '@/shared/helpers/create-response.mixin';
 import { ValidationError } from '@/shared/classes/validation-error.class';
 import { ZodValidationPipe } from 'nestjs-zod';
 import { ContactRep } from './models/contact-representatives.model';
+import { PaginationDto, PaginationSchema } from '@/shared/dto/pagination.dto';
 
 @ApiTags('Contact representatives')
 @Controller({
@@ -155,6 +156,18 @@ export class ContactRepsController {
 
   @ApiOperation({ summary: 'Search for contact representatives' })
   @ApiQuery({
+    name: 'page',
+    type: Number,
+    required: false,
+    description: 'Current page',
+  })
+  @ApiQuery({
+    name: 'limit',
+    type: Number,
+    required: false,
+    description: 'Total records per page',
+  })
+  @ApiQuery({
     name: 'name',
     type: String,
     required: false,
@@ -209,9 +222,10 @@ export class ContactRepsController {
   @Roles([RoleEnum.ADMIN, RoleEnum.MANAGER])
   @Get()
   async findContactReps(
-    @Query(new ZodValidationPipe(QueryContactRepSchema.partial().strict())) query: QueryContactRepDto,
+    @Query(new ZodValidationPipe(QueryContactRepSchema.partial())) query: QueryContactRepDto,
+    @Query(new ZodValidationPipe(PaginationSchema.partial())) pagination: Partial<PaginationDto>,
   ) {
-    const result = await this.contactRepsService.findContactReps(query);
+    const result = await this.contactRepsService.findContactReps(query, pagination);
     return new SuccessResponse('Contact representative found', result);
   }
 }
