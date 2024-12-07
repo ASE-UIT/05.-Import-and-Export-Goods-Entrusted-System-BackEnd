@@ -62,10 +62,11 @@ export class QuotationsService {
 
   async findQuotations(
     quotationInfo: QueryQuotationDto,
-    pagination: Partial<PaginationDto>,
-  ): Promise<PaginatedResponse<Quotation>> {
-    const { page = 1, limit = 10 } = pagination;
-    const offset = (page - 1) * limit;
+    // pagination: Partial<PaginationDto>,
+  ): Promise<Quotation[]> {
+    //Promise<PaginatedResponse<Quotation>>
+    // const { page = 1, limit = 10 } = pagination;
+    // const offset = (page - 1) * limit;
 
     const whereCondition: any = { ...quotationInfo };
 
@@ -81,31 +82,31 @@ export class QuotationsService {
       delete whereCondition.customerId;
     }
 
-    const count = await this.quotationModel.count({
-      where: whereCondition,
-      distinct: true,
-    });
+    // const count = await this.quotationModel.count({
+    //   where: whereCondition,
+    //   distinct: true,
+    // });
 
     const rows: Quotation[] = await this.quotationModel.findAll({
       where: whereCondition,
-      offset,
-      limit,
+      // offset,
+      // limit,
       subQuery: true,
     });
 
-    const paginationInfo: PaginationResponse = {
-      currentPage: page && limit ? page : null,
-      records: count,
-      totalPages: page && limit ? Math.ceil(count / limit) : null,
-      nextPage: page * limit < count ? page + 1 : null,
-      prevPage: (page - 1) * limit > 0 ? page - 1 : null,
-    };
+    // const paginationInfo: PaginationResponse = {
+    //   currentPage: page && limit ? page : null,
+    //   records: count,
+    //   totalPages: page && limit ? Math.ceil(count / limit) : null,
+    //   nextPage: page * limit < count ? page + 1 : null,
+    //   prevPage: (page - 1) * limit > 0 ? page - 1 : null,
+    // };
 
-    const response: PaginatedResponse<Quotation> = {
-      pagination: paginationInfo,
-      results: rows,
-    };
-    return response;
+    // const response: PaginatedResponse<Quotation> = {
+    //   pagination: paginationInfo,
+    //   results: rows,
+    // };
+    return rows;
   }
 
   async findQuotationById(id: string): Promise<Quotation> {

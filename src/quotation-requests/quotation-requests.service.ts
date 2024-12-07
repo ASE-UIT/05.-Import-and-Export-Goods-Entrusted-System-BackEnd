@@ -1,4 +1,10 @@
-import { BadRequestException, HttpException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  HttpException,
+  HttpStatus,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateQuotationReqDto } from './dtos/CreateQuotationReqDto';
 import { CreateQuotationReqStrategy } from './strategies/create-quotationReq/create-quotationReq.strategy';
 import { FindQuotationReqStrategy } from './strategies/find-quotationReq/find-quotationReq-strategy.enum';
@@ -17,6 +23,10 @@ import { PackageDetail } from '@/package-details/models/packageDetails.model';
 import { CreateQuoteReqWithDetailDto } from './dtos/CreateQuoteReqWithDetail';
 import { z } from 'zod';
 import { UpdateQuoteReqWithDetailDto } from './dtos/UpdateQuotationReqWithDetail';
+import { QueryQuotationReqDto } from './dtos/QueryQuotationReqDto';
+import { PaginationDto } from '@/shared/dto/pagination.dto';
+import { PaginatedResponse } from '@/shared/dto/paginated-response.dto';
+import { PaginationResponse } from '@/shared/dto/paginantion-response.dto';
 
 @Injectable()
 export class QuotationReqsService {
@@ -29,62 +39,110 @@ export class QuotationReqsService {
     private findQuotationReqByCustomerId: FindQuotationReqByCustomerIdStrategy,
     private sequelize: Sequelize,
     @InjectModel(QuotationReq) private quotationReqModel: typeof QuotationReq,
-    @InjectModel(QuoteReqDetail) private quoteReqDetailModel: typeof QuoteReqDetail,
-    @InjectModel(PackageDetail) private packageDetailModel: typeof PackageDetail,
-  ) { }
+    @InjectModel(QuoteReqDetail)
+    private quoteReqDetailModel: typeof QuoteReqDetail,
+    @InjectModel(PackageDetail)
+    private packageDetailModel: typeof PackageDetail,
+  ) {}
 
-  async getQuoteRequestWithDetails(id: string) {
+  async getQuoteRequests(
+    quoteRequestInfo: QueryQuotationReqDto,
+    //pagination: Partial<PaginationDto>,
+  ): Promise<QuotationReq[]> {
+    //Promise<PaginatedResponse<QuotationReq>>
+    // const { page = 1, limit = 10 } = pagination;
+    // const offset = (page - 1) * limit;
+
+    const count = await this.quotationReqModel.count({
+      where: quoteRequestInfo,
+      distinct: true,
+    });
+
+    const rows: QuotationReq[] = await this.quotationReqModel.findAll({
+      where: quoteRequestInfo,
+      // offset,
+      // limit,
+      subQuery: true,
+    });
+
+    // const paginationInfo: PaginationResponse = {
+    //   currentPage: page && limit ? page : null,
+    //   records: count,
+    //   totalPages: page && limit ? Math.ceil(count / limit) : null,
+    //   nextPage: page * limit < count ? page + 1 : null,
+    //   prevPage: (page - 1) * limit > 0 ? page - 1 : null,
+    // };
+
+    // const response: PaginatedResponse<QuotationReq> = {
+    //   pagination: paginationInfo,
+    //   results: rows,
+    // };
+    return rows;
+  }
+
+  async getQuoteRequestWithDetailsById(id: string) {
     const quoteRequest = await this.quotationReqModel.findByPk(id, {
       include: [
         {
           model: this.quoteReqDetailModel,
           include: [
             {
-              model: this.packageDetailModel
-            }
-          ]
-        }
-      ]
-    })
+              model: this.packageDetailModel,
+            },
+          ],
+        },
+      ],
+    });
 
     if (!quoteRequest) {
-      throw new NotFoundException('Quote request id does not exists in database')
+      throw new NotFoundException(
+        'Quote request id does not exists in database',
+      );
     }
 
-    return quoteRequest
+    return quoteRequest;
   }
 
   async createQuoteRequestWithDetails(data: CreateQuoteReqWithDetailDto) {
-    const transaction = await this.sequelize.transaction()
+    const transaction = await this.sequelize.transaction();
 
     try {
-      const quoteRequest = await this.quotationReqModel.create({
-        requestDate: data.requestDate,
-        status: QuotationReqStatus.PENDING,
-        customerId: data.customerId
-      }, { transaction })
+      const quoteRequest = await this.quotationReqModel.create(
+        {
+          requestDate: data.requestDate,
+          status: QuotationReqStatus.PENDING,
+          customerId: data.customerId,
+        },
+        { transaction },
+      );
 
-      const quoteRequestDetail = await this.quoteReqDetailModel.create({
-        origin: data.origin,
-        destination: data.destination,
-        shipmentReadyDate: data.shipmentReadyDate,
-        shipmentDeadline: data.shipmentDeadline,
-        cargoInsurance: data.cargoInsurance,
-        shipmentType: data.shipmentType,
-        quoteReqId: quoteRequest.id
-      }, { transaction })
+      const quoteRequestDetail = await this.quoteReqDetailModel.create(
+        {
+          origin: data.origin,
+          destination: data.destination,
+          shipmentReadyDate: data.shipmentReadyDate,
+          shipmentDeadline: data.shipmentDeadline,
+          cargoInsurance: data.cargoInsurance,
+          shipmentType: data.shipmentType,
+          quoteReqId: quoteRequest.id,
+        },
+        { transaction },
+      );
 
-      const packageDetail = await this.packageDetailModel.create({
-        packageType: data.packageType,
-        weight: data.weight,
-        length: data.length,
-        width: data.width,
-        height: data.height,
-        detailId: quoteRequestDetail.id
-      }, { transaction })
+      const packageDetail = await this.packageDetailModel.create(
+        {
+          packageType: data.packageType,
+          weight: data.weight,
+          length: data.length,
+          width: data.width,
+          height: data.height,
+          detailId: quoteRequestDetail.id,
+        },
+        { transaction },
+      );
 
-      await transaction.commit()
-      return { quoteRequest, quoteRequestDetail, packageDetail }
+      await transaction.commit();
+      return { quoteRequest, quoteRequestDetail, packageDetail };
       // return {
       //   quoteRequest: {
       //     ...quoteRequest.toJSON(), // Chuyển đổi đối tượng Sequelize thành JSON nếu cần
@@ -95,48 +153,53 @@ export class QuotationReqsService {
       //   }
       // }
     } catch (error) {
-      await transaction.rollback()
-      console.log("Check error", error)
+      await transaction.rollback();
+      console.log('Check error', error);
       if (error instanceof ForeignKeyConstraintError) {
-        throw new HttpException('Customer not found.', HttpStatus.BAD_REQUEST)
+        throw new HttpException('Customer not found.', HttpStatus.BAD_REQUEST);
       }
       if (error instanceof z.ZodError) {
-        throw new HttpException(error.errors, HttpStatus.BAD_REQUEST)
+        throw new HttpException(error.errors, HttpStatus.BAD_REQUEST);
       }
-      throw new HttpException('Error when creating quote request', HttpStatus.INTERNAL_SERVER_ERROR)
+      throw new HttpException(
+        'Error when creating quote request',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 
   async updateQuoteRequestWithDetails(
     id: string,
-    data: UpdateQuoteReqWithDetailDto
+    data: UpdateQuoteReqWithDetailDto,
   ) {
     const transaction = await this.sequelize.transaction();
-  
+
     try {
-      const quoteRequest = await this.quotationReqModel.findByPk(id, { transaction });
+      const quoteRequest = await this.quotationReqModel.findByPk(id, {
+        transaction,
+      });
       if (!quoteRequest) {
         throw new NotFoundException('Quote Request not found.');
       }
-  
+
       await quoteRequest.update(
         {
           requestDate: data.requestDate,
-          status: data.status, 
+          status: data.status,
           customerId: data.customerId,
         },
-        { transaction }
+        { transaction },
       );
-  
+
       const quoteRequestDetail = await this.quoteReqDetailModel.findOne({
         where: { quoteReqId: quoteRequest.id },
         transaction,
       });
-  
+
       if (!quoteRequestDetail) {
         throw new NotFoundException('Quote Request Detail not found.');
       }
-  
+
       await quoteRequestDetail.update(
         {
           origin: data.origin,
@@ -146,18 +209,18 @@ export class QuotationReqsService {
           cargoInsurance: data.cargoInsurance,
           shipmentType: data.shipmentType,
         },
-        { transaction }
+        { transaction },
       );
-  
+
       const packageDetail = await this.packageDetailModel.findOne({
         where: { detailId: quoteRequestDetail.id },
         transaction,
       });
-  
+
       if (!packageDetail) {
         throw new NotFoundException('Package Detail not found.');
       }
-  
+
       await packageDetail.update(
         {
           packageType: data.packageType,
@@ -166,83 +229,102 @@ export class QuotationReqsService {
           width: data.width,
           height: data.height,
         },
-        { transaction }
+        { transaction },
       );
-  
+
       await transaction.commit();
-  
+
       return { quoteRequest, quoteRequestDetail, packageDetail };
     } catch (error) {
       await transaction.rollback();
-      console.log("Check error", error)
+      console.log('Check error', error);
       if (error instanceof ForeignKeyConstraintError) {
         throw new HttpException('Customer not found.', HttpStatus.BAD_REQUEST);
       }
       if (error instanceof z.ZodError) {
-        throw new HttpException(error.errors, HttpStatus.BAD_REQUEST)
+        throw new HttpException(error.errors, HttpStatus.BAD_REQUEST);
       }
       if (error instanceof NotFoundException) {
-        throw new HttpException('Quote Request not found.', HttpStatus.NOT_FOUND);
+        throw new HttpException(
+          'Quote Request not found.',
+          HttpStatus.NOT_FOUND,
+        );
       }
       throw new HttpException(
         'Error when updating quote request',
-        HttpStatus.INTERNAL_SERVER_ERROR
+        HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
   }
-  
 
   // finding services
   async findQuotationReq(
     strategy: FindQuotationReqStrategy,
     quotationReqInfo: string,
   ): Promise<QuotationReq[] | null> {
-    const findStrategy = this.getFindStrategy(strategy)
-    const quotationReq: QuotationReq[] | null = await findStrategy.find(quotationReqInfo)
-    return quotationReq
+    const findStrategy = this.getFindStrategy(strategy);
+    const quotationReq: QuotationReq[] | null =
+      await findStrategy.find(quotationReqInfo);
+    return quotationReq;
   }
 
-  getFindStrategy(strategy: FindQuotationReqStrategy): IFindQuotationReqStrategy {
+  getFindStrategy(
+    strategy: FindQuotationReqStrategy,
+  ): IFindQuotationReqStrategy {
     switch (strategy) {
       case FindQuotationReqStrategy.ALL:
-        return this.findAllQuotationReqStratygy
+        return this.findAllQuotationReqStratygy;
       case FindQuotationReqStrategy.REQUESTDATE:
-        return this.findQuotationReqByRequestDateStrategy
+        return this.findQuotationReqByRequestDateStrategy;
       case FindQuotationReqStrategy.STATUS:
-        return this.findQuotationReqByStatus
+        return this.findQuotationReqByStatus;
       case FindQuotationReqStrategy.CUSTOMERID:
-        return this.findQuotationReqByCustomerId
+        return this.findQuotationReqByCustomerId;
     }
   }
 
-  async createQuotationReq(quotationReqInfo: CreateQuotationReqDto): Promise<QuotationReq> {
+  async createQuotationReq(
+    quotationReqInfo: CreateQuotationReqDto,
+  ): Promise<QuotationReq> {
     try {
-      return await this.createQuotationReqStrategy.create(quotationReqInfo)
+      return await this.createQuotationReqStrategy.create(quotationReqInfo);
     } catch (error) {
       //throw new BadRequestException('Error when create quotation request:' + error.message)
       if (error instanceof ForeignKeyConstraintError) {
         throw new HttpException('Invalid foreign key.', HttpStatus.BAD_REQUEST);
       }
-      throw new Error()
+      throw new Error();
     }
   }
 
-  async updateQuotationReq(id: string, quotationReqInfo: Partial<CreateQuotationReqDto>): Promise<{
-    message: string,
-    data: QuotationReq
+  async updateQuotationReq(
+    id: string,
+    quotationReqInfo: Partial<CreateQuotationReqDto>,
+  ): Promise<{
+    message: string;
+    data: QuotationReq;
   }> {
-    const updatedResponse = await this.updateQuotationReqStrategy.update(id, quotationReqInfo)
+    const updatedResponse = await this.updateQuotationReqStrategy.update(
+      id,
+      quotationReqInfo,
+    );
 
     try {
-      return { message: 'Quote Request updated successfully', data: updatedResponse }
+      return {
+        message: 'Quote Request updated successfully',
+        data: updatedResponse,
+      };
     } catch (error) {
       if (error instanceof NotFoundException) {
-        throw new HttpException('Quotation does not exist in database', HttpStatus.NOT_FOUND)
+        throw new HttpException(
+          'Quotation does not exist in database',
+          HttpStatus.NOT_FOUND,
+        );
       }
       if (error instanceof ForeignKeyConstraintError) {
-        throw new HttpException('Invalid foreign key', HttpStatus.BAD_REQUEST)
+        throw new HttpException('Invalid foreign key', HttpStatus.BAD_REQUEST);
       }
-      throw new Error()
+      throw new Error();
     }
   }
 }

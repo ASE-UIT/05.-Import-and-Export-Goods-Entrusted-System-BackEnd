@@ -93,31 +93,32 @@ export class QuotationsController {
   @ApiQuery({ name: 'employeeId', required: false, type: String })
   @ApiQuery({ name: 'quotationDate', required: false, type: String })
   @ApiQuery({ name: 'status', required: false, enum: QuotationStatus })
-  @ApiQuery({
-    name: 'page',
-    type: Number,
-    required: false,
-    description: 'Current page',
-  })
-  @ApiQuery({
-    name: 'limit',
-    type: Number,
-    required: false,
-    description: 'Total records per page',
-  })
+  // @ApiQuery({
+  //   name: 'page',
+  //   type: Number,
+  //   required: false,
+  //   description: 'Current page',
+  // })
+  // @ApiQuery({
+  //   name: 'limit',
+  //   type: Number,
+  //   required: false,
+  //   description: 'Total records per page',
+  // })
   @UseGuards(RoleGuard)
   @Get()
   async findQuotation(
     @Query(new ZodValidationPipe(QueryQuotationSchema))
     query: QueryQuotationDto,
-    @Query(new ZodValidationPipe(PaginationSchema.partial()))
-    pagination: Partial<PaginationDto>,
+    // @Query(new ZodValidationPipe(PaginationSchema.partial()))
+    // pagination: Partial<PaginationDto>,
   ) {
     const result = await this.quotationsService.findQuotations(
       query,
-      pagination,
+      //pagination,
     );
-    return new SuccessResponse('Success', result);
+    return result;
+    //return new SuccessResponse('Success', result);
   }
 
   //find quotation by id
