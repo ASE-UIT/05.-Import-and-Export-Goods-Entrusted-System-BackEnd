@@ -24,14 +24,26 @@ import {
 import { QuotationsService } from './quotations.service';
 import { Quotation } from './models/quotations.model';
 import { FindQuotationStrategy } from './strategies/find-quotation/find-quotation-strategy.enum';
-import { ApiBody, ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBody,
+  ApiOperation,
+  ApiQuery,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { RoleGuard } from '@/shared/guards/role.guard';
 import { Roles } from '@/shared/decorators/role.decorator';
 import { RoleEnum } from '@/shared/enums/roles.enum';
 import { QuotationStatus } from '@/shared/enums/quotation-status.enum';
 import { ValidationError } from '@/shared/classes/validation-error.class';
 import { createResponseType } from '@/shared/helpers/create-response.mixin';
-import { UpdateQuotationDto, UpdateQuotationSchema } from './dtos/UpdateQuotationDto';
+import {
+  UpdateQuotationDto,
+  UpdateQuotationSchema,
+} from './dtos/UpdateQuotationDto';
+import { PaginationDto, PaginationSchema } from '@/shared/dto/pagination.dto';
+import { SuccessResponse } from '@/shared/classes/success-response.class';
+import { use } from 'passport';
 
 @ApiTags('quotations')
 @Controller({
@@ -39,27 +51,29 @@ import { UpdateQuotationDto, UpdateQuotationSchema } from './dtos/UpdateQuotatio
   version: '1',
 })
 export class QuotationsController {
-  constructor(private quotationsService: QuotationsService) { }
+  constructor(private quotationsService: QuotationsService) {}
 
   //query quotation
   @ApiOperation({ summary: 'Retrieve quotation based on query parameters' })
   @ApiResponse({
     status: 200,
     description: 'Successfully retrieved quotation',
-    example: [{
-      id: "9f79b1dc-f14e-440e-9ede-31592079c80a",
-      totalPrice: 4.5,
-      pickupDate: "2023-04-20T12:00:00.000Z",
-      deliveryDate: "2023-04-26T12:00:00.000Z",
-      quotationDate: "2023-04-19T12:00:00.000Z",
-      expiredDate: "2023-05-06T12:00:00.000Z",
-      status: "DRAFT",
-      quoteReqId: "f1a5d699-5168-439c-8d24-1b01bd3022de",
-      freightId: "0893855a-adb7-45a1-9ad7-65dce8cc0e6a",
-      employeeId: "c67d645e-68b3-4a41-81ff-eeea41e8b663",
-      createdAt: "2024-10-31T13:38:05.867Z",
-      updatedAt: "2024-10-31T13:38:05.867Z"
-    }]
+    example: [
+      {
+        id: '9f79b1dc-f14e-440e-9ede-31592079c80a',
+        totalPrice: 4.5,
+        pickupDate: '2023-04-20T12:00:00.000Z',
+        deliveryDate: '2023-04-26T12:00:00.000Z',
+        quotationDate: '2023-04-19T12:00:00.000Z',
+        expiredDate: '2023-05-06T12:00:00.000Z',
+        status: 'DRAFT',
+        quoteReqId: 'f1a5d699-5168-439c-8d24-1b01bd3022de',
+        freightId: '0893855a-adb7-45a1-9ad7-65dce8cc0e6a',
+        employeeId: 'c67d645e-68b3-4a41-81ff-eeea41e8b663',
+        createdAt: '2024-10-31T13:38:05.867Z',
+        updatedAt: '2024-10-31T13:38:05.867Z',
+      },
+    ],
   })
   @ApiResponse({
     status: 401,
@@ -73,46 +87,77 @@ export class QuotationsController {
     status: 404,
     description: 'No quotation found',
     type: NotFoundException,
-    example: new NotFoundException('No quotation found').getResponse()
+    example: new NotFoundException('No quotation found').getResponse(),
   })
   @ApiQuery({ name: 'customerId', required: false, type: String })
   @ApiQuery({ name: 'employeeId', required: false, type: String })
   @ApiQuery({ name: 'quotationDate', required: false, type: String })
   @ApiQuery({ name: 'status', required: false, enum: QuotationStatus })
+  @ApiQuery({
+    name: 'page',
+    type: Number,
+    required: false,
+    description: 'Current page',
+  })
+  @ApiQuery({
+    name: 'limit',
+    type: Number,
+    required: false,
+    description: 'Total records per page',
+  })
   @UseGuards(RoleGuard)
   @Get()
   async findQuotation(
     @Query(new ZodValidationPipe(QueryQuotationSchema))
     query: QueryQuotationDto,
-  ): Promise<Quotation[]> {
-    if (Object.keys(query).length === 0) {
-      return await this.quotationsService.find(FindQuotationStrategy.ALL, '');
-    }
-    const queryFields: { [key: string]: FindQuotationStrategy } = {
-      deliveryDate: FindQuotationStrategy.DELIVERY_DATE,
-      expiredDate: FindQuotationStrategy.EXPIRED_DATE,
-      pickupDate: FindQuotationStrategy.PICKUP_DATE,
-      quotationDate: FindQuotationStrategy.QUOTATION_DATE,
-      status: FindQuotationStrategy.STATUS,
-      totalPrice: FindQuotationStrategy.TOTAL_PRICE,
-      employeeId: FindQuotationStrategy.EMPLOYEE_ID,
-      customerId: FindQuotationStrategy.CUSTOMER_ID,
-    };
+    @Query(new ZodValidationPipe(PaginationSchema.partial()))
+    pagination: Partial<PaginationDto>,
+  ) {
+    const result = await this.quotationsService.findQuotations(
+      query,
+      pagination,
+    );
+    return new SuccessResponse('Success', result);
+  }
 
-    for (const [key, strategy] of Object.entries(queryFields)) {
-      const value = query[key as keyof QueryQuotationDto];
-      if (value) {
-        const quotation = await this.quotationsService.find(strategy, value);
-
-        if (quotation.length > 0) {
-          if (strategy === FindQuotationStrategy.ALL || quotation.length > 1)
-            return quotation;
-          else return [quotation[0]];
-        }
-        return quotation
-      }
-    }
-    //throw new NotFoundException('Quotation not found');
+  //find quotation by id
+  @ApiOperation({ summary: 'Retrieve quotation by id' })
+  @ApiResponse({
+    status: 200,
+    description: 'Successfully retrieved quotation',
+    example: {
+      id: '9f79b1dc-f14e-440e-9ede-31592079c80a',
+      totalPrice: 4.5,
+      pickupDate: '2023-04-20T12:00:00.000Z',
+      deliveryDate: '2023-04-26T12:00:00.000Z',
+      quotationDate: '2023-04-19T12:00:00.000Z',
+      expiredDate: '2023-05-06T12:00:00.000Z',
+      status: 'DRAFT',
+      quoteReqId: 'f1a5d699-5168-439c-8d24-1b01bd3022de',
+      freightId: '0893855a-adb7-45a1-9ad7-65dce8cc0e6a',
+      employeeId: 'c67d645e-68b3-4a41-81ff-eeea41e8b663',
+      createdAt: '2024-10-31T13:38:05.867Z',
+      updatedAt: '2024-10-31T13:38:05.867Z',
+    },
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Only authenticated users can access this resource',
+    type: UnauthorizedException,
+    example: new UnauthorizedException(
+      'Only authenticated users can access this resource',
+    ).getResponse(),
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Quotation not found',
+    type: NotFoundException,
+    example: new NotFoundException('Quotation not found').getResponse(),
+  })
+  @UseGuards(RoleGuard)
+  @Get(':id')
+  async findQuotationById(@Param('id') id: string): Promise<Quotation> {
+    return await this.quotationsService.findQuotationById(id);
   }
 
   //create quotation
@@ -121,15 +166,16 @@ export class QuotationsController {
     status: 201,
     description: 'Quote request successfully created',
     type: createResponseType('Quote request successfully created', Quotation),
-    example: createResponseType('Quote request successfully created', Quotation)
+    example: createResponseType(
+      'Quote request successfully created',
+      Quotation,
+    ),
   })
   @ApiResponse({
     status: 400,
     description: 'Invalid foreign key.',
     type: BadRequestException,
-    example: new BadRequestException(
-      'Invalid foreign key'
-    ).getResponse()
+    example: new BadRequestException('Invalid foreign key').getResponse(),
   })
   @ApiResponse({
     status: 401,
@@ -151,22 +197,18 @@ export class QuotationsController {
     type: CreateQuotationDto,
     schema: {
       example: {
-        quoteReqId: "1c26b2ca-a13c-40a7-9903-fa092e2ecb5c",
-        pickupDate: "2023-04-20T12:00:00.000Z",
-        deliveryDate: "2023-04-26T12:00:00.000Z",
-        quotationDate: "2023-04-19T12:00:00.000Z",
-        expiredDate: "2023-05-06T12:00:00.000Z",
-        freightId: "badf2914-b569-4b65-9bdb-a62ad8913d91",
-        employeeId: "a4233408-bd61-44e2-a953-257c48cfae57"
+        quoteReqId: '1c26b2ca-a13c-40a7-9903-fa092e2ecb5c',
+        pickupDate: '2023-04-20T12:00:00.000Z',
+        deliveryDate: '2023-04-26T12:00:00.000Z',
+        quotationDate: '2023-04-19T12:00:00.000Z',
+        expiredDate: '2023-05-06T12:00:00.000Z',
+        freightId: 'badf2914-b569-4b65-9bdb-a62ad8913d91',
+        employeeId: 'a4233408-bd61-44e2-a953-257c48cfae57',
       },
     },
   })
   @UseGuards(RoleGuard)
-  @Roles([
-    RoleEnum.ADMIN,
-    RoleEnum.SALES,
-    RoleEnum.MANAGER,
-  ])
+  @Roles([RoleEnum.ADMIN, RoleEnum.SALES, RoleEnum.MANAGER])
   @Post()
   async createQuotation(
     @Body(new ZodValidationPipe(CreateQuotationSchema))
@@ -176,19 +218,17 @@ export class QuotationsController {
     return { message: 'Quotation successfully created', data: quotation };
   }
 
-
-  //update quotation  
+  //update quotation
   @ApiOperation({ summary: 'Update Quotation' })
   @ApiResponse({
     status: 200,
     description: 'Quotation successfully updated',
-    type: createResponseType('Quotation successfully updated', Quotation)
-
+    type: createResponseType('Quotation successfully updated', Quotation),
   })
   @ApiResponse({
     status: 400,
     description: 'Invalid foreign key.',
-    type: ValidationError
+    type: ValidationError,
   })
   @ApiResponse({
     status: 401,
@@ -208,9 +248,11 @@ export class QuotationsController {
   })
   @ApiResponse({
     status: 404,
-    description: "Quotation id does not exists in database",
+    description: 'Quotation id does not exists in database',
     type: NotFoundException,
-    example: new NotFoundException('Quotation id does not exists in database').getResponse()
+    example: new NotFoundException(
+      'Quotation id does not exists in database',
+    ).getResponse(),
   })
   @ApiBody({
     type: UpdateQuotationDto,
@@ -223,11 +265,7 @@ export class QuotationsController {
     },
   })
   @UseGuards(RoleGuard)
-  @Roles([
-    RoleEnum.ADMIN,
-    RoleEnum.SALES,
-    RoleEnum.MANAGER,
-  ])
+  @Roles([RoleEnum.ADMIN, RoleEnum.SALES, RoleEnum.MANAGER])
   @Patch(':id')
   async updateQuotation(
     @Param('id') id: string,
