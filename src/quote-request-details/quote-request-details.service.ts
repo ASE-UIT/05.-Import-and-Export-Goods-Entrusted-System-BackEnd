@@ -31,7 +31,7 @@ import { InjectModel } from '@nestjs/sequelize';
 export class QuoteReqDetailsService {
   constructor(
     @InjectModel(QuoteReqDetail)
-    private quote: typeof QuoteReqDetail,
+    private quoteReqDetail: typeof QuoteReqDetail,
     private createQuoteReqDetailStrategy: CreateQuoteReqDetailStrategy,
     private updateQuoteReqDetailStrategy: UpdateQuoteReqDetailStrategy,
     private findAllQuoteReqDetailStrategy: FindAllQuoteReqDetailStrategy,
@@ -47,7 +47,7 @@ export class QuoteReqDetailsService {
     //strategy: FindQuoteReqDetailStrategy,
     quoteReqDetailInfo: QueryQuoteReqDetailDto,
   ): Promise<QuoteReqDetail[]> {
-    const rows: QuoteReqDetail[] = await this.quote.findAll({
+    const rows: QuoteReqDetail[] = await this.quoteReqDetail.findAll({
       where: quoteReqDetailInfo,
       // offset,
       // limit,
@@ -57,7 +57,7 @@ export class QuoteReqDetailsService {
   }
 
   async findQuoteReqDetailById(id: string): Promise<QuoteReqDetail> {
-    const quoteReqDetail = await this.quote.findByPk(id);
+    const quoteReqDetail = await this.quoteReqDetail.findByPk(id);
     if (!quoteReqDetail) {
       throw new NotFoundException("Quote request detail id doesn't exist");
     }

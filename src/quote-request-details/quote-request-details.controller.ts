@@ -98,7 +98,8 @@ export class QuoteReqDetailsController {
     @Query(new ZodValidationPipe(QueryQuoteReqDetailSchema))
     query: QueryQuoteReqDetailDto,
   ) {
-    return this.quoteReqDetailsSerivce.findQuoteReqDetail(query);
+    const result = await this.quoteReqDetailsSerivce.findQuoteReqDetail(query);
+    return result;
   }
 
   @ApiOperation({
