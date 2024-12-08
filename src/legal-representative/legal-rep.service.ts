@@ -11,6 +11,8 @@ import { PaginationDto } from '@/shared/dto/pagination.dto';
 import { PaginatedResponse } from '@/shared/dto/paginated-response.dto';
 import { PaginationResponse } from '@/shared/dto/paginantion-response.dto';
 import { InjectModel } from '@nestjs/sequelize';
+import { Order } from 'sequelize';
+import { SortDto } from '@/shared/dto/sort.dto';
 
 @Injectable()
 export class LegalRepsService {
@@ -41,20 +43,29 @@ export class LegalRepsService {
   async findLegalReps(
     query: QueryLegalRepsDto,
     pagination: Partial<PaginationDto>,
+    sort: Partial<SortDto>,
   ): Promise<PaginatedResponse<LegalRep>> {
     const { page, limit } = pagination;
+    const { sortOrder, sortBy } = sort;
     const offset = (page - 1) * limit;
 
+    const attValid = Object.keys(this.legalRepModel.getAttributes()).includes(
+      sortBy,
+    );
+    const sortOptions: Order =
+      sort && sortBy && attValid ? [[sortBy, sortOrder]] : [];
     let legalRep: { count: number; rows: LegalRep[] };
     if (page && limit) {
       legalRep = await this.legalRepModel.findAndCountAll({
         where: query,
         offset: offset,
         limit: limit,
+        order: sortOptions,
       });
     } else {
       legalRep = await this.legalRepModel.findAndCountAll({
         where: query,
+        order: sortOptions,
       });
     }
 

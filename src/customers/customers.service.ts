@@ -12,7 +12,8 @@ import { PaginationDto } from '@/shared/dto/pagination.dto';
 import { PaginatedResponse } from '../shared/dto/paginated-response.dto';
 import { PaginationResponse } from '@/shared/dto/paginantion-response.dto';
 import { InjectModel } from '@nestjs/sequelize';
-import { where } from 'sequelize';
+import { Order, where } from 'sequelize';
+import { SortDto } from '@/shared/dto/sort.dto';
 
 @Injectable()
 export class CustomersService {
@@ -26,8 +27,10 @@ export class CustomersService {
   async findCustomer(
     customerInfo: QueryCustomerDto,
     pagination: Partial<PaginationDto>,
+    sort: Partial<SortDto>,
   ): Promise<PaginatedResponse<Customer>> {
     const { page, limit } = pagination;
+    const { sortOrder, sortBy } = sort;
     const offset = (page - 1) * limit;
 
     const count = await this.customerModel.count({
@@ -37,6 +40,11 @@ export class CustomersService {
     });
 
     let rows: Customer[];
+    const attValid = Object.keys(this.customerModel.getAttributes()).includes(
+      sortBy,
+    );
+    const sortOptions: Order =
+      sort && sortBy && attValid ? [[sortBy, sortOrder]] : [];
     if (page && limit) {
       rows = await this.customerModel.findAll({
         where: customerInfo,
@@ -45,6 +53,7 @@ export class CustomersService {
         offset: offset,
         limit: limit,
         subQuery: true,
+        order: sortOptions,
       });
     } else {
       rows = await this.customerModel.findAll({
@@ -52,6 +61,7 @@ export class CustomersService {
         attributes: { exclude: ['legalRepId'] },
         include: LegalRep,
         subQuery: true,
+        order: sortOptions,
       });
     }
 
@@ -71,7 +81,11 @@ export class CustomersService {
   }
 
   async findCustomerById(id: string): Promise<Customer> {
-    const customer = await this.customerModel.findOne({ where: { id: id } });
+    const customer = await this.customerModel.findOne({
+      where: { id: id },
+      include: LegalRep,
+      attributes: { exclude: ['legalRepId'] },
+    });
     if (!customer) throw new NotFoundException('Customer not found');
     return customer;
   }
