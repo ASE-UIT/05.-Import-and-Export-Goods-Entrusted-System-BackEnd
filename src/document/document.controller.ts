@@ -166,7 +166,7 @@ export class DocumentController {
   })
   @ApiResponse({
     status: 200,
-    description: 'Document found',
+    description: 'Success',
     type: Document,
   })
   @ApiResponse({
@@ -205,6 +205,6 @@ export class DocumentController {
     query: Partial<QueryDocumentDto>,
   ) {
     const result = await this.documentService.findDocument(query);
-    return new SuccessResponse('Document found', result);
+    return new SuccessResponse('Success', result);
   }
 }

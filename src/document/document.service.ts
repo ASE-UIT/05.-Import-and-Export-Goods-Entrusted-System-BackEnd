@@ -72,7 +72,6 @@ export class DocumentService {
     if (query) document = await Document.findAll({ where: query });
     else document = await Document.findAll();
 
-    if (document.length > 0) return document;
-    else throw new NotFoundException('Document not found');
+    return document;
   }
 }

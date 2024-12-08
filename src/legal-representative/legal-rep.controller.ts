@@ -39,6 +39,8 @@ import { LegalRep } from './models/legal-rep.model';
 import { ValidationError } from '@/shared/classes/validation-error.class';
 import { ZodValidationPipe } from 'nestjs-zod';
 import { PaginationDto, PaginationSchema } from '@/shared/dto/pagination.dto';
+import { Sort } from '@/shared/enums/sort.enum';
+import { SortDto, SortSchema } from '@/shared/dto/sort.dto';
 
 @ApiTags('Legal representatives')
 @Controller({
@@ -165,6 +167,18 @@ export class LegalRepsController {
     description: 'Total records per page',
   })
   @ApiQuery({
+    name: 'sortOrder',
+    enum: Sort,
+    required: false,
+    description: 'Sort order',
+  })
+  @ApiQuery({
+    name: 'sortBy',
+    type: String,
+    required: false,
+    description: 'Attribute to sort',
+  })
+  @ApiQuery({
     name: 'name',
     type: String,
     required: false,
@@ -225,8 +239,14 @@ export class LegalRepsController {
     query: QueryLegalRepsDto,
     @Query(new ZodValidationPipe(PaginationSchema.partial()))
     pagination: Partial<PaginationDto>,
+    @Query(new ZodValidationPipe(SortSchema.partial()))
+    sort: Partial<SortDto>,
   ) {
-    const result = await this.legalRepsService.findLegalReps(query, pagination);
+    const result = await this.legalRepsService.findLegalReps(
+      query,
+      pagination,
+      sort,
+    );
     return new SuccessResponse('Success', result);
   }
 
