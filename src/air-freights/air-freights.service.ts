@@ -6,25 +6,69 @@ import { UpdateAirFreightStrategy } from './strategies/update-air-freights/updat
 import { FindAirFreightStrategy } from './strategies/find-air-freights/find-air-freights-strategy.enum';
 import { IFindAirFreightStrategy } from './strategies/find-air-freights/find-air-freights-strategy.interface';
 import { QueryAirFreightDto } from './dtos/query-air-freight.dto';
+import { InjectModel } from '@nestjs/sequelize';
+import { PaginationResponse } from '@/shared/dto/paginantion-response.dto';
+import { PaginatedResponse } from '@/shared/dto/paginated-response.dto';
+import { PaginationDto } from '@/shared/dto/pagination.dto';
+import { Freight } from '@/freights/models/freights.model';
 
 @Injectable()
 export class AirFreightService {
   constructor(
+    @InjectModel(AirFreight)
+    private airFreightModel: typeof AirFreight,
     private createAirFreightStrategy: CreateAirFreightStrategy,
     private updateAirFreightStrategy: UpdateAirFreightStrategy,
   ) {}
 
-  async find(airFreightInfo: QueryAirFreightDto,
-  ): Promise<AirFreight[]> {
-    let airFreight: AirFreight[];
-    if (airFreightInfo) {
-      airFreight = await AirFreight.findAll({ where: airFreightInfo });
-    } else {
-      airFreight = await AirFreight.findAll();
+  async find(
+    airFreightInfo: QueryAirFreightDto,
+    pagination: Partial<PaginationDto>,
+  ): Promise<PaginatedResponse<AirFreight>> {
+    const { page, limit } = pagination;
+    const offset = (page - 1) * limit;
+
+    const count = await this.airFreightModel.count({
+      where: airFreightInfo,
+      include: Freight,
+      distinct: true,
+    });
+
+    if (count === 0) {
+      throw new NotFoundException('Air freight not found');
     }
 
-    if (airFreight.length > 0) return airFreight;
-    else throw new NotFoundException('AirFreight not found');
+    let rows: AirFreight[];
+    if (page && limit) {
+      rows = await this.airFreightModel.findAll({
+        where: airFreightInfo,
+        include: Freight,
+        offset: offset,
+        limit: limit,
+        subQuery: true, 
+      });
+    } else {
+      rows = await this.airFreightModel.findAll({
+        where: airFreightInfo,
+        include: Freight,
+        subQuery: true,
+      });
+    }
+
+    const paginationInfo: PaginationResponse = {
+      currentPage: page && limit ? page : null,
+      records: count,
+      totalPages: page && limit ? Math.ceil(count / limit) : null,
+      nextPage: page * limit < count ? page + 1 : null,
+      prevPage: (page - 1) * limit > 0 ? page - 1 : null,
+    };
+
+    const response: PaginatedResponse<AirFreight> = {
+      pagination: paginationInfo,
+      results: rows,
+    };
+
+    return response;
   }
 
   async create(airFreightInfo: CreateAirFreightDto): Promise<AirFreight> {

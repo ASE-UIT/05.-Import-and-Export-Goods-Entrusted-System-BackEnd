@@ -30,6 +30,9 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { QueryFclDto, QueryFclSchema } from './dtos/query-fcls.dto';
+import { PaginationSchema, PaginationDto } from '@/shared/dto/pagination.dto';
+import { query } from 'express';
+import { string } from 'zod';
 
 @ApiTags('FCL')
 @Controller({
@@ -40,6 +43,18 @@ export class FCLController {
   constructor(private fclService: FCLService) {}
 
   @ApiOperation({ summary: 'Search for FCL' })
+  @ApiQuery({
+    name: 'page',
+    type: Number,
+    required: false,
+    description: 'Current page',
+  })
+  @ApiQuery({
+    name: 'limit',
+    type: Number,
+    required: false,
+    description: 'Total records per page',
+  })
   @ApiQuery({
     name: 'price_20dc',
     type: Number,
@@ -118,8 +133,9 @@ export class FCLController {
     RoleEnum.MANAGER])
   @Get()
   async findFcl(
-    @Query(new ZodValidationPipe(QueryFclSchema.strict())) query: QueryFclDto) {
-    const result = await this.fclService.find(query);
+    @Query(new ZodValidationPipe(QueryFclSchema)) query: QueryFclDto,
+    @Query(new ZodValidationPipe(PaginationSchema.partial())) pagination: Partial<PaginationDto>) {
+    const result = await this.fclService.find(query, pagination);
     return new SuccessResponse('FCL found', result);
   }
 

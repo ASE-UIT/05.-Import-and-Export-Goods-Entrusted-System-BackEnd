@@ -30,6 +30,7 @@ import { createResponseType } from '@/shared/helpers/create-response.mixin';
 import { ValidationError } from '@/shared/classes/validation-error.class';
 import { ZodValidationPipe } from 'nestjs-zod';
 import { QueryAirFreightDto, QueryAirFreightSchema } from './dtos/query-air-freight.dto';
+import { PaginationSchema, PaginationDto } from '@/shared/dto/pagination.dto';
 @ApiTags('Air freights')
 
 @Controller({
@@ -40,6 +41,18 @@ export class AirFreightController {
   constructor(private airFreightService: AirFreightService) { }
 
   @ApiOperation({ summary: 'Search for air freights' })
+  @ApiQuery({
+    name: 'page',
+    type: Number,
+    required: false,
+    description: 'Current page',
+  })
+  @ApiQuery({
+    name: 'limit',
+    type: Number,
+    required: false,
+    description: 'Total records per page',
+  })
   @ApiQuery({
     name: 'price_0K',
     type: Number,
@@ -118,9 +131,10 @@ export class AirFreightController {
   ])
   @Get()
   async findAirFreight(
-    @Query(new ZodValidationPipe(QueryAirFreightSchema.strict())) query: QueryAirFreightDto,
+    @Query(new ZodValidationPipe(QueryAirFreightSchema)) query: QueryAirFreightDto,
+    @Query(new ZodValidationPipe(PaginationSchema.partial())) pagination: Partial<PaginationDto>
   ) { 
-    const result = await this.airFreightService.find(query);
+    const result = await this.airFreightService.find(query, pagination);
     return new SuccessResponse('Air freight found', result);
   }
 
