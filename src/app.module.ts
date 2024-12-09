@@ -45,7 +45,7 @@ import { LCLModule } from './lcls/lcls.module';
         password: configService.getOrThrow<string>('POSTGRES_PASSWORD'),
         database: configService.getOrThrow<string>('POSTGRES_DB'),
         autoLoadModels: true,
-        sync: { },
+        sync: { force: true },
         logging: false,
       }),
     }),
