@@ -36,6 +36,7 @@ import { SuccessResponse } from '@/shared/classes/success-response.class';
 import { createResponseType } from '@/shared/helpers/create-response.mixin';
 import { ValidationError } from '@/shared/classes/validation-error.class';
 import { ZodValidationPipe } from 'nestjs-zod';
+import { PaginationDto, PaginationSchema } from '@/shared/dto/pagination.dto';
 
 @ApiTags('Providers')
 @Controller({
@@ -46,6 +47,18 @@ export class ProvidersController {
   constructor(private providerService: ProvidersService) {}
 
   @ApiOperation({ summary: 'Search for providers' })
+  @ApiQuery({
+    name: 'page',
+    type: Number,
+    required: false,
+    description: 'Current page',
+  })
+  @ApiQuery({
+    name: 'limit',
+    type: Number,
+    required: false,
+    description: 'Total records per page',
+  })
   @ApiQuery({
     name: 'name',
     type: String,
@@ -130,9 +143,10 @@ export class ProvidersController {
   ])
   @Get()
   async getProviders(
-    @Query(new ZodValidationPipe(QueryProviderSchema.strict())) query: QueryProviderDto,
+    @Query(new ZodValidationPipe(QueryProviderSchema)) query: QueryProviderDto,
+    @Query(new ZodValidationPipe(PaginationSchema.partial())) pagination: Partial<PaginationDto>
   ) {
-    const result = await this.providerService.findProvider(query);
+    const result = await this.providerService.findProvider(query, pagination);
     return new SuccessResponse('Provider found', result);
   }
 

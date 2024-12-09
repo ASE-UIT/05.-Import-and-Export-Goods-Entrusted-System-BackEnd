@@ -30,6 +30,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { QueryLclDto, QueryLclSchema } from './dtos/query-lcls.dto';
+import { PaginationSchema, PaginationDto } from '@/shared/dto/pagination.dto';
 
 @ApiTags('LCL')
 @Controller({
@@ -40,6 +41,18 @@ export class LCLController {
   constructor(private lclService: LCLService) {}
 
   @ApiOperation({ summary: 'Search for LCL' })
+  @ApiQuery({
+    name: 'page',
+    type: Number,
+    required: false,
+    description: 'Current page',
+  })
+  @ApiQuery({
+    name: 'limit',
+    type: Number,
+    required: false,
+    description: 'Total records per page',
+  })
   @ApiQuery({
     name: 'cost',
     type: Number,
@@ -94,9 +107,10 @@ export class LCLController {
     RoleEnum.MANAGER])
   @Get()
   async findLcl(
-    @Query(new ZodValidationPipe(QueryLclSchema.strict())) query: QueryLclDto,
+    @Query(new ZodValidationPipe(QueryLclSchema)) query: QueryLclDto,
+    @Query(new ZodValidationPipe(PaginationSchema.partial())) pagination: Partial<PaginationDto>
   ) {
-    const result = await this.lclService.find(query);
+    const result = await this.lclService.find(query, pagination);
     return new SuccessResponse('LCL found', result);
   }
 

@@ -31,6 +31,7 @@ import { createResponseType } from '@/shared/helpers/create-response.mixin';
 import { ValidationError } from '@/shared/classes/validation-error.class';
 import { ZodValidationPipe } from 'nestjs-zod';
 import { QueryLandFreightDto, QueryLandFreightSchema } from './dtos/query-land-freights.dto';
+import { PaginationSchema, PaginationDto } from '@/shared/dto/pagination.dto';
 @ApiTags('Land freight')
 @Controller({
   path: 'land-freights',
@@ -40,6 +41,18 @@ export class LandFreightController {
   constructor(private landFreightService: LandFreightService) { }
 
   @ApiOperation({ summary: 'Search for land freight' })
+  @ApiQuery({
+    name: 'page',
+    type: Number,
+    required: false,
+    description: 'Current page',
+  })
+  @ApiQuery({
+    name: 'limit',
+    type: Number,
+    required: false,
+    description: 'Total records per page',
+  })
   @ApiQuery({
     name: 'price_0_100',
     type: Number,
@@ -131,9 +144,10 @@ export class LandFreightController {
 
   @Get()
   async findLandFreight(
-    @Query(new ZodValidationPipe(QueryLandFreightSchema.strict())) query: QueryLandFreightDto,
+    @Query(new ZodValidationPipe(QueryLandFreightSchema)) query: QueryLandFreightDto,
+    @Query(new ZodValidationPipe(PaginationSchema.partial())) pagination: Partial<PaginationDto>
   ) { 
-    const result = await this.landFreightService.find(query);
+    const result = await this.landFreightService.find(query, pagination);
     return new SuccessResponse('Land freight found', result);
   }
 

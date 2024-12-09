@@ -35,6 +35,7 @@ import { SuccessResponse } from '@/shared/classes/success-response.class';
 import { createResponseType } from '@/shared/helpers/create-response.mixin';
 import { ValidationError } from '@/shared/classes/validation-error.class';
 import { ZodValidationPipe } from 'nestjs-zod';
+import { PaginationSchema, PaginationDto } from '@/shared/dto/pagination.dto';
 
 @ApiTags('Freights')
 @Controller({
@@ -45,6 +46,18 @@ export class FreightController {
   constructor(private freightService: FreightService) {}
 
   @ApiOperation({ summary: 'Search for freights' })
+  @ApiQuery({
+    name: 'page',
+    type: Number,
+    required: false,
+    description: 'Current page',
+  })
+  @ApiQuery({
+    name: 'limit',
+    type: Number,
+    required: false,
+    description: 'Total records per page',
+  })
   @ApiQuery({
     name: 'freightType',
     enum: FreightType,
@@ -152,9 +165,10 @@ export class FreightController {
   ])
   @Get()
   async findFreight(
-    @Query(new ZodValidationPipe(QueryFreightSchema.strict())) query: QueryFreightDto,
+    @Query(new ZodValidationPipe(QueryFreightSchema)) query: QueryFreightDto,
+    @Query(new ZodValidationPipe(PaginationSchema.partial())) pagination: Partial<PaginationDto>
   ) {
-    const result = await this.freightService.find(query);
+    const result = await this.freightService.find(query, pagination);
     return new SuccessResponse('Freight found', result);
   }
 
