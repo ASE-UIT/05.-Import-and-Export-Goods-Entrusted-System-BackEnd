@@ -1,6 +1,7 @@
 import { Contract } from '@/contracts/models/contract.model';
 import { Quotation } from '@/quotations/models/quotations.model';
 import { User } from '@/users/models/user.model';
+import { All } from '@nestjs/common';
 import { ApiProperty } from '@nestjs/swagger';
 import sequelize from 'sequelize';
 import {
@@ -81,7 +82,8 @@ export class Employee extends Model {
   baseSalary: number;
 
   @HasOne(() => User)
-  user: User;
+  @AllowNull(true)
+  user?: User;
 
   //one employee can make many contracts
   @HasMany(() => Contract)

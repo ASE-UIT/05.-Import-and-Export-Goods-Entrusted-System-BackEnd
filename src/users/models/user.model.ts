@@ -51,11 +51,12 @@ export class User extends Model {
   role: Role;
 
   @ForeignKey(() => Employee)
-  @AllowNull(false)
+  @AllowNull(true)
   @Column
-  employeeId: string;
+  employeeId?: string;
 
   @ApiProperty()
   @BelongsTo(() => Employee)
-  employee: Employee;
+  @AllowNull(true)
+  employee?: Employee;
 }
