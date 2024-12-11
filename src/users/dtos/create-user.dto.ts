@@ -64,9 +64,45 @@ export const CreateUserSchema = z
         invalid_type_error: 'Employee ID must be a string',
       })
       .uuid('Invalid employee ID format')
-      .describe('The employee ID associated with the user'),
+      .optional()
+      .describe(
+        'The employee ID associated with the user. Can only provide either this or customerId but not both',
+      ),
+
+    customerId: z
+      .string({
+        required_error: 'Customer ID is required',
+        invalid_type_error: 'Customer ID must be a string',
+      })
+      .uuid('Invalid customer ID format')
+      .optional()
+      .describe(
+        'The customer ID associated with the user. Can only provide either this or employeeId but not both',
+      ),
   })
-  .superRefine(({ password }, ctx) => {
+  .superRefine(({ password, customerId, employeeId, role }, ctx) => {
+    const hasEmployeeId = employeeId !== undefined;
+    const hasCustomerId = customerId !== undefined;
+
+    if (
+      !(hasEmployeeId && !hasCustomerId) &&
+      !(!hasEmployeeId && hasCustomerId)
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message:
+          'Must provide either an employee ID or a customer ID, but not both',
+        path: ['employeeId', 'customerId'],
+      });
+    }
+
+    if (hasEmployeeId && role === RoleEnum.CLIENT)
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'An employee account cannot have CLIENT as a role',
+        path: ['role'],
+      });
+
     const counts = countCharacterTypes(password);
 
     const requirements = [

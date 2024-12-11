@@ -184,11 +184,11 @@ export class DocumentController {
   @ApiResponse({
     status: 403,
     description:
-      'Only user with role: [ADMIN | DOCUMENTATION] can perform this action',
+      'Only user with role: [ADMIN | DOCUMENTATION | CLIENT] can perform this action',
     type: ForbiddenException,
 
     example: new ForbiddenException(
-      'Only users with the following roles can access this resource: ADMIN, DOCUMENTATION',
+      'Only users with the following roles can access this resource: ADMIN, DOCUMENTATION, CLIENT',
     ).getResponse(),
   })
   @ApiResponse({
@@ -198,13 +198,56 @@ export class DocumentController {
     example: new NotFoundException('Document not found').getResponse(),
   })
   @UseGuards(RoleGuard)
-  @Roles([RoleEnum.ADMIN, RoleEnum.DOCUMENTATION])
+  @Roles([RoleEnum.ADMIN, RoleEnum.DOCUMENTATION, RoleEnum.CLIENT])
   @Get()
   async findDocument(
     @Query(new ZodValidationPipe(QueryDocumentSchema.partial().strict()))
     query: Partial<QueryDocumentDto>,
   ) {
     const result = await this.documentService.findDocument(query);
+    return new SuccessResponse('Success', result);
+  }
+
+  @ApiOperation({ summary: "Get a specific user's document" })
+  @ApiResponse({
+    status: 200,
+    description: 'Success',
+    type: Document,
+  })
+  @ApiResponse({
+    status: 401,
+    description: "Authentication is required to find customer's documents",
+    type: UnauthorizedException,
+    example: new UnauthorizedException(
+      'Only authenticated users can access this resource',
+    ).getResponse(),
+  })
+  @ApiResponse({
+    status: 403,
+    description:
+      'Only user with role: [ADMIN | DOCUMENTATION | CLIENT] can perform this action',
+    type: ForbiddenException,
+
+    example: new ForbiddenException(
+      'Only users with the following roles can access this resource: ADMIN, DOCUMENTATION, CLIENT',
+    ).getResponse(),
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'User with provided userId not found',
+    type: NotFoundException,
+    example: new NotFoundException(
+      'User with provided userId not found',
+    ).getResponse(),
+  })
+  @UseGuards(RoleGuard)
+  @Roles([RoleEnum.ADMIN, RoleEnum.DOCUMENTATION, RoleEnum.CLIENT])
+  @Get(':userId')
+  async findUserDocument(
+    @Param('userId')
+    userId: string,
+  ) {
+    const result = await this.documentService.findUserDocument(userId);
     return new SuccessResponse('Success', result);
   }
 }

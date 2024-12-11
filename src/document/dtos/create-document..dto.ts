@@ -1,3 +1,6 @@
+import { Role } from '@/roles/models/role.model';
+import { RoleEnum } from '@/shared/enums/roles.enum';
+import { User } from '@/users/models/user.model';
 import { createZodDto } from 'nestjs-zod';
 import { z } from 'zod';
 
@@ -6,6 +9,7 @@ export const CreateDocumentSchema = z.object({
   type: z.string().min(1),
   image: z.string().min(1),
   docNumber: z.number().min(1),
+  //userId: z.string().uuid(),
 });
 
 export class CreateDocumentDto extends createZodDto(CreateDocumentSchema) {}

@@ -13,17 +13,11 @@ import {
 } from '@nestjs/common';
 import { ShipmentTrackingService } from './shipment-tracking.service';
 import { ZodValidationPipe } from 'nestjs-zod';
-import {
-  CreateShipmentTrackingDto,
-  CreateShipmentTrackingSchema,
-  UpdateShipmentTrackingDto,
-} from './dtos/create-shipment-tracking.dto';
+import { UpdateShipmentTrackingDto } from './dtos/create-shipment-tracking.dto';
 import {
   QueryShipmentTrackingDto,
   QueryShipmentTrackingSchema,
 } from './dtos/query-shipment-tracking.dto';
-import { query } from 'express';
-import { FindShipmentTrackingStrategies } from './find-strategies/find-shipment-tracking-strategy.enum';
 import { RoleGuard } from '@/shared/guards/role.guard';
 import { Roles } from '@/shared/decorators/role.decorator';
 import { RoleEnum } from '@/shared/enums/roles.enum';
@@ -41,7 +35,6 @@ import {
   ShipmentTrackingStatus,
 } from './models/shipment-tracking.model';
 import { ValidationError } from '@/shared/classes/validation-error.class';
-import { ZodError, ZodIssueCode } from 'zod';
 import { PaginationDto, PaginationSchema } from '@/shared/dto/pagination.dto';
 
 @ApiTags('Shipment trackings')

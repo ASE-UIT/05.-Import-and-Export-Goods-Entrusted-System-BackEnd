@@ -2,6 +2,7 @@ import { Contract } from '@/contracts/models/contract.model';
 import { Document } from '@/document/models/document.model';
 import { ShipmentTracking } from '@/shipment-tracking/models/shipment-tracking.model';
 import { ApiProperty } from '@nestjs/swagger';
+import sequelize from 'sequelize';
 import { UUIDV4 } from 'sequelize';
 import {
   AllowNull,
