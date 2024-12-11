@@ -23,10 +23,15 @@ import { InvoiceStatus } from '@/shared/enums/invoice-status.enum';
 import { UpdateStatusInvoiceStrategy } from './strategies/update-invoice/update-status-invoice.strategy';
 import { UpdatePaidDateInvoiceStrategy } from './strategies/update-invoice/update-paid-date-invoice.strategy';
 import { UpdatePaidAmountInvoiceStrategy } from './strategies/update-invoice/update-paid-amount-invoice.strategy';
+import { PaginationDto } from '@/shared/dto/pagination.dto';
+import { PaginationResponse } from '@/shared/dto/paginantion-response.dto';
+import { PaginatedResponse } from '@/shared/dto/paginated-response.dto';
 
 @Injectable()
 export class InvoicesService {
   constructor(
+    @InjectModel(Invoice)
+    private invoiceModel: typeof Invoice,
     private createInvoiceStrategy: CreateInvoiceStrategy,
     private updateInvoiceStrategy: UpdateInvoiceStrategy,
     private updateStatusInvoiceStrategy: UpdateStatusInvoiceStrategy,
@@ -36,7 +41,9 @@ export class InvoicesService {
   ) {}
   //
   async updateInvoice(invoiceId: string, invoicePayment: Payment) {
-    const foundInvoices = await this.find({ id: invoiceId });
+    const foundInvoices = await this.findInvoiceStrategy.find({
+      id: invoiceId,
+    });
     const findInvoice = foundInvoices[0];
     const updateFindInvoice = await this.updateInvoicePaidDate(
       findInvoice,
@@ -165,9 +172,38 @@ export class InvoicesService {
     return createdInvoice;
   }
 
-  async find(invoiceInfo: QueryInvoiceDto): Promise<Invoice[]> {
-    const foundInvoices = await this.findInvoiceStrategy.find(invoiceInfo);
-    return foundInvoices;
+  async find(
+    invoiceInfo: QueryInvoiceDto,
+    pagination: Partial<PaginationDto>,
+  ): Promise<PaginatedResponse<Invoice>> {
+    const { page, limit } = pagination;
+    const offset = (page - 1) * limit;
+
+    let invoices: { count: number; rows: Invoice[] };
+    if (page && limit) {
+      invoices = await this.invoiceModel.findAndCountAll({
+        where: invoiceInfo || {},
+        offset: offset,
+        limit: limit,
+      });
+    } else {
+      invoices = await this.invoiceModel.findAndCountAll({
+        where: invoiceInfo || {},
+      });
+    }
+    const paginationInfo: PaginationResponse = {
+      currentPage: page && limit ? page : null,
+      records: invoices.count,
+      totalPages: page && limit ? Math.ceil(invoices.count / limit) : null,
+      nextPage: page * limit < invoices.count ? page + 1 : null,
+      prevPage: (page - 1) * limit > 0 ? page - 1 : null,
+    };
+
+    const response: PaginatedResponse<Invoice> = {
+      pagination: paginationInfo,
+      results: invoices.rows,
+    };
+    return response;
   }
 
   async update(
@@ -177,7 +213,9 @@ export class InvoicesService {
     if (Object.keys(updateInfo).length < 1) {
       throw new BadRequestException('Body is empty or invalid field names');
     }
-    const foundInvoices = await this.find({ id: invoiceID });
+    const foundInvoices = await this.findInvoiceStrategy.find({
+      id: invoiceID,
+    });
     const findInvoice = foundInvoices[0];
     const updateInvoice = await this.updateInvoiceStatusByUser(
       findInvoice,

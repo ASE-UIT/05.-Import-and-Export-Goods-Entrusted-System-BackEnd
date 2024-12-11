@@ -8,9 +8,6 @@ export const QueryPaymentSchema = z.object({
     .enum([
       PaymentStatus.COMPLETED,
       PaymentStatus.CANCELLED,
-      PaymentStatus.FAILED,
-      PaymentStatus.ONHOLD,
-      PaymentStatus.PAID,
       PaymentStatus.PENDING,
       PaymentStatus.REFUNDED,
     ])

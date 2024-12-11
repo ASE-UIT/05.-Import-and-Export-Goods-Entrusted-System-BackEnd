@@ -44,6 +44,7 @@ import {
   UpdatePaymentDto,
   UpdatePaymentSchema,
 } from './dtos/update-payment.dto';
+import { PaginationDto, PaginationSchema } from '@/shared/dto/pagination.dto';
 
 @ApiTags('Payments')
 @Controller({
@@ -110,6 +111,18 @@ export class PaymentsController {
 
   @ApiOperation({ summary: 'Search for payments ' })
   @ApiQuery({
+    name: 'page',
+    type: Number,
+    required: false,
+    description: 'Current page',
+  })
+  @ApiQuery({
+    name: 'limit',
+    type: Number,
+    required: false,
+    description: 'Total records per page',
+  })
+  @ApiQuery({
     name: 'id',
     type: String,
     required: false,
@@ -174,11 +187,12 @@ export class PaymentsController {
   @Roles([RoleEnum.ADMIN, RoleEnum.ACCOUNTANT])
   @Get()
   async findPayment(
-    @Query(new ZodValidationPipe(QueryPaymentSchema.strict()))
+    @Query(new ZodValidationPipe(QueryPaymentSchema.partial()))
     query: QueryPaymentDto,
+    @Query(new ZodValidationPipe(PaginationSchema.partial()))
+    pagination: Partial<PaginationDto>,
   ) {
-    const foundRes = await this.paymentsService.find(query);
-    if (foundRes === null) return new SuccessResponse('Payment found', []);
+    const foundRes = await this.paymentsService.find(query, pagination);
     return new SuccessResponse('Payment found', foundRes);
   }
 
