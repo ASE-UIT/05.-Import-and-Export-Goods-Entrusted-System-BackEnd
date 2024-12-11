@@ -1,8 +1,9 @@
 import { LegalRep } from '@/legal-representative/models/legal-rep.model';
 //import { QuotationReq } from '@/quotationReqs/models/quotationReq.model';
 import { QuotationReq } from '@/quotation-requests/models/quotationReq.model';
+import { User } from '@/users/models/user.model';
 import { ApiProperty } from '@nestjs/swagger';
-import sequelize, { HasOne } from 'sequelize';
+import sequelize from 'sequelize';
 import {
   AllowNull,
   BelongsTo,
@@ -14,6 +15,7 @@ import {
   PrimaryKey,
   Table,
   Unique,
+  HasOne,
 } from 'sequelize-typescript';
 
 @Table({
@@ -79,6 +81,10 @@ export class Customer extends Model {
 
   @HasMany(() => QuotationReq)
   quotationReqs: QuotationReq[];
+
+  @HasOne(() => User)
+  //@AllowNull(true)
+  user?: User;
 
   @ForeignKey(() => LegalRep)
   @AllowNull(true)

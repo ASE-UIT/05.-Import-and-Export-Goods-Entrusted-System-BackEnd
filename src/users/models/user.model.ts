@@ -1,3 +1,4 @@
+import { Customer } from '@/customers/models/customer.model';
 import { Employee } from '@/employees/models/employee.model';
 import { Role } from '@/roles/models/role.model';
 import { ApiOperation, ApiProperty } from '@nestjs/swagger';
@@ -57,6 +58,16 @@ export class User extends Model {
 
   @ApiProperty()
   @BelongsTo(() => Employee)
-  @AllowNull(true)
+  //@AllowNull(true)
   employee?: Employee;
+
+  @ForeignKey(() => Customer)
+  @AllowNull(true)
+  @Column
+  customerId?: string;
+
+  @ApiProperty()
+  @BelongsTo(() => Customer)
+  //@AllowNull(true)
+  customer?: Customer;
 }

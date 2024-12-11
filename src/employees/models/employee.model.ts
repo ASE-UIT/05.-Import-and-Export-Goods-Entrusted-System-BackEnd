@@ -82,7 +82,7 @@ export class Employee extends Model {
   baseSalary: number;
 
   @HasOne(() => User)
-  @AllowNull(true)
+  //@AllowNull(true)
   user?: User;
 
   //one employee can make many contracts
@@ -90,6 +90,5 @@ export class Employee extends Model {
   contracts: Contract[];
 
   @HasMany(() => Quotation)
-  quotations: Quotation[]
-
+  quotations: Quotation[];
 }
