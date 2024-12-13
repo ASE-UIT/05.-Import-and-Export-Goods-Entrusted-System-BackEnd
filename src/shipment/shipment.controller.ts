@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   Body,
   Controller,
   ForbiddenException,
@@ -16,7 +15,6 @@ import { ZodValidationPipe } from 'nestjs-zod';
 import {
   CreateShipmentDto,
   CreateShipmentSchema,
-  // UpdateShipmentDto,
 } from './dtos/create-shipment.dto';
 import { ShipmentService } from './shipment.service';
 import { ShipmentTrackingService } from '@/shipment-tracking/shipment-tracking.service';
@@ -25,17 +23,10 @@ import {
   QueryShipmentDto,
   QueryShipmentSchema,
 } from './dtos/query-shipment.dto';
-import { FindShipmentStrategies } from './find-strategies/find-shipment-strategy.enum';
 import { RoleGuard } from '@/shared/guards/role.guard';
 import { Roles } from '@/shared/decorators/role.decorator';
 import { RoleEnum } from '@/shared/enums/roles.enum';
-import {
-  ApiBody,
-  ApiOperation,
-  ApiQuery,
-  ApiResponse,
-  ApiTags,
-} from '@nestjs/swagger';
+import { ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { SuccessResponse } from '@/shared/classes/success-response.class';
 import { createResponseType } from '@/shared/helpers/create-response.mixin';
 import { ValidationError } from '@/shared/classes/validation-error.class';
@@ -113,64 +104,6 @@ export class ShipmentController {
       tracking: tracker,
     });
   }
-
-  // @ApiOperation({ summary: "Update a shipment's information" })
-  // @ApiBody({
-  //   type: UpdateShipmentDto,
-  // })
-  // @ApiResponse({
-  //   status: 201,
-  //   description: 'Shipment updated successfully',
-  //   type: createResponseType('Shipment updated successfully', Shipment),
-  // })
-  // @ApiResponse({
-  //   status: 400,
-  //   description: 'Invalid request body',
-  //   type: ValidationError,
-  // })
-  // @ApiResponse({
-  //   status: 401,
-  //   description:
-  //     "Authentication is required to update a shipment's information",
-  //   type: UnauthorizedException,
-  //   example: new UnauthorizedException(
-  //     'Only authenticated users can access this resource',
-  //   ).getResponse(),
-  // })
-  // @ApiResponse({
-  //   status: 403,
-  //   description:
-  //     'Only user with role: [ADMIN | SALES | CUSTOMER_SERVICE | DOCUMENTATION] can perform this action',
-  //   type: ForbiddenException,
-  //   example: new ForbiddenException(
-  //     'Only users with the following roles can access this resource: ADMIN, SALES, CUSTOMER_SERVICE, DOCUMENTATION',
-  //   ).getResponse(),
-  // })
-  // @ApiResponse({
-  //   status: 404,
-  //   description: 'The provided shipment information does not exist',
-  //   type: NotFoundException,
-  //   example: new NotFoundException('Shipment not found').getResponse(),
-  // })
-  // @ApiResponse({ status: 409, description: 'Conflict', type: ValidationError })
-  // @UseGuards(RoleGuard)
-  // @Roles([
-  //   RoleEnum.ADMIN,
-  //   RoleEnum.SALES,
-  //   RoleEnum.CUSTOMER_SERVICE,
-  //   RoleEnum.DOCUMENTATION,
-  // ])
-  // @Patch(':id')
-  // async updateShipment(
-  //   @Param('id') id: string,
-  //   @Body(new ZodValidationPipe(UpdateShipmentDto))
-  //   body: UpdateShipmentDto,
-  // ) {
-  //   if (Object.keys(body).length === 0)
-  //     throw new BadRequestException('Body is empty or invalid field names');
-  //   const updateResponse = await this.shipmentService.updateShipment(id, body);
-  //   return new SuccessResponse('Shipment updated successfully', updateResponse);
-  // }
 
   @ApiOperation({ summary: 'Search for shipment' })
   @ApiQuery({

@@ -13,8 +13,8 @@ import { FindQuotationByTotalPrice } from './strategies/find-quotation/find-by-t
 import { CreateQuotationStrategy } from './strategies/create-quotation/create-quotation.strategy';
 import { UpdateQuotationStrategy } from './strategies/update-quotation/update-quotation.strategy';
 import { FindQuotationByEmployeeId } from './strategies/find-quotation/find-by-employee-id';
-import { FindQuotationByCustomerId } from './strategies/find-quotation/find-by-customer-id';
-import { FindQuotationReqByCustomerIdStrategy } from '@/quotation-requests/strategies/find-quotationReq/find-by-customerId.strategy';
+import { FindQuotationByUserId } from './strategies/find-quotation/find-by-user-id';
+import { FindQuotationReqByUserIdStrategy } from '@/quotation-requests/strategies/find-quotationReq/find-by-userId.strategy';
 import { QuotationReq } from '@/quotation-requests/models/quotationReq.model';
 
 @Module({
@@ -30,8 +30,8 @@ import { QuotationReq } from '@/quotation-requests/models/quotationReq.model';
     FindQuotationByQuotationDate,
     FindQuotationByTotalPrice,
     FindQuotationByEmployeeId,
-    FindQuotationByCustomerId,
-    FindQuotationReqByCustomerIdStrategy,
+    FindQuotationByUserId,
+    FindQuotationReqByUserIdStrategy,
     CreateQuotationStrategy,
     UpdateQuotationStrategy,
   ],

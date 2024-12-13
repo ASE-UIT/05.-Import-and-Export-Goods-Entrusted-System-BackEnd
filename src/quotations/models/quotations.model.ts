@@ -31,6 +31,7 @@ import {
   HasOne,
 } from 'sequelize-typescript';
 import { from } from 'rxjs';
+import { User } from '@/users/models/user.model';
 
 @Table({ tableName: 'quotations' })
 export class Quotation extends Model {
@@ -63,7 +64,14 @@ export class Quotation extends Model {
   @Column
   status: QuotationStatus;
 
+  @ForeignKey(() => User) 
+  @AllowNull(false)
+  @Column
+  userId: string; 
 
+  @BelongsTo(() => User)
+  user: User;
+  
   //Association
   @HasMany(() => QuotationService)
   quotationServices: QuotationService[];

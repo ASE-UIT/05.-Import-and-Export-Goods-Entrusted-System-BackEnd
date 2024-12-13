@@ -8,6 +8,7 @@ export const CreateQuotationSchema = z.object({
   deliveryDate: z.coerce.date(),
   quotationDate: z.coerce.date(),
   expiredDate: z.coerce.date(),
+  userId: z.string().min(1),
   //status: z.enum([QuotationStatus.DRAFT, QuotationStatus.BOOKED]).optional().default(QuotationStatus.DRAFT),
   quoteReqId: z.string().min(1),
   freightId: z.string().min(1),

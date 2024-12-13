@@ -75,10 +75,10 @@ export class Provider extends Model {
 
   @ApiProperty()
   @ForeignKey(() => ContactRep)
-  @AllowNull(true)
+  @AllowNull(false)
   @Column
   contactRepId: string;
 
-  @BelongsTo(() => ContactRep)
+  @HasMany(() => ContactRep)
   contactRep: ContactRep;
 }

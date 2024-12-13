@@ -1,6 +1,6 @@
-import { Customer } from '@/customers/models/customer.model';
 import { Quotation } from '@/quotations/models/quotations.model';
 import { QuoteReqDetail } from '@/quote-request-details/models/quoteReqDetail.model';
+import { User } from '@/users/models/user.model';
 import sequelize from 'sequelize';
 import {
   AllowNull,
@@ -40,13 +40,13 @@ export class QuotationReq extends Model {
   status: QuotationReqStatus;
 
   // Associations
-  @ForeignKey(() => Customer)
+  @ForeignKey(() => User)
   @AllowNull(false)
   @Column
-  customerId: string;
+  userId: string;
 
-  @BelongsTo(() => Customer)
-  customer: Customer;
+  @BelongsTo(() => User)
+  user: User;
 
   @HasOne(() => QuoteReqDetail)
   quoteReqDetails: QuoteReqDetail

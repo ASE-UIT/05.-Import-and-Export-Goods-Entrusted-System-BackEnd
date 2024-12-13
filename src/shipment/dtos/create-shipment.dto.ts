@@ -5,8 +5,10 @@ import { ShipmentTrackingStatus } from '@/shipment-tracking/models/shipment-trac
 
 export const CreateShipmentSchema = z.object({
   shipmentType: z.nativeEnum(ShipmentType).describe('Type of the shipment'),
+
   contractId: z
     .string()
+    .uuid()
     .min(1)
     .describe('Id of the contract from which the shipment is made'),
   location: z.string().min(1).describe('Location of the shipment'),

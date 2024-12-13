@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ConflictException,
   Injectable,
   NotAcceptableException,
   NotFoundException,
@@ -19,25 +20,61 @@ import { FindAllContractStrategy } from './strategies/find-contract/find-all.str
 import { IFindContractStrategy } from './strategies/find-contract/find-contract-strategy.interface';
 import { QueryContractDto } from './dtos/query-contract.dto';
 import { FindContractStrategy } from './strategies/find-contract/find-contract.strategy';
+import { InjectModel } from '@nestjs/sequelize';
+import { User } from '@/users/models/user.model';
+import { ForeignKeyConstraintError, UniqueConstraintError } from 'sequelize';
 
 @Injectable()
 export class ContractsService {
   constructor(
+    @InjectModel(Contract)
+    private contractModel: typeof Contract,
+    @InjectModel(User)
+    private userModel: typeof User,
     private createContractStrategy: CreateContractStrategy,
     private updateContractStrategy: UpdateContractStrategy,
     private findContractStrategy: FindContractStrategy,
   ) {}
 
-  async create(contractInfo: CreateContractDto): Promise<Contract> {
-    const createdContract =
-      await this.createContractStrategy.create(contractInfo);
-    return createdContract;
+  async create(body: CreateContractDto): Promise<Contract> {
+    const userExist = await this.userModel.findByPk(body.userId);
+    if (!userExist) {
+      throw new NotFoundException('User not found for the provided userId');
+    }
+
+    try {
+      const contract = await this.contractModel.create({
+        startDate: body.startDate,
+        endDate: body.endDate,
+        status: body.status,
+        contractDate: body.contractDate,
+        userId: body.userId,
+        quotationId: body.quotationId,
+      });
+      return contract;
+    } catch (err) {
+      if (err instanceof ForeignKeyConstraintError) {
+        throw new ConflictException('Quotation Id not found or invalid');
+      }
+      if (err instanceof UniqueConstraintError) {
+        throw new ConflictException('Duplicate contract information');
+      }
+      throw err;
+    }
   }
 
   async find(contractInfo: QueryContractDto): Promise<Contract[]> {
     const foundContract = await this.findContractStrategy.find(contractInfo);
     if (foundContract.length > 0) return foundContract;
-    else throw new NotFoundException('Contract not found');
+    else throw new NotFoundException('Contract not found'); 
+  }
+
+  async findUserContract(userId: string): Promise<Contract[]> {
+    const contracts = await this.contractModel.findAll({ where: { userId } });
+    if (!contracts || contracts.length === 0) {
+      throw new NotFoundException('No contracts found for the provided userId');
+    }
+    return contracts;
   }
 
   async update(

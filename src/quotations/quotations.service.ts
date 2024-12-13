@@ -19,7 +19,7 @@ import { IFindQuotationStrategy } from './strategies/find-quotation/find-quotati
 import { CreateQuotationStrategy } from './strategies/create-quotation/create-quotation.strategy';
 import { UpdateQuotationStrategy } from './strategies/update-quotation/update-quotation.strategy';
 import { FindQuotationByEmployeeId } from './strategies/find-quotation/find-by-employee-id';
-import { FindQuotationByCustomerId } from './strategies/find-quotation/find-by-customer-id';
+import { FindQuotationByUserId } from './strategies/find-quotation/find-by-user-id';
 import { ForeignKeyConstraintError, Op } from 'sequelize';
 import { QueryQuotationDto } from './dtos/QueryQuotationDto';
 import { PaginationDto } from '@/shared/dto/pagination.dto';
@@ -41,7 +41,7 @@ export class QuotationsService {
     private findQuotationByQuotationDate: FindQuotationByQuotationDate,
     private findQuotationByTotalPrice: FindQuotationByTotalPrice,
     private findQuotationByEmployeeId: FindQuotationByEmployeeId,
-    private findQuotationByCustomerId: FindQuotationByCustomerId,
+    private findQuotationByUserId: FindQuotationByUserId,
     private createQuotationStrategy: CreateQuotationStrategy,
     private updateQuotationStrategy: UpdateQuotationStrategy,
   ) {}
@@ -70,16 +70,16 @@ export class QuotationsService {
 
     const whereCondition: any = { ...quotationInfo };
 
-    if (quotationInfo.customerId) {
+    if (quotationInfo.userId) {
       whereCondition.quoteReqId = {
         [Op.in]: Sequelize.literal(`(
       SELECT "id" 
       FROM "quotation_reqs" 
-      WHERE "customerId" = '${quotationInfo.customerId}'
+      WHERE "userId" = '${quotationInfo.userId}'
     )`),
       };
 
-      delete whereCondition.customerId;
+      delete whereCondition.userId;
     }
 
     // const count = await this.quotationModel.count({

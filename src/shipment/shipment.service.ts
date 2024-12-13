@@ -1,8 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import {
-  CreateShipmentDto,
-  //UpdateShipmentDto,
-} from './dtos/create-shipment.dto';
+import { CreateShipmentDto } from './dtos/create-shipment.dto';
 import { Shipment } from './models/shipment.model';
 import { InjectModel } from '@nestjs/sequelize';
 import { ForeignKeyConstraintError } from 'sequelize';
