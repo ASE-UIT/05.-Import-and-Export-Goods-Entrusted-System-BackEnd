@@ -46,6 +46,7 @@ import { Roles } from '@/shared/decorators/role.decorator';
 import { ValidationError } from '@/shared/classes/validation-error.class';
 import { SuccessResponse } from '@/shared/classes/success-response.class';
 import { createResponseType } from '@/shared/helpers/create-response.mixi';
+import { Role } from '@/roles/models/role.model';
 
 @ApiTags('Contracts')
 @Controller({
@@ -177,7 +178,7 @@ export class ContractsController {
   @ApiResponse({
     status: 403,
     description:
-      'Only user with role: [ADMIN | SALES | ACCOUNTANT] can perform this action',
+      'Only user with role: [ADMIN | SALES | ACCOUNTANT | CLIENT] can perform this action',
     type: ForbiddenException,
 
     example: new ForbiddenException(
@@ -196,7 +197,7 @@ export class ContractsController {
     type: ValidationError,
   })
   @UseGuards(RoleGuard)
-  @Roles([RoleEnum.ADMIN, RoleEnum.SALES, RoleEnum.ACCOUNTANT])
+  @Roles([RoleEnum.ADMIN, RoleEnum.SALES, RoleEnum.ACCOUNTANT, RoleEnum.CLIENT])
   @Get()
   async findContract(
     @Query(new ZodValidationPipe(QueryContractSchema.strict()))
@@ -217,7 +218,7 @@ export class ContractsController {
   })
   @ApiResponse({
     status: 400,
-    description: 'Invalid request body',
+    description: 'Invalid request body',  
     type: ValidationError,
   })
   @ApiResponse({
@@ -259,5 +260,46 @@ export class ContractsController {
   ) {
     const updateRes = await this.contractsService.update(id, body);
     return new SuccessResponse('Contract updated successfully', updateRes);
+  }
+
+  @ApiOperation({ summary: "Get a specific user's contracts" })
+  @ApiResponse({
+    status: 200,
+    description: 'Success',
+    type: [Contract],
+  })
+  @ApiResponse({
+    status: 401,
+    description: "Authentication is required to find user's contracts",
+    type: UnauthorizedException,
+    example: new UnauthorizedException(
+      'Only authenticated users can access this resource',
+    ).getResponse(),
+  })
+  @ApiResponse({
+    status: 403,
+    description:
+      'Only users with role: [ADMIN | MANAGER | CLIENT] can perform this action',
+    type: ForbiddenException,
+    example: new ForbiddenException(
+      'Only users with the following roles can access this resource: ADMIN, MANAGER, CLIENT',
+    ).getResponse(),
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'User with provided userId not found',
+    type: NotFoundException,
+    example: new NotFoundException(
+      'User with provided userId not found',
+    ).getResponse(),
+  })
+  @UseGuards(RoleGuard)
+  @Roles([RoleEnum.ADMIN, RoleEnum.SALES, RoleEnum.ACCOUNTANT, RoleEnum.CLIENT])
+  @Get(':userId')
+  async findUserContracts(
+    @Param('userId') userId: string,
+  ) {
+    const result = await this.contractsService.findUserContract(userId);
+    return new SuccessResponse('Success', result);
   }
 }

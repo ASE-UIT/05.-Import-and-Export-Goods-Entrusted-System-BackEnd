@@ -79,8 +79,8 @@ export class Customer extends Model {
   // @HasOne(() => LegalRep, 'id')
   // legalReps: LegalRep;
 
-  @HasMany(() => QuotationReq)
-  quotationReqs: QuotationReq[];
+  // @HasMany(() => QuotationReq)
+  // quotationReqs: QuotationReq[];
 
   @HasOne(() => User)
   //@AllowNull(true)

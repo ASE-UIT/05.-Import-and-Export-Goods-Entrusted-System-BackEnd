@@ -13,7 +13,6 @@ import { IFindQuotationReqStrategy } from './strategies/find-quotationReq/find-q
 import { FindAllQuotationReqStrategy } from './strategies/find-quotationReq/find-all.strategy';
 import { FindQuotationReqByRequestDateStrategy } from './strategies/find-quotationReq/find-by-requestDate.strategy';
 import { FindQuotationReqByStatusStrategy } from './strategies/find-quotationReq/find-by-status.strategy';
-import { FindQuotationReqByCustomerIdStrategy } from './strategies/find-quotationReq/find-by-customerId.strategy';
 import { UpdateQuotationReqStrategy } from './strategies/update-quotationReq/update-quotationReq.strategy';
 import { ForeignKeyConstraintError } from 'sequelize';
 import { Sequelize } from 'sequelize-typescript';
@@ -27,6 +26,7 @@ import { QueryQuotationReqDto } from './dtos/QueryQuotationReqDto';
 import { PaginationDto } from '@/shared/dto/pagination.dto';
 import { PaginatedResponse } from '@/shared/dto/paginated-response.dto';
 import { PaginationResponse } from '@/shared/dto/paginantion-response.dto';
+import { FindQuotationReqByUserIdStrategy } from './strategies/find-quotationReq/find-by-userId.strategy';
 
 @Injectable()
 export class QuotationReqsService {
@@ -36,7 +36,7 @@ export class QuotationReqsService {
     private findAllQuotationReqStratygy: FindAllQuotationReqStrategy,
     private findQuotationReqByRequestDateStrategy: FindQuotationReqByRequestDateStrategy,
     private findQuotationReqByStatus: FindQuotationReqByStatusStrategy,
-    private findQuotationReqByCustomerId: FindQuotationReqByCustomerIdStrategy,
+    private findQuotationReqByUserId: FindQuotationReqByUserIdStrategy,
     private sequelize: Sequelize,
     @InjectModel(QuotationReq) private quotationReqModel: typeof QuotationReq,
     @InjectModel(QuoteReqDetail)
@@ -111,7 +111,7 @@ export class QuotationReqsService {
         {
           requestDate: data.requestDate,
           status: QuotationReqStatus.PENDING,
-          customerId: data.customerId,
+          userId: data.userId,
         },
         { transaction },
       );
@@ -186,7 +186,7 @@ export class QuotationReqsService {
         {
           requestDate: data.requestDate,
           status: data.status,
-          customerId: data.customerId,
+          userId: data.userId,
         },
         { transaction },
       );
@@ -278,8 +278,8 @@ export class QuotationReqsService {
         return this.findQuotationReqByRequestDateStrategy;
       case FindQuotationReqStrategy.STATUS:
         return this.findQuotationReqByStatus;
-      case FindQuotationReqStrategy.CUSTOMERID:
-        return this.findQuotationReqByCustomerId;
+      case FindQuotationReqStrategy.USERID:
+        return this.findQuotationReqByUserId;
     }
   }
 

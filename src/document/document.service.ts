@@ -41,15 +41,15 @@ export class DocumentService {
     const shipment = await this.shipmentService.findShipmentById(
       body.shipmentId,
     );
-    const customerId =
-      shipment.contract.quotation.quotationReq.customerId.toString();
-    if (!customerId)
+    const userId =
+      shipment.contract.quotation.quotationReq.userId.toString();
+    if (!userId)
       throw new InternalServerErrorException(
-        'No customer found for the contract, please report this to backend team',
+        'No user found for the contract, please report this to backend team',
       );
 
     const userExist = await this.userModel.findOne({
-      where: { customerId: customerId },
+      where: { id: userId },
     });
     if (!userExist)
       throw new NotFoundException(

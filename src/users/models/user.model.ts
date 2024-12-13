@@ -1,5 +1,8 @@
+import { Contract } from '@/contracts/models/contract.model';
 import { Customer } from '@/customers/models/customer.model';
 import { Employee } from '@/employees/models/employee.model';
+import { QuotationReq } from '@/quotation-requests/models/quotationReq.model';
+import { Quotation } from '@/quotations/models/quotations.model';
 import { Role } from '@/roles/models/role.model';
 import { ApiOperation, ApiProperty } from '@nestjs/swagger';
 import sequelize from 'sequelize';
@@ -9,6 +12,7 @@ import {
   Column,
   Default,
   ForeignKey,
+  HasMany,
   Model,
   PrimaryKey,
   Table,
@@ -70,4 +74,15 @@ export class User extends Model {
   @BelongsTo(() => Customer)
   //@AllowNull(true)
   customer?: Customer;
+
+  @HasMany(() => QuotationReq)
+  quotationReqs: QuotationReq[];
+
+  // Mối quan hệ với Quotation
+  @HasMany(() => Quotation)
+  quotations: Quotation[];
+
+  // Mối quan hệ với Contract
+  @HasMany(() => Contract)
+  contracts: Contract[];
 }

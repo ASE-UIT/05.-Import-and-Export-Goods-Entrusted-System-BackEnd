@@ -37,6 +37,7 @@ import {
 import { createResponseType } from '@/shared/helpers/create-response.mixin';
 import { ValidationError } from '@/shared/classes/validation-error.class';
 import { Document } from './models/document.model';
+import { DocumentType } from '@/shared/enums/document-type.enum';
 
 @ApiTags('Documentation')
 @Controller({ path: 'document', version: '1' })
@@ -82,8 +83,8 @@ export class DocumentController {
     description: 'Conflict',
     type: ValidationError,
   })
-  @UseGuards(RoleGuard)
-  @Roles([RoleEnum.ADMIN, RoleEnum.DOCUMENTATION])
+  // @UseGuards(RoleGuard)
+  // @Roles([RoleEnum.ADMIN, RoleEnum.DOCUMENTATION])
   @Post()
   async createDocument(
     @Body(new ZodValidationPipe(CreateDocumentSchema)) body: CreateDocumentDto,
@@ -131,8 +132,8 @@ export class DocumentController {
     example: new NotFoundException('Document not found').getResponse(),
   })
   @ApiResponse({ status: 409, description: 'Conflict', type: ValidationError })
-  @UseGuards(RoleGuard)
-  @Roles([RoleEnum.ADMIN, RoleEnum.DOCUMENTATION])
+  // @UseGuards(RoleGuard)
+  // @Roles([RoleEnum.ADMIN, RoleEnum.DOCUMENTATION])
   @Patch(':id')
   async updateDocument(
     @Param('id') id: string,
@@ -154,7 +155,7 @@ export class DocumentController {
   })
   @ApiQuery({
     name: 'type',
-    type: String,
+    enum: DocumentType,
     required: false,
     description: 'Search document by document type',
   })
@@ -197,8 +198,8 @@ export class DocumentController {
     type: NotFoundException,
     example: new NotFoundException('Document not found').getResponse(),
   })
-  @UseGuards(RoleGuard)
-  @Roles([RoleEnum.ADMIN, RoleEnum.DOCUMENTATION, RoleEnum.CLIENT])
+  // @UseGuards(RoleGuard)
+  // @Roles([RoleEnum.ADMIN, RoleEnum.DOCUMENTATION, RoleEnum.CLIENT])
   @Get()
   async findDocument(
     @Query(new ZodValidationPipe(QueryDocumentSchema.partial().strict()))
@@ -240,8 +241,8 @@ export class DocumentController {
       'User with provided userId not found',
     ).getResponse(),
   })
-  @UseGuards(RoleGuard)
-  @Roles([RoleEnum.ADMIN, RoleEnum.DOCUMENTATION, RoleEnum.CLIENT])
+  // @UseGuards(RoleGuard)
+  // @Roles([RoleEnum.ADMIN, RoleEnum.DOCUMENTATION, RoleEnum.CLIENT])
   @Get(':userId')
   async findUserDocument(
     @Param('userId')

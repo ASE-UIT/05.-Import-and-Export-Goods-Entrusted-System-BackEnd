@@ -2,6 +2,7 @@ import { Shipment } from '@/shipment/models/shipment.model';
 import { ApiProperty } from '@nestjs/swagger';
 import sequelize from 'sequelize';
 import { UUIDV4 } from 'sequelize';
+import { DocumentType } from '@/shared/enums/document-type.enum';
 import {
   AllowNull,
   BelongsTo,
@@ -25,7 +26,7 @@ export class Document extends Model {
   @ApiProperty()
   @AllowNull(false)
   @Column
-  type: string;
+  type: DocumentType;
 
   @ApiProperty()
   @AllowNull

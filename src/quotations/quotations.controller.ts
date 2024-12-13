@@ -191,7 +191,7 @@ export class QuotationsController {
     description: 'Only the following roles can create users',
     type: ForbiddenException,
     example: new ForbiddenException(
-      'Only users with the following roles can access this resource: ADMIN,SALES,MANAGER',
+      'Only users with the following roles can access this resource: ADMIN,SALES,MANAGER,CLIENT',
     ).getResponse(),
   })
   @ApiBody({
@@ -205,11 +205,12 @@ export class QuotationsController {
         expiredDate: '2023-05-06T12:00:00.000Z',
         freightId: 'badf2914-b569-4b65-9bdb-a62ad8913d91',
         employeeId: 'a4233408-bd61-44e2-a953-257c48cfae57',
+        userId: 'd330c83f-b7ff-4521-a132-b0b34ac0b7f3',
       },
     },
   })
   @UseGuards(RoleGuard)
-  @Roles([RoleEnum.ADMIN, RoleEnum.SALES, RoleEnum.MANAGER])
+  @Roles([RoleEnum.ADMIN, RoleEnum.SALES, RoleEnum.MANAGER, RoleEnum.CLIENT])
   @Post()
   async createQuotation(
     @Body(new ZodValidationPipe(CreateQuotationSchema))

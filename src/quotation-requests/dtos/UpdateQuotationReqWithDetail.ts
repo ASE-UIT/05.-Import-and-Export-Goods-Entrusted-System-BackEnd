@@ -6,7 +6,7 @@ import { ShipmentType } from '@/quote-request-details/models/quoteReqDetail.mode
 
 export const UpdateQuoteReqWithDetailSchema = z.object({
     requestDate: z.coerce.date().describe("The request date of the quote request").optional(),
-    customerId: z.string().describe("The customer ID whose create the quote request").optional(),
+    userId: z.string().describe("The customer ID whose create the quote request").optional(),
     status: z.nativeEnum(QuotationReqStatus).describe("The status of the quote request").optional(),
     origin: z.string().min(1, "Origin is required").describe("The origin of the shipment").optional(),
     destination: z.string().min(1, "Destination is required").describe("The destination of the shipment").optional(),
