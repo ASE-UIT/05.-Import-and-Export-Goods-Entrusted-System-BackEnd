@@ -60,18 +60,19 @@ export class QuotationsController {
     description: 'Successfully retrieved quotation',
     example: [
       {
-        id: '9f79b1dc-f14e-440e-9ede-31592079c80a',
-        totalPrice: 4.5,
-        pickupDate: '2023-04-20T12:00:00.000Z',
-        deliveryDate: '2023-04-26T12:00:00.000Z',
-        quotationDate: '2023-04-19T12:00:00.000Z',
-        expiredDate: '2023-05-06T12:00:00.000Z',
+        id: '77f51f99-f397-47c8-a155-e5aef56b8f30',
+        totalPrice: 0,
+        pickupDate: '2024-12-15T00:00:00.000Z',
+        deliveryDate: '2024-12-15T00:00:00.000Z',
+        quotationDate: '2024-12-15T00:00:00.000Z',
+        expiredDate: '2024-12-15T00:00:00.000Z',
         status: 'DRAFT',
-        quoteReqId: 'f1a5d699-5168-439c-8d24-1b01bd3022de',
-        freightId: '0893855a-adb7-45a1-9ad7-65dce8cc0e6a',
-        employeeId: 'c67d645e-68b3-4a41-81ff-eeea41e8b663',
-        createdAt: '2024-10-31T13:38:05.867Z',
-        updatedAt: '2024-10-31T13:38:05.867Z',
+        userId: 'e3c284c2-9a28-4d7d-b87d-02952bf928a1',
+        quoteReqId: '8a58a7dd-be52-4461-894d-c03c114174c8',
+        freightId: '7328988a-9fbd-4b63-b7ae-93cbd22c9832',
+        employeeId: '37bdab2b-1322-4b4c-ba72-61f54fd70678',
+        createdAt: '2024-12-14T15:29:22.960Z',
+        updatedAt: '2024-12-14T15:29:22.960Z',
       },
     ],
   })
@@ -89,7 +90,7 @@ export class QuotationsController {
     type: NotFoundException,
     example: new NotFoundException('No quotation found').getResponse(),
   })
-  @ApiQuery({ name: 'customerId', required: false, type: String })
+  @ApiQuery({ name: 'userId', required: false, type: String })
   @ApiQuery({ name: 'employeeId', required: false, type: String })
   @ApiQuery({ name: 'quotationDate', required: false, type: String })
   @ApiQuery({ name: 'status', required: false, enum: QuotationStatus })
@@ -127,18 +128,19 @@ export class QuotationsController {
     status: 200,
     description: 'Successfully retrieved quotation',
     example: {
-      id: '9f79b1dc-f14e-440e-9ede-31592079c80a',
-      totalPrice: 4.5,
-      pickupDate: '2023-04-20T12:00:00.000Z',
-      deliveryDate: '2023-04-26T12:00:00.000Z',
-      quotationDate: '2023-04-19T12:00:00.000Z',
-      expiredDate: '2023-05-06T12:00:00.000Z',
+      id: '77f51f99-f397-47c8-a155-e5aef56b8f30',
+      totalPrice: 0,
+      pickupDate: '2024-12-15T00:00:00.000Z',
+      deliveryDate: '2024-12-15T00:00:00.000Z',
+      quotationDate: '2024-12-15T00:00:00.000Z',
+      expiredDate: '2024-12-15T00:00:00.000Z',
       status: 'DRAFT',
-      quoteReqId: 'f1a5d699-5168-439c-8d24-1b01bd3022de',
-      freightId: '0893855a-adb7-45a1-9ad7-65dce8cc0e6a',
-      employeeId: 'c67d645e-68b3-4a41-81ff-eeea41e8b663',
-      createdAt: '2024-10-31T13:38:05.867Z',
-      updatedAt: '2024-10-31T13:38:05.867Z',
+      userId: 'e3c284c2-9a28-4d7d-b87d-02952bf928a1',
+      quoteReqId: '8a58a7dd-be52-4461-894d-c03c114174c8',
+      freightId: '7328988a-9fbd-4b63-b7ae-93cbd22c9832',
+      employeeId: '317331e8-463f-4929-9798-d55e3ae91fc8',
+      createdAt: '2024-12-14T15:29:22.960Z',
+      updatedAt: '2024-12-14T15:37:09.850Z',
     },
   })
   @ApiResponse({
@@ -165,12 +167,9 @@ export class QuotationsController {
   @ApiOperation({ summary: 'Create a new quotation' })
   @ApiResponse({
     status: 201,
-    description: 'Quote request successfully created',
-    type: createResponseType('Quote request successfully created', Quotation),
-    example: createResponseType(
-      'Quote request successfully created',
-      Quotation,
-    ),
+    description: 'Quotation successfully created',
+    type: createResponseType('Quotation successfully created', Quotation),
+    example: createResponseType('Quotation successfully created', Quotation),
   })
   @ApiResponse({
     status: 400,
@@ -260,9 +259,14 @@ export class QuotationsController {
     type: UpdateQuotationDto,
     schema: {
       example: {
-        requestDate: '2024-01-01T00:00:00.000Z',
-        status: 'PENDING',
-        customerId: '9b16a980-076c-4700-9c48-e9fccbe24766',
+        quoteReqId: '1c26b2ca-a13c-40a7-9903-fa092e2ecb5c',
+        pickupDate: '2023-04-20T12:00:00.000Z',
+        deliveryDate: '2023-04-26T12:00:00.000Z',
+        quotationDate: '2023-04-19T12:00:00.000Z',
+        expiredDate: '2023-05-06T12:00:00.000Z',
+        freightId: 'badf2914-b569-4b65-9bdb-a62ad8913d91',
+        employeeId: 'a4233408-bd61-44e2-a953-257c48cfae57',
+        userId: 'd330c83f-b7ff-4521-a132-b0b34ac0b7f3',
       },
     },
   })

@@ -9,7 +9,7 @@ import { CreateQuoteReqDetailDto } from './dtos/CreateQuoteReqDetailDto';
 import { CreateQuoteReqDetailStrategy } from './strategies/create-quoteReqDetail/create-quoteReqDetail.strategy';
 import { UpdateQuoteReqDetailStrategy } from './strategies/update-quoteReqDetail/update-quoteReqDetail.strategy';
 import { FindQuoteReqDetailStrategy } from './strategies/find_quoteReqDetail/find-quoteReqDetail-strategy.enum';
-import { QuoteReqDetail } from './models/quoteReqDetail.model';
+import { QuoteReqDetail, ShipmentType } from './models/quoteReqDetail.model';
 import { IFindQuoteReqDetailStrategy } from './strategies/find_quoteReqDetail/find-quoteReqDetail-strategy.interface';
 import { FindAllQuotationReqStrategy } from '@/quotation-requests/strategies/find-quotationReq/find-all.strategy';
 import { FindQuoteReqDetailByOriginStrategy } from './strategies/find_quoteReqDetail/find-by-origin.strategy';
@@ -26,6 +26,8 @@ import {
 } from 'sequelize';
 import { QueryQuoteReqDetailDto } from './dtos/QueryQuoteReqDetailDto';
 import { InjectModel } from '@nestjs/sequelize';
+import { z } from 'zod';
+import { UpdateQuoteReqWithDetailDto } from '@/quotation-requests/dtos/UpdateQuotationReqWithDetail';
 
 @Injectable()
 export class QuoteReqDetailsService {
@@ -89,12 +91,23 @@ export class QuoteReqDetailsService {
     quoteReqDetailInfo: CreateQuoteReqDetailDto,
   ): Promise<QuoteReqDetail> {
     try {
-      return await this.createQuoteReqDetailStrategy.create(quoteReqDetailInfo);
+      return await this.quoteReqDetail.create({
+        origin: quoteReqDetailInfo.origin,
+        destination: quoteReqDetailInfo.destination,
+        shipmentReadyDate: quoteReqDetailInfo.shipmentReadyDate,
+        shipmentDeadline: quoteReqDetailInfo.shipmentDeadline,
+        cargoInsurance: quoteReqDetailInfo.cargoInsurance,
+        shipmentType: quoteReqDetailInfo.shipmentType,
+        quoteReqId: quoteReqDetailInfo.quoteReqId,
+      });
     } catch (error) {
       if (error instanceof ForeignKeyConstraintError) {
         throw new HttpException('Invalid foreign key.', HttpStatus.BAD_REQUEST);
       }
-      throw new Error();
+      if (error instanceof z.ZodError) {
+        throw new HttpException(error.errors, HttpStatus.BAD_REQUEST);
+      }
+      throw new Error(error);
     }
   }
 
@@ -103,10 +116,20 @@ export class QuoteReqDetailsService {
     quoteReqDetailInfo: Partial<CreateQuoteReqDetailDto>,
   ): Promise<QuoteReqDetail> {
     try {
-      return await this.updateQuoteReqDetailStrategy.update(
-        id,
-        quoteReqDetailInfo,
+      const [affectedRows, [updateData]] = await this.quoteReqDetail.update(
+        { ...quoteReqDetailInfo },
+        { where: { id: id }, returning: true },
       );
+      if (affectedRows == 0) {
+        throw new NotFoundException(
+          'Quote request detail id does not exists in database',
+        );
+      }
+      return updateData.dataValues as QuoteReqDetail;
+      // return await this.updateQuoteReqDetailStrategy.update(
+      //   id,
+      //   quoteReqDetailInfo,
+      // );
     } catch (error) {
       if (error instanceof ForeignKeyConstraintError) {
         throw new HttpException('Invalid foreign key.', HttpStatus.BAD_REQUEST);

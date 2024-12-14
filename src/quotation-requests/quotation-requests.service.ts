@@ -245,10 +245,7 @@ export class QuotationReqsService {
         throw new HttpException(error.errors, HttpStatus.BAD_REQUEST);
       }
       if (error instanceof NotFoundException) {
-        throw new HttpException(
-          'Quote Request not found.',
-          HttpStatus.NOT_FOUND,
-        );
+        throw new HttpException(error.message, HttpStatus.NOT_FOUND);
       }
       throw new HttpException(
         'Error when updating quote request',
