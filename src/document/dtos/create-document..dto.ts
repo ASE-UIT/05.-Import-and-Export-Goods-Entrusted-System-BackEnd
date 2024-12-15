@@ -8,7 +8,6 @@ import { z } from 'zod';
 export const CreateDocumentSchema = z.object({
   shipmentId: z.string().uuid(),
   type: z.nativeEnum(DocumentType),
-  image: z.string().min(1),
   docNumber: z.number().min(1),
   //userId: z.string().uuid(),
 });

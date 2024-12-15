@@ -29,11 +29,6 @@ export class Document extends Model {
   type: DocumentType;
 
   @ApiProperty()
-  @AllowNull
-  @Column
-  image: string;
-
-  @ApiProperty()
   @AllowNull(false)
   @Unique({
     name: 'docNumber_conflict',

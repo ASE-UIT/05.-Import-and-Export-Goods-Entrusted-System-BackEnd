@@ -19,7 +19,7 @@ export enum QuotationReqStatus {
   PENDING = 'PENDING',
   INPROGRESS = 'INPROGRESS',
   COMPLETED = 'COMPLETED',
-  CANCELLED = 'CANCELLED'
+  CANCELLED = 'CANCELLED',
 }
 
 @Table({
@@ -45,12 +45,11 @@ export class QuotationReq extends Model {
   @Column
   userId: string;
 
-  @BelongsTo(() => User)
-  user: User;
-
+  @BelongsTo(() => User, { as: 'customer' })
+  customer: User;
   @HasOne(() => QuoteReqDetail)
-  quoteReqDetails: QuoteReqDetail
+  quoteReqDetails: QuoteReqDetail;
 
   @HasOne(() => Quotation)
-  quotation: Quotation
+  quotation: Quotation;
 }

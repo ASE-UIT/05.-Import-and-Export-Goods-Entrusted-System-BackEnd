@@ -34,15 +34,12 @@ export class DocumentService {
     private documentModel: typeof Document,
     @InjectModel(User)
     private userModel: typeof User,
-    @InjectModel(Role)
-    private roleModel: typeof Role,
   ) {}
   async createDocument(body: CreateDocumentDto) {
     const shipment = await this.shipmentService.findShipmentById(
       body.shipmentId,
     );
-    const userId =
-      shipment.contract.quotation.quotationReq.userId.toString();
+    const userId = shipment.contract.userId.toString();
     if (!userId)
       throw new InternalServerErrorException(
         'No user found for the contract, please report this to backend team',
@@ -60,7 +57,6 @@ export class DocumentService {
         shipmentId: body.shipmentId,
         userId: userExist.id,
         type: body.type,
-        image: body.image,
         docNumber: body.docNumber,
       });
       return document;
