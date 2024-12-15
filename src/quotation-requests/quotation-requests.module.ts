@@ -11,9 +11,19 @@ import { UpdateQuotationReqStrategy } from './strategies/update-quotationReq/upd
 import { QuoteReqDetail } from '@/quote-request-details/models/quoteReqDetail.model';
 import { PackageDetail } from '@/package-details/models/packageDetails.model';
 import { FindQuotationReqByUserIdStrategy } from './strategies/find-quotationReq/find-by-userId.strategy';
+import { User } from '@/users/models/user.model';
+import { Role } from '@/roles/models/role.model';
 
 @Module({
-  imports: [SequelizeModule.forFeature([QuotationReq, QuoteReqDetail, PackageDetail])],
+  imports: [
+    SequelizeModule.forFeature([
+      QuotationReq,
+      QuoteReqDetail,
+      PackageDetail,
+      User,
+      Role,
+    ]),
+  ],
   providers: [
     QuotationReqsService,
     FindAllQuotationReqStrategy,
@@ -25,4 +35,4 @@ import { FindQuotationReqByUserIdStrategy } from './strategies/find-quotationReq
   ],
   controllers: [QuotationReqsController],
 })
-export class QuotationReqsModule { }
+export class QuotationReqsModule {}

@@ -10,10 +10,10 @@ export const UpdateQuotationSchema = z
     quotationDate: z.coerce.date().optional(),
     expiredDate: z.coerce.date().optional(),
     status: z.nativeEnum(QuotationStatus).optional(),
-    userId: z.string().min(1).optional(),
-    quoteReqId: z.string().min(1).optional(),
-    freightId: z.string().min(1).optional(),
-    employeeId: z.string().min(1).optional(),
+    //userId: z.string().min(1).optional(),
+    //quoteReqId: z.string().min(1).optional(),
+    //freightId: z.string().min(1).optional(),
+    //employeeId: z.string().min(1).optional(),
   })
   .refine(
     (data) => {

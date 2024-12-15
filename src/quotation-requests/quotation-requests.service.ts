@@ -1,9 +1,10 @@
 import {
-  BadRequestException,
+  ForbiddenException,
   HttpException,
   HttpStatus,
   Injectable,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { CreateQuotationReqDto } from './dtos/CreateQuotationReqDto';
 import { CreateQuotationReqStrategy } from './strategies/create-quotationReq/create-quotationReq.strategy';
@@ -27,6 +28,9 @@ import { PaginationDto } from '@/shared/dto/pagination.dto';
 import { PaginatedResponse } from '@/shared/dto/paginated-response.dto';
 import { PaginationResponse } from '@/shared/dto/paginantion-response.dto';
 import { FindQuotationReqByUserIdStrategy } from './strategies/find-quotationReq/find-by-userId.strategy';
+import { User } from '@/users/models/user.model';
+import { Role } from '@/roles/models/role.model';
+import { RoleEnum } from '@/shared/enums/roles.enum';
 
 @Injectable()
 export class QuotationReqsService {
@@ -43,6 +47,8 @@ export class QuotationReqsService {
     private quoteReqDetailModel: typeof QuoteReqDetail,
     @InjectModel(PackageDetail)
     private packageDetailModel: typeof PackageDetail,
+    @InjectModel(User) private userModel: typeof User,
+    @InjectModel(Role) private roleModel: typeof Role,
   ) {}
 
   async getQuoteRequests(
@@ -104,6 +110,25 @@ export class QuotationReqsService {
   }
 
   async createQuoteRequestWithDetails(data: CreateQuoteReqWithDetailDto) {
+    const user = await this.userModel.findByPk(data.userId, {
+      include: [
+        {
+          model: this.roleModel,
+        },
+      ],
+    });
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    if (
+      !user.role ||
+      (user.role.name !== RoleEnum.CLIENT && user.role.name !== RoleEnum.ADMIN)
+    ) {
+      throw new ForbiddenException(
+        'Access denied: Only CLIENT role is allowed in userId feild',
+      );
+    }
+    console.log('Check user', user);
     const transaction = await this.sequelize.transaction();
 
     try {
@@ -155,11 +180,17 @@ export class QuotationReqsService {
     } catch (error) {
       await transaction.rollback();
       console.log('Check error', error);
-      if (error instanceof ForeignKeyConstraintError) {
+      if (
+        error instanceof ForeignKeyConstraintError ||
+        error instanceof NotFoundException
+      ) {
         throw new HttpException('Customer not found.', HttpStatus.BAD_REQUEST);
       }
       if (error instanceof z.ZodError) {
         throw new HttpException(error.errors, HttpStatus.BAD_REQUEST);
+      }
+      if (error instanceof UnauthorizedException) {
+        throw new HttpException(error.message, HttpStatus.FORBIDDEN);
       }
       throw new HttpException(
         'Error when creating quote request',
@@ -186,7 +217,6 @@ export class QuotationReqsService {
         {
           requestDate: data.requestDate,
           status: data.status,
-          userId: data.userId,
         },
         { transaction },
       );
