@@ -84,8 +84,8 @@ export class FirmRepsController {
     description: 'Conflict',
     type: ValidationError,
   })
-  // @UseGuards(RoleGuard)
-  // @Roles([RoleEnum.ADMIN, RoleEnum.MANAGER])
+  @UseGuards(RoleGuard)
+  @Roles([RoleEnum.ADMIN, RoleEnum.MANAGER])
   @Post()
   async createFirmReps(
     @Body(new ZodValidationPipe(CreateFirmRepSchema)) 
@@ -137,8 +137,8 @@ export class FirmRepsController {
     description: 'Conflict', 
     type: ValidationError 
   })
-  // @UseGuards(RoleGuard)
-  // @Roles([RoleEnum.ADMIN, RoleEnum.MANAGER])
+  @UseGuards(RoleGuard)
+  @Roles([RoleEnum.ADMIN, RoleEnum.MANAGER])
   @Patch(':id')
   async updateFirmReps(
     @Param('id') id: string,
@@ -218,8 +218,8 @@ export class FirmRepsController {
     type: NotFoundException,
     example: new NotFoundException('Firm representative not found').getResponse(),
   })
-  // @UseGuards(RoleGuard)
-  // @Roles([RoleEnum.ADMIN, RoleEnum.MANAGER])
+  @UseGuards(RoleGuard)
+  @Roles([RoleEnum.ADMIN, RoleEnum.MANAGER])
   @Get()
   async findFirmReps(
     @Query(new ZodValidationPipe(QueryFirmRepSchema.partial())) query: QueryFirmRepDto,

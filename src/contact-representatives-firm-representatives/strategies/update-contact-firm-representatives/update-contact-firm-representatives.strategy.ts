@@ -3,7 +3,7 @@ import { IUpdateContactRepFirmRepStrategy } from './update-contact-firm-represen
 import { ContactRepFirmRep } from '@/contact-representatives-firm-representatives/models/contact-firm-representatives.model';
 import { InjectModel } from '@nestjs/sequelize';
 import { NotFoundException, ConflictException } from '@nestjs/common';
-import { UniqueConstraintError } from 'sequelize';
+import { ForeignKeyConstraintError, UniqueConstraintError } from 'sequelize';
 import { CreateContactRepFirmRepDto } from '@/contact-representatives-firm-representatives/dtos/create-contact-firm-representatives.dto';
 import { ValidationError, ValidationErrorDetail } from '@/shared/classes/validation-error.class';
 
@@ -35,7 +35,9 @@ export class UpdateContactRepFirmRepStrategy implements IUpdateContactRepFirmRep
         );
         throw new ConflictException(new ValidationError(errors));
       }
-      throw new Error('An error occurred while updating the relation');
+      if (err instanceof ForeignKeyConstraintError) {
+        throw new NotFoundException('Contact representative or firm representative not found');
+      }
     }
   }
 }

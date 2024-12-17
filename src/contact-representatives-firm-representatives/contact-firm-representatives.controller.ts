@@ -61,8 +61,8 @@ export class ContactRepFirmRepController {
     description: 'Contact Representative or Firm Representative not found',
     type: NotFoundException,
   })
-  // @UseGuards(RoleGuard)
-  // @Roles([RoleEnum.ADMIN, RoleEnum.MANAGER])
+  @UseGuards(RoleGuard)
+  @Roles([RoleEnum.ADMIN, RoleEnum.MANAGER])
   @Post()
   async addContactRepToFirmRep(
     @Body(new ZodValidationPipe(CreateContactRepFirmRepSchema)) contactRepFirmRepData: CreateContactRepFirmRepDto,
@@ -102,8 +102,8 @@ export class ContactRepFirmRepController {
     description: 'Contact Representative or Firm Representative not found for update',
     type: NotFoundException,
   })
-  // @UseGuards(RoleGuard)
-  // @Roles([RoleEnum.ADMIN, RoleEnum.MANAGER])
+  @UseGuards(RoleGuard)
+  @Roles([RoleEnum.ADMIN, RoleEnum.MANAGER])
   @Patch(':id')
   async updateContactRepFirmRep(
     @Param('id') id: string,
@@ -129,19 +129,19 @@ export class ContactRepFirmRepController {
   @ApiQuery({
     name: 'id',
     type: String,
-    required: true,
+    required: false,
     description: 'Search relations by ID',
   })
   @ApiQuery({
     name: 'contactRepId',
     type: String,
-    required: true,
+    required: false,
     description: 'Search relations by Contact Representative ID',
   })
   @ApiQuery({
     name: 'firmRepId',
     type: String,
-    required: true,
+    required: false,
     description: 'Search relations by Firm Representative ID',
   })
   @ApiResponse({
@@ -166,8 +166,8 @@ export class ContactRepFirmRepController {
     description: 'No relations found',
     type: NotFoundException,
   })
-  // @UseGuards(RoleGuard)
-  // @Roles([RoleEnum.ADMIN, RoleEnum.MANAGER])
+  @UseGuards(RoleGuard)
+  @Roles([RoleEnum.ADMIN, RoleEnum.MANAGER])
   @Get()
   async findRelations(
     @Query(new ZodValidationPipe(QueryContactRepFirmRepSchema.partial())) query: QueryContactRepFirmRepDto,

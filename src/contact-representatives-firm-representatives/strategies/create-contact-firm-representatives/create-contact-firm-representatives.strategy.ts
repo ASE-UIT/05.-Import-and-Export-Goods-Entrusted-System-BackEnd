@@ -2,7 +2,7 @@ import { Injectable, ConflictException, NotFoundException } from '@nestjs/common
 import { CreateContactRepFirmRepDto } from '@/contact-representatives-firm-representatives/dtos/create-contact-firm-representatives.dto';
 import { ContactRepFirmRep } from '@/contact-representatives-firm-representatives/models/contact-firm-representatives.model';
 import { InjectModel } from '@nestjs/sequelize';
-import { UniqueConstraintError } from 'sequelize';
+import { ForeignKeyConstraintError, UniqueConstraintError } from 'sequelize';
 import { ValidationError, ValidationErrorDetail } from '@/shared/classes/validation-error.class';
 import { ICreateContactRepFirmRepStrategy } from './create-contact-firm-representatives-strategy.interface';
 
@@ -39,7 +39,9 @@ export class CreateContactRepFirmRepStrategy implements ICreateContactRepFirmRep
         );
         throw new ConflictException(new ValidationError(errors));
       }
-      throw err;
+      if (err instanceof ForeignKeyConstraintError) {
+        throw new NotFoundException('Contact representative or firm representative not found');
+      }
     }
   }
 }

@@ -47,9 +47,9 @@ export class UpdateProviderStrategy implements IUpdateProviderStrategy {
         );
         throw new ConflictException(new ValidationError(errors));
       }
-      if (err instanceof ForeignKeyConstraintError) {
-        throw new NotFoundException('Contact representative not found');
-      }
+      // if (err instanceof ForeignKeyConstraintError) {
+      //   throw new NotFoundException('Contact representative not found');
+      // }
     }
   }
 

@@ -122,13 +122,13 @@ export class AirFreightController {
     type: NotFoundException,
     example: new NotFoundException('Air freight not found').getResponse(),
   })
-  // @UseGuards(RoleGuard)
-  // @Roles([
-  //   RoleEnum.ADMIN,
-  //   RoleEnum.SALES,
-  //   RoleEnum.CUSTOMER_SERVICE,
-  //   RoleEnum.MANAGER,
-  // ])
+  @UseGuards(RoleGuard)
+  @Roles([
+    RoleEnum.ADMIN,
+    RoleEnum.SALES,
+    RoleEnum.CUSTOMER_SERVICE,
+    RoleEnum.MANAGER,
+  ])
   @Get()
   async findAirFreight(
     @Query(new ZodValidationPipe(QueryAirFreightSchema)) query: QueryAirFreightDto,

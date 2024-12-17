@@ -86,8 +86,8 @@ export class ContactRepsController {
     description: 'Conflict',
     type: ValidationError,
   })
-  // @UseGuards(RoleGuard)
-  // @Roles([RoleEnum.ADMIN, RoleEnum.MANAGER])
+  @UseGuards(RoleGuard)
+  @Roles([RoleEnum.ADMIN, RoleEnum.MANAGER])
   @Post()
   async createContactReps(
     @Body(new ZodValidationPipe(CreateContactRepSchema)) 
@@ -141,8 +141,8 @@ export class ContactRepsController {
     description: 'Conflict', 
     type: ValidationError 
   })
-  // @UseGuards(RoleGuard)
-  // @Roles([RoleEnum.ADMIN, RoleEnum.MANAGER])
+  @UseGuards(RoleGuard)
+  @Roles([RoleEnum.ADMIN, RoleEnum.MANAGER])
   @Patch(':id')
   async updateContactReps(
     @Param('id') id: string,
@@ -234,8 +234,8 @@ export class ContactRepsController {
     type: NotFoundException,
     example: new NotFoundException('Contact representative not found').getResponse(),
   })
-  // @UseGuards(RoleGuard)
-  // @Roles([RoleEnum.ADMIN, RoleEnum.MANAGER])
+  @UseGuards(RoleGuard)
+  @Roles([RoleEnum.ADMIN, RoleEnum.MANAGER])
   @Get()
   async findContactReps(
     @Query(new ZodValidationPipe(QueryContactRepSchema.partial())) query: QueryContactRepDto,
