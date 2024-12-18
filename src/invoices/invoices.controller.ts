@@ -45,6 +45,7 @@ import {
   UpdateInvoiceDto,
   UpdateInvoiceSchema,
 } from './dtos/update-invoice.dto';
+import { PaginationDto, PaginationSchema } from '@/shared/dto/pagination.dto';
 
 @ApiTags('Invoices')
 @Controller({
@@ -115,6 +116,18 @@ export class InvoicesController {
 
   @ApiOperation({ summary: 'Search for invoices' })
   @ApiQuery({
+    name: 'page',
+    type: Number,
+    required: false,
+    description: 'Current page',
+  })
+  @ApiQuery({
+    name: 'limit',
+    type: Number,
+    required: false,
+    description: 'Total records per page',
+  })
+  @ApiQuery({
     name: 'id',
     type: String,
     required: false,
@@ -162,12 +175,6 @@ export class InvoicesController {
     required: false,
     description: 'Search invoice by employee id',
   })
-  @ApiQuery({
-    name: 'invoiceId',
-    type: String,
-    required: false,
-    description: 'Search invoice by invoice id',
-  })
   @ApiResponse({
     status: 200,
     description: 'Invoice found',
@@ -210,11 +217,12 @@ export class InvoicesController {
   @Roles([RoleEnum.ADMIN, RoleEnum.ACCOUNTANT])
   @Get()
   async findInvoice(
-    @Query(new ZodValidationPipe(QueryInvoiceSchema.strict()))
+    @Query(new ZodValidationPipe(QueryInvoiceSchema.partial()))
     query: QueryInvoiceDto,
+    @Query(new ZodValidationPipe(PaginationSchema.partial()))
+    pagination: Partial<PaginationDto>,
   ) {
-    const foundRes = await this.invoicesService.find(query);
-    if (foundRes === null) return new SuccessResponse('Invoice found', []);
+    const foundRes = await this.invoicesService.find(query, pagination);
     return new SuccessResponse('Invoice found', foundRes);
   }
 

@@ -5,17 +5,6 @@ import { z } from 'zod';
 
 export const CreatePaymentSchema = z.object({
   amountPaid: z.coerce.number().min(1).describe("The payment's amount paid"),
-  status: z
-    .enum([
-      PaymentStatus.COMPLETED,
-      PaymentStatus.CANCELLED,
-      PaymentStatus.FAILED,
-      PaymentStatus.ONHOLD,
-      PaymentStatus.PAID,
-      PaymentStatus.PENDING,
-      PaymentStatus.REFUNDED,
-    ])
-    .describe("The invoice's status"),
   invoiceId: z
     .string({
       message: 'An invoice association is needed to create an payment',

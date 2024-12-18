@@ -10,9 +10,7 @@ export class FindInvoiceStrategy implements IFindInvoiceStrategy {
     @InjectModel(Invoice)
     private invoiceModel: typeof Invoice,
   ) {}
-  async find(invoiceInfo: QueryInvoiceDto): Promise<Invoice[] | null> {
-    if (Object.keys(invoiceInfo).length < 1)
-      return await this.invoiceModel.findAll();
+  async find(invoiceInfo: any): Promise<Invoice[] | null> {
     return await this.invoiceModel.findAll({ where: invoiceInfo });
   }
 }

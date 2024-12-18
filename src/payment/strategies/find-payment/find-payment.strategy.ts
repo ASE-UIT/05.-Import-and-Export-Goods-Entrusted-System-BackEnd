@@ -11,8 +11,6 @@ export class FindPaymentStrategy implements IFindPaymentStrategy {
     private paymentModel: typeof Payment,
   ) {}
   async find(paymentInfo: QueryPaymentDto): Promise<Payment[] | null> {
-    if (Object.keys(paymentInfo).length < 1)
-      return await this.paymentModel.findAll();
     return await this.paymentModel.findAll({ where: paymentInfo });
   }
 }

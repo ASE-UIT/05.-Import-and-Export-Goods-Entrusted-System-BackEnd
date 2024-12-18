@@ -31,6 +31,7 @@ export class Payment extends Model {
 
   @ApiProperty()
   @AllowNull(false)
+  @Default(PaymentStatus.COMPLETED)
   @Column
   status: PaymentStatus;
 

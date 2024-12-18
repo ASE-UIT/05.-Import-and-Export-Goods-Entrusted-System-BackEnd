@@ -20,10 +20,16 @@ import { PaymentStatus } from '@/shared/enums/payment-status.enum';
 import { UpdatePaidDateInvoiceStrategy } from '@/invoices/strategies/update-invoice/update-paid-date-invoice.strategy';
 import { InvoicesService } from '@/invoices/invoices.service';
 import { UpdatePaymentDto } from './dtos/update-payment.dto';
+import { PaginationDto } from '@/shared/dto/pagination.dto';
+import { PaginatedResponse } from '@/shared/dto/paginated-response.dto';
+import { InjectModel } from '@nestjs/sequelize';
+import { PaginationResponse } from '@/shared/dto/paginantion-response.dto';
 
 @Injectable()
 export class PaymentsService {
   constructor(
+    @InjectModel(Payment)
+    private paymentModel: typeof Payment,
     private updatePaymentStrategy: UpdatePaymentStrategy,
     private createPaymentStrategy: CreatePaymentStrategy,
     private findPaymentStrategy: FindPaymentStrategy,
@@ -39,9 +45,38 @@ export class PaymentsService {
     return createdPayment;
   }
 
-  async find(paymentInfo: QueryPaymentDto): Promise<Payment[]> {
-    const foundPayment = await this.findPaymentStrategy.find(paymentInfo);
-    return foundPayment;
+  async find(
+    paymentInfo: QueryPaymentDto,
+    pagination: Partial<PaginationDto>,
+  ): Promise<PaginatedResponse<Payment>> {
+    const { page, limit } = pagination;
+    const offset = (page - 1) * limit;
+
+    let payments: { count: number; rows: Payment[] };
+    if (page && limit) {
+      payments = await this.paymentModel.findAndCountAll({
+        where: paymentInfo || {},
+        offset: offset,
+        limit: limit,
+      });
+    } else {
+      payments = await this.paymentModel.findAndCountAll({
+        where: paymentInfo || {},
+      });
+    }
+    const paginationInfo: PaginationResponse = {
+      currentPage: page && limit ? page : null,
+      records: payments.count,
+      totalPages: page && limit ? Math.ceil(payments.count / limit) : null,
+      nextPage: page * limit < payments.count ? page + 1 : null,
+      prevPage: (page - 1) * limit > 0 ? page - 1 : null,
+    };
+
+    const response: PaginatedResponse<Payment> = {
+      pagination: paginationInfo,
+      results: payments.rows,
+    };
+    return response;
   }
 
   async update(
