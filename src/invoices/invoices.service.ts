@@ -167,6 +167,15 @@ export class InvoicesService {
       await this.updateInvoiceStatus(updateInvoice);
     }
   }
+
+  async calculateTotalRevenue(invoices: Invoice[]): Promise<number> {
+    const totalRevenue = invoices.reduce((sum, invoice) => {
+      return sum + invoice.paidAmount;
+    }, 0);
+
+    return totalRevenue;
+  }
+
   async create(invoiceInfo: CreateInvoiceDto): Promise<Invoice> {
     const createdInvoice = await this.createInvoiceStrategy.create(invoiceInfo);
     return createdInvoice;
@@ -175,7 +184,7 @@ export class InvoicesService {
   async find(
     invoiceInfo: QueryInvoiceDto,
     pagination: Partial<PaginationDto>,
-  ): Promise<PaginatedResponse<Invoice>> {
+  ): Promise<any> {
     const { page, limit } = pagination;
     const offset = (page - 1) * limit;
 
@@ -199,10 +208,14 @@ export class InvoicesService {
       prevPage: (page - 1) * limit > 0 ? page - 1 : null,
     };
 
-    const response: PaginatedResponse<Invoice> = {
+    const totalRevenue = await this.calculateTotalRevenue(invoices.rows);
+
+    const response = {
       pagination: paginationInfo,
       results: invoices.rows,
+      totalRevenue: totalRevenue,
     };
+
     return response;
   }
 

@@ -4,14 +4,6 @@ import { z } from 'zod';
 
 export const QueryPaymentSchema = z.object({
   amountPaid: z.coerce.number().optional(),
-  status: z
-    .enum([
-      PaymentStatus.COMPLETED,
-      PaymentStatus.CANCELLED,
-      PaymentStatus.PENDING,
-      PaymentStatus.REFUNDED,
-    ])
-    .optional(),
   invoiceId: z.string().uuid().optional(),
   createdAt: z.coerce.date().optional(),
 });

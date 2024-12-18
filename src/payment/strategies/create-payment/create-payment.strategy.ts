@@ -4,6 +4,7 @@ import { ICreatePaymentStrategy } from './create-payment-strategy.interface';
 import { CreatePaymentDto } from '@/payment/dtos/create-payment.dto';
 import { InjectModel } from '@nestjs/sequelize';
 import { ForeignKeyConstraintError } from 'sequelize';
+import { PaymentStatus } from '@/shared/enums/payment-status.enum';
 
 @Injectable()
 export class CreatePaymentStrategy implements ICreatePaymentStrategy {
@@ -16,8 +17,8 @@ export class CreatePaymentStrategy implements ICreatePaymentStrategy {
     try {
       const payment = this.paymentModel.create({
         amountPaid: paymentInfo.amountPaid,
-        status: paymentInfo.status,
         invoiceId: paymentInfo.invoiceId,
+        status: PaymentStatus.COMPLETED,
         createdAt: new Date(),
       });
       return payment;
