@@ -25,7 +25,6 @@ export class ProvidersService {
 
     const count = await this.providerModel.count({
       where: providerInfo,
-      include: ContactRep,
       distinct: true,
     });
 
@@ -36,7 +35,6 @@ export class ProvidersService {
     if (page && limit) {
       rows = await this.providerModel.findAll({
         where: providerInfo,
-        include: ContactRep,
         offset: offset,
         limit: limit,
         subQuery: true,
@@ -44,7 +42,6 @@ export class ProvidersService {
     } else {
       rows = await this.providerModel.findAll({
         where: providerInfo,
-        include: ContactRep,
         subQuery: true,
       });
     }

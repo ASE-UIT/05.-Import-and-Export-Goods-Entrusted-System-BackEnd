@@ -73,12 +73,12 @@ export class Provider extends Model {
   @Column
   status: ProviderStatus;
 
-  @ApiProperty()
-  @ForeignKey(() => ContactRep)
-  @AllowNull(true)
-  @Column
-  contactRepId: string;
+  // @ApiProperty()
+  // @ForeignKey(() => ContactRep)
+  // @AllowNull(false)
+  // @Column
+  // contactRepId: string;
 
-  @BelongsTo(() => ContactRep)
-  contactRep: ContactRep;
+  // @HasMany(() => ContactRep)
+  // contactRep: ContactRep;
 }

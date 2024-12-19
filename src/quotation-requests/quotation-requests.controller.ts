@@ -70,7 +70,7 @@ export class QuotationReqsController {
         id: 'f1a5d699-5168-439c-8d24-1b01bd3022de',
         requestDate: '2024-10-23T00:00:00.000Z',
         status: 'PENDING',
-        customerId: 'd476badd-cd71-41be-9544-073b9f44a729',
+        userId: 'd476badd-cd71-41be-9544-073b9f44a729',
         createdAt: '2024-10-31T03:07:03.407Z',
         updatedAt: '2024-10-31T03:07:03.407Z',
       },
@@ -92,7 +92,7 @@ export class QuotationReqsController {
   })
   @ApiQuery({ name: 'requestDate', required: false, type: String })
   @ApiQuery({ name: 'status', required: false, enum: QuotationReqStatus })
-  @ApiQuery({ name: 'customerId', required: false, type: String })
+  @ApiQuery({ name: 'userId', required: false, type: String })
   @UseGuards(RoleGuard)
   @Get()
   async getQuotationReqs(
@@ -138,7 +138,7 @@ export class QuotationReqsController {
     description: 'Only the following roles can create users',
     type: ForbiddenException,
     example: new ForbiddenException(
-      'Only users with the following roles can access this resource: ADMIN,SALES,MANAGER',
+      'Only users with the following roles can access this resource: ADMIN,SALES,MANAGER,CLIENT',
     ).getResponse(),
   })
   @ApiBody({
@@ -146,12 +146,12 @@ export class QuotationReqsController {
     schema: {
       example: {
         requestDate: '2024-01-01T00:00:00.000Z',
-        customerId: '9b16a980-076c-4700-9c48-e9fccbe24766',
+        userId: '9b16a980-076c-4700-9c48-e9fccbe24766',
       },
     },
   })
   @UseGuards(RoleGuard)
-  @Roles([RoleEnum.ADMIN, RoleEnum.SALES, RoleEnum.MANAGER])
+  @Roles([RoleEnum.ADMIN, RoleEnum.SALES, RoleEnum.MANAGER, RoleEnum.CLIENT])
   @Post()
   async createQuotationReq(
     @Body(new ZodValidationPipe(CreateQuotationReqSchema))
@@ -208,7 +208,7 @@ export class QuotationReqsController {
       example: {
         requestDate: '2024-01-01T00:00:00.000Z',
         status: 'PENDING',
-        customerId: '9b16a980-076c-4700-9c48-e9fccbe24766',
+        userId: '9b16a980-076c-4700-9c48-e9fccbe24766',
       },
     },
   })
@@ -241,7 +241,7 @@ export class QuotationReqsController {
         id: 'e1b71029-1799-44e6-8208-90ba23275658',
         requestDate: '2022-04-26T00:00:00.000Z',
         status: 'COMPLETED',
-        customerId: '1e449385-bc44-4010-a81b-f416a71b7432',
+        userId: '1e449385-bc44-4010-a81b-f416a71b7432',
         createdAt: '2024-11-29T04:07:54.197Z',
         updatedAt: '2024-11-29T04:23:48.829Z',
         quoteReqDetails: {
@@ -310,7 +310,7 @@ export class QuotationReqsController {
             id: 'b2268d2f-ab44-4d09-98a1-d3a377eb72ac',
             requestDate: '2022-04-26T00:00:00.000Z',
             status: 'PENDING',
-            customerId: 'de0f1618-596c-44fa-b00b-a44c9ed6fe3a',
+            userId: 'de0f1618-596c-44fa-b00b-a44c9ed6fe3a',
             updatedAt: '2024-11-16T14:13:43.580Z',
             createdAt: '2024-11-16T14:13:43.580Z',
           },
@@ -359,7 +359,7 @@ export class QuotationReqsController {
     description: 'Only the following roles can create users',
     type: ForbiddenException,
     example: new ForbiddenException(
-      'Only users with the following roles can access this resource: ADMIN,SALES,MANAGER',
+      'Only users with the following roles can access this resource: ADMIN,SALES,MANAGER,CLIENT',
     ).getResponse(),
   })
   @ApiBody({
@@ -367,7 +367,7 @@ export class QuotationReqsController {
     schema: {
       example: {
         requestDate: '2022-04-26T00:00:00.000Z',
-        customerId: 'de0f1618-596c-44fa-b00b-a44c9ed6fe3a',
+        userId: 'de0f1618-596c-44fa-b00b-a44c9ed6fe3a',
         origin: 'Peso',
         destination: 'Sepo',
         shipmentReadyDate: '2023-04-27T00:00:00.000Z',
@@ -382,7 +382,7 @@ export class QuotationReqsController {
     },
   })
   @UseGuards(RoleGuard)
-  @Roles([RoleEnum.ADMIN, RoleEnum.SALES, RoleEnum.MANAGER])
+  @Roles([RoleEnum.ADMIN, RoleEnum.SALES, RoleEnum.MANAGER, RoleEnum.CLIENT])
   @Post('with-details')
   async createQuoteRequest(
     @Body(new ZodValidationPipe(CreateQuoteReqWithDetailSchema))
@@ -411,7 +411,7 @@ export class QuotationReqsController {
             id: 'e1b71029-1799-44e6-8208-90ba23275658',
             requestDate: '2022-04-26T00:00:00.000Z',
             status: 'COMPLETED',
-            customerId: '1e449385-bc44-4010-a81b-f416a71b7432',
+            userId: '1e449385-bc44-4010-a81b-f416a71b7432',
             createdAt: '2024-11-29T04:07:54.197Z',
             updatedAt: '2024-11-29T04:23:48.829Z',
           },
@@ -461,7 +461,7 @@ export class QuotationReqsController {
     description: 'Only the following roles can create users',
     type: ForbiddenException,
     example: new ForbiddenException(
-      'Only users with the following roles can access this resource: ADMIN,SALES,MANAGER',
+      'Only users with the following roles can access this resource: ADMIN, SALES, MANAGER, CLIENT',
     ).getResponse(),
   })
   @ApiResponse({
@@ -476,7 +476,7 @@ export class QuotationReqsController {
     type: UpdateQuoteReqWithDetailDto,
   })
   @UseGuards(RoleGuard)
-  @Roles([RoleEnum.ADMIN, RoleEnum.SALES, RoleEnum.MANAGER])
+  @Roles([RoleEnum.ADMIN, RoleEnum.SALES, RoleEnum.MANAGER, RoleEnum.CLIENT])
   @Patch('with-details/:id')
   async updateQuoteRequestWithDetails(
     @Param('id') id: string,

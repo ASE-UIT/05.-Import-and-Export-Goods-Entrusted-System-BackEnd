@@ -25,7 +25,7 @@ export class CreateProviderStrategy implements ICreateProviderStrategy {
         address: providerInfo.address,
         country: providerInfo.country,
         status: providerInfo.status,
-        contactRepId: providerInfo.contactRepId,
+        // contactRepId: providerInfo.contactRepId,
       });
       return newProvider;
     } catch (err) {
@@ -35,9 +35,9 @@ export class CreateProviderStrategy implements ICreateProviderStrategy {
         );
         throw new ConflictException(new ValidationError(errors));
       }
-      if (err instanceof ForeignKeyConstraintError) {
-        throw new ConflictException('Contact representative not found');
-      }
+      // if (err instanceof ForeignKeyConstraintError) {
+      //   throw new ConflictException('Contact representative not found');
+      //}
     }
   }
 }

@@ -25,6 +25,12 @@ export const CreateContractSchema = z.object({
     })
     .uuid()
     .describe('The quotation ID associated with the contract'),
+  // userId: z
+  //   .string({
+  //     message: 'A user association is needed to create a contract',
+  //   })
+  //   .uuid()
+  //   .describe('The user ID associated with the contract'),
 });
 
 export class CreateContractDto extends createZodDto(CreateContractSchema) {}

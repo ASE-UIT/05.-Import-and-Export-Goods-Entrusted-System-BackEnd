@@ -28,6 +28,8 @@ import { LegalRepsModule } from './legal-representative/legal-rep.module';
 import { RolesModule } from './roles/roles.module';
 import { FCLModule } from './fcls/fcls.module';
 import { LCLModule } from './lcls/lcls.module';
+import { ContactRepFirmRepModule } from './contact-representatives-firm-representatives/contact-firm-representatives.module';
+import { FirmRepsModule } from './firm-representatives/firm-representatives.module';
 
 @Module({
   imports: [
@@ -45,7 +47,7 @@ import { LCLModule } from './lcls/lcls.module';
         password: configService.getOrThrow<string>('POSTGRES_PASSWORD'),
         database: configService.getOrThrow<string>('POSTGRES_DB'),
         autoLoadModels: true,
-        sync: { },
+        sync: {},
         logging: false,
       }),
     }),
@@ -74,6 +76,8 @@ import { LCLModule } from './lcls/lcls.module';
     RolesModule,
     FCLModule,
     LCLModule,
+    FirmRepsModule,
+    ContactRepFirmRepModule,
   ],
   controllers: [AppController],
   providers: [AppService],

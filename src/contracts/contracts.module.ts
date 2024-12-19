@@ -17,9 +17,10 @@ import { FindContractByEmployeeIdStrategy } from './strategies/find-contract/fin
 import { FindContractByQuotationIdStrategy } from './strategies/find-contract/find-by-quotation-id.strategy';
 import { UpdateContractStrategy } from './strategies/update-contract/update-contract.strategy';
 import { FindContractStrategy } from './strategies/find-contract/find-contract.strategy';
+import { User } from '@/users/models/user.model';
 
 @Module({
-  imports: [SequelizeModule.forFeature([Contract, Employee, Quotation])],
+  imports: [SequelizeModule.forFeature([Contract, Employee, Quotation, User])],
   controllers: [ContractsController],
   providers: [
     ContractsService,

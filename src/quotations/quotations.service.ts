@@ -19,7 +19,7 @@ import { IFindQuotationStrategy } from './strategies/find-quotation/find-quotati
 import { CreateQuotationStrategy } from './strategies/create-quotation/create-quotation.strategy';
 import { UpdateQuotationStrategy } from './strategies/update-quotation/update-quotation.strategy';
 import { FindQuotationByEmployeeId } from './strategies/find-quotation/find-by-employee-id';
-import { FindQuotationByCustomerId } from './strategies/find-quotation/find-by-customer-id';
+import { FindQuotationByUserId } from './strategies/find-quotation/find-by-user-id';
 import { ForeignKeyConstraintError, Op } from 'sequelize';
 import { QueryQuotationDto } from './dtos/QueryQuotationDto';
 import { PaginationDto } from '@/shared/dto/pagination.dto';
@@ -27,12 +27,17 @@ import { PaginationResponse } from '@/shared/dto/paginantion-response.dto';
 import { PaginatedResponse } from '@/shared/dto/paginated-response.dto';
 import { InjectModel } from '@nestjs/sequelize';
 import { Sequelize } from 'sequelize-typescript';
+import { QuotationStatus } from '@/shared/enums/quotation-status.enum';
+import { QuotationReq } from '@/quotation-requests/models/quotationReq.model';
+import { UpdateQuotationDto } from './dtos/UpdateQuotationDto';
 
 @Injectable()
 export class QuotationsService {
   constructor(
     @InjectModel(Quotation)
     private quotationModel: typeof Quotation,
+    @InjectModel(QuotationReq)
+    private quoteReqModel: typeof QuotationReq,
     private findAllQuotationStrategy: FindAllQuotationStrategy,
     private findQuotationByPickupDate: FindQuotationByPickupDate,
     private findQuotationByStatus: FindQuotationByStatus,
@@ -41,18 +46,40 @@ export class QuotationsService {
     private findQuotationByQuotationDate: FindQuotationByQuotationDate,
     private findQuotationByTotalPrice: FindQuotationByTotalPrice,
     private findQuotationByEmployeeId: FindQuotationByEmployeeId,
-    private findQuotationByCustomerId: FindQuotationByCustomerId,
+    private findQuotationByUserId: FindQuotationByUserId,
     private createQuotationStrategy: CreateQuotationStrategy,
     private updateQuotationStrategy: UpdateQuotationStrategy,
   ) {}
 
   async create(quotationInfo: CreateQuotationDto): Promise<Quotation> {
     try {
-      return await this.createQuotationStrategy.create(quotationInfo);
+      //return await this.createQuotationStrategy.create(quotationInfo);
+      const quoteReq = await this.quoteReqModel.findByPk(
+        quotationInfo.quoteReqId,
+      );
+      if (!quoteReq) {
+        throw new NotFoundException('Quotation request not found');
+      }
+
+      return await this.quotationModel.create({
+        totalPrice: 0,
+        pickupDate: quotationInfo.pickupDate,
+        deliveryDate: quotationInfo.deliveryDate,
+        quotationDate: quotationInfo.quotationDate,
+        expiredDate: quotationInfo.expiredDate,
+        status: QuotationStatus.DRAFT,
+        freightId: quotationInfo.freightId,
+        quoteReqId: quotationInfo.quoteReqId,
+        employeeId: quotationInfo.employeeId,
+        userId: quoteReq.userId,
+      });
     } catch (error) {
-      // if (error instanceof ForeignKeyConstraintError) {
-      //   throw new HttpException('Invalid foreign key.', HttpStatus.BAD_REQUEST);
-      // }
+      if (error instanceof ForeignKeyConstraintError) {
+        throw new HttpException(
+          `Invalid foreign key: ${error.message}`,
+          HttpStatus.BAD_REQUEST,
+        );
+      }
       if (error instanceof NotFoundException) {
         throw new HttpException('Invalid foreign key.', HttpStatus.BAD_REQUEST);
       }
@@ -70,17 +97,17 @@ export class QuotationsService {
 
     const whereCondition: any = { ...quotationInfo };
 
-    if (quotationInfo.customerId) {
-      whereCondition.quoteReqId = {
-        [Op.in]: Sequelize.literal(`(
-      SELECT "id" 
-      FROM "quotation_reqs" 
-      WHERE "customerId" = '${quotationInfo.customerId}'
-    )`),
-      };
+    // if (quotationInfo.userId) {
+    //   whereCondition.quoteReqId = {
+    //     [Op.in]: Sequelize.literal(`(
+    //   SELECT "id"
+    //   FROM "quotation_reqs"
+    //   WHERE "userId" = '${quotationInfo.userId}'
+    // )`),
+    //   };
 
-      delete whereCondition.customerId;
-    }
+    //   delete whereCondition.userId;
+    // }
 
     // const count = await this.quotationModel.count({
     //   where: whereCondition,
@@ -150,13 +177,38 @@ export class QuotationsService {
 
   async update(
     quotationID: string,
-    updateInfo: Partial<CreateQuotationDto>,
+    updateInfo: UpdateQuotationDto,
   ): Promise<Quotation> {
     if (Object.keys(updateInfo).length < 1) {
       throw new BadRequestException('Body is empty');
     }
     try {
-      return await this.updateQuotationStrategy.update(quotationID, updateInfo);
+      const currentQuotation = await this.quotationModel.findByPk(quotationID);
+      if (!currentQuotation) {
+        throw new NotFoundException('Quotation does not exist in database');
+      }
+
+      const { quotationDate, pickupDate, deliveryDate, expiredDate } = {
+        ...currentQuotation.dataValues,
+        ...updateInfo, // merge existing and updated values
+      };
+
+      if (
+        (quotationDate && pickupDate && quotationDate > pickupDate) ||
+        (pickupDate && deliveryDate && pickupDate > deliveryDate) ||
+        (deliveryDate && expiredDate && deliveryDate > expiredDate)
+      ) {
+        throw new BadRequestException(
+          'Dates must be in the following order: quotationDate <= pickupDate <= deliveryDate <= expiredDate',
+        );
+      }
+
+      const [affetedRows, [updateData]] = await this.quotationModel.update(
+        { ...updateInfo },
+        { where: { id: quotationID }, returning: true },
+      );
+      return updateData.dataValues as Quotation;
+      //return await this.updateQuotationStrategy.update(quotationID, updateInfo);
     } catch (error) {
       if (error instanceof NotFoundException) {
         throw new HttpException(
@@ -166,6 +218,9 @@ export class QuotationsService {
       }
       if (error instanceof ForeignKeyConstraintError) {
         throw new HttpException('Invalid foreign key', HttpStatus.BAD_REQUEST);
+      }
+      if (error instanceof BadRequestException) {
+        throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
       }
       throw new Error();
     }

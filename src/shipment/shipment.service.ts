@@ -1,8 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import {
-  CreateShipmentDto,
-  //UpdateShipmentDto,
-} from './dtos/create-shipment.dto';
+import { CreateShipmentDto } from './dtos/create-shipment.dto';
 import { Shipment } from './models/shipment.model';
 import { InjectModel } from '@nestjs/sequelize';
 import { ForeignKeyConstraintError } from 'sequelize';
@@ -17,6 +14,7 @@ import { Quotation } from '@/quotations/models/quotations.model';
 import { QuotationReq } from '@/quotation-requests/models/quotationReq.model';
 import { QuoteReqDetail } from '@/quote-request-details/models/quoteReqDetail.model';
 import { Invoice } from '@/invoices/models/invoice.model';
+import { User } from '@/users/models/user.model';
 
 type ShipemntResponse = {
   shipment: Shipment;
@@ -89,11 +87,15 @@ export class ShipmentService {
                 include: [
                   {
                     model: QuotationReq,
-                    attributes: ['customerId'],
+                    attributes: [['userId', 'customerId']],
                     include: [
                       {
-                        model: Customer,
-                        attributes: ['id', 'name'],
+                        model: User,
+                        as: 'customer',
+                        attributes: [
+                          ['id', 'id'],
+                          ['username', 'name'],
+                        ],
                       },
                       {
                         model: QuoteReqDetail,
@@ -127,11 +129,15 @@ export class ShipmentService {
                 include: [
                   {
                     model: QuotationReq,
-                    attributes: ['customerId'],
+                    attributes: [['userId', 'customerId']],
                     include: [
                       {
-                        model: Customer,
-                        attributes: ['id', 'name'],
+                        model: User,
+                        as: 'customer',
+                        attributes: [
+                          ['id', 'id'],
+                          ['username', 'name'],
+                        ],
                       },
                       {
                         model: QuoteReqDetail,
@@ -172,7 +178,7 @@ export class ShipmentService {
         },
         {
           model: Contract,
-          attributes: ['quotationId', 'endDate'],
+          attributes: ['quotationId', 'endDate', 'userId'],
           include: [
             {
               model: Invoice,
@@ -184,11 +190,15 @@ export class ShipmentService {
               include: [
                 {
                   model: QuotationReq,
-                  attributes: ['customerId'],
+                  attributes: [['userId', 'customerId']],
                   include: [
                     {
-                      model: Customer,
-                      attributes: ['id', 'name'],
+                      model: User,
+                      as: 'customer',
+                      attributes: [
+                        ['id', 'id'],
+                        ['username', 'name'],
+                      ],
                     },
                     {
                       model: QuoteReqDetail,

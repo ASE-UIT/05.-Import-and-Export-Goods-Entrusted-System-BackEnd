@@ -90,12 +90,6 @@ export class ProvidersController {
     description: 'Search provider by country',
   })
   @ApiQuery({
-    name: 'contactRepId',
-    type: String,
-    required: false,
-    description: 'Search provider by contact representative id',
-  })
-  @ApiQuery({
     name: 'status',
     enum: ProviderStatus,
     required: false,
@@ -161,7 +155,6 @@ export class ProvidersController {
       "email": 'newprovider@example.com',
       "address": '123 Main St',
       "country": 'Vietnam',
-      "contactRepId": '123e4567-e89b-12d3-a456-426614174000',
       "status": ProviderStatus.INACTIVE,
     }
   })
@@ -222,7 +215,6 @@ export class ProvidersController {
       "email": 'updatedprovider@example.com',
       "address": 'Updated Address 123',
       "country": 'Vietnam',
-      "contactRepId": '123e4567-e89b-12d3-a456-426614174001',
       "status": ProviderStatus.INACTIVE,
     }
   })

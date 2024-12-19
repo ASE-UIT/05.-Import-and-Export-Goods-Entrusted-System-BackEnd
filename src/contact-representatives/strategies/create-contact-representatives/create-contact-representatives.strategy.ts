@@ -18,6 +18,8 @@ export class CreateContactRepsStrategy implements ICreateContactRepsStrategy{
         name: contactRepData.name,
         email: contactRepData.email,
         phone: contactRepData.phone,
+        branch_location: contactRepData.branch_location,
+        provider_id: contactRepData.provider_id,
       });
       return contactRep;
     } catch (err) {
@@ -27,6 +29,8 @@ export class CreateContactRepsStrategy implements ICreateContactRepsStrategy{
         );
         throw new ConflictException(new ValidationError(errors));
       }
+    if (err instanceof ForeignKeyConstraintError)
+      throw new NotFoundException('Provider not found');
     }
   }
 }

@@ -10,11 +10,11 @@ export const CreateProviderSchema = z.object({
   address: z.string().min(1).describe("Provider's address"),
   country: z.string().min(1).describe("Provider's country"),
   status: z.nativeEnum(ProviderStatus).default(ProviderStatus.ACTIVE), 
-  contactRepId: z
-    .string()
-    .min(1)
-    .uuid()
-    .describe("The provider's contact representative id"),
+  // contactRepId: z
+  //   .string()
+  //   .min(1)
+  //   .uuid()
+  //   .describe("The provider's contact representative id"),
 });
 
 export class CreateProviderDto extends createZodDto(CreateProviderSchema) {}

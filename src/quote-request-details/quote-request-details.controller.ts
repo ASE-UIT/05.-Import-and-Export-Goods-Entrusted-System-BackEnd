@@ -175,7 +175,7 @@ export class QuoteReqDetailsController {
     description: 'Only the following roles can create users',
     type: ForbiddenException,
     example: new ForbiddenException(
-      'Only users with the following roles can access this resource: ADMIN,SALES,MANAGER',
+      'Only users with the following roles can access this resource: ADMIN, SALES, MANAGER, CLIENT',
     ).getResponse(),
   })
   @ApiBody({
@@ -187,12 +187,13 @@ export class QuoteReqDetailsController {
         shipmentReadyDate: '2024-10-23',
         shipmentDeadline: '2024-11-23',
         cargoInsurance: false,
+        shipmentType: 'AIR',
         quoteReqId: '1c26b2ca-a13c-40a7-9903-fa092e2ecb5c',
       },
     },
   })
   @UseGuards(RoleGuard)
-  @Roles([RoleEnum.ADMIN, RoleEnum.SALES, RoleEnum.MANAGER])
+  @Roles([RoleEnum.ADMIN, RoleEnum.SALES, RoleEnum.MANAGER, RoleEnum.CLIENT])
   @Post()
   async createQuoteReqDetail(
     @Body(new ZodValidationPipe(CreateQuoteReqDetailSchema))
@@ -233,7 +234,7 @@ export class QuoteReqDetailsController {
     description: 'Only the following roles can create users',
     type: ForbiddenException,
     example: new ForbiddenException(
-      'Only users with the following roles can access this resource: ADMIN,SALES,MANAGER',
+      'Only users with the following roles can access this resource: ADMIN, SALES, MANAGER, CLIENT',
     ).getResponse(),
   })
   @ApiResponse({
@@ -258,7 +259,7 @@ export class QuoteReqDetailsController {
     },
   })
   @UseGuards(RoleGuard)
-  @Roles([RoleEnum.ADMIN, RoleEnum.SALES, RoleEnum.MANAGER])
+  @Roles([RoleEnum.ADMIN, RoleEnum.SALES, RoleEnum.MANAGER, RoleEnum.CLIENT])
   @Patch(':id')
   async updateQuoteReqDetail(
     @Param('id') id: string,

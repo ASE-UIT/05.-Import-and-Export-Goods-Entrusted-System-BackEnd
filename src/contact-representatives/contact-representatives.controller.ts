@@ -60,6 +60,8 @@ export class ContactRepsController {
       "name": 'John Doe',
       "phone": '1234567890',
       "email": 'johndoe@example.com',
+      "branch_location": 'Viet Nam',
+      "provider_id": '550e8400-e29b-41d4-a716-446655440000',
     }
   })
   @ApiResponse({
@@ -107,6 +109,8 @@ export class ContactRepsController {
       "name": 'Updated name',
       "phone": '123456',
       "email": 'UpdatedEmail@example.com',
+      "branch_location": 'Updated location',
+      "provider_id": '550e8400-e29b-41d4-a716-446655440000',
     }
   })
   @ApiResponse({
@@ -190,6 +194,18 @@ export class ContactRepsController {
     type: String,
     required: false,
     description: 'Search contact representative by id',
+  })
+  @ApiQuery({
+    name: 'branch_location',
+    type: String,
+    required: false,
+    description: 'Search contact representative by branch location',
+  })
+  @ApiQuery({
+    name: 'provider_id',
+    type: String,
+    required: false,
+    description: 'Search contact representative by provider ID',
   })
   @ApiResponse({
     status: 200,

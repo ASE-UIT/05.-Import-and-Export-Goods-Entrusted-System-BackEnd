@@ -1,7 +1,7 @@
 import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { IUpdateContactRepsStrategy } from './update-contact-representatives-strategy.interface';
 import { ContactRep } from '@/contact-representatives/models/contact-representatives.model';
-import { UniqueConstraintError } from 'sequelize';
+import { ForeignKeyConstraintError, UniqueConstraintError } from 'sequelize';
 import { CreateContactRepDto } from '@/contact-representatives/dtos/create-contact-representatives.dto';
 import { InjectModel } from '@nestjs/sequelize';
 import { ValidationError, ValidationErrorDetail } from '@/shared/classes/validation-error.class';
@@ -40,6 +40,9 @@ export class UpdateContactRepsStrategy implements IUpdateContactRepsStrategy {
         const errors = err.errors.map(
           (error) => new ValidationErrorDetail(error.path, error.message),
         );
+      if (err instanceof ForeignKeyConstraintError) {
+        throw new NotFoundException('Provider not found');
+      }
         throw new ConflictException(new ValidationError(errors));
       }
     }
