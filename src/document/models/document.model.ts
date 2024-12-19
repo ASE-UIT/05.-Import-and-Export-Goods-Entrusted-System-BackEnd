@@ -44,6 +44,20 @@ export class Document extends Model {
   })
   userId: string;
 
+  @ApiProperty()
+  @AllowNull(true)
+  @Column({
+    type: sequelize.DataTypes.JSON,
+  })
+  fields: JSON;
+
+  @ApiProperty()
+  @AllowNull(true)
+  @Column({
+    type: sequelize.DataTypes.JSON,
+  })
+  schema: JSON;
+
   //Association
   @ApiProperty()
   @ForeignKey(() => Shipment)

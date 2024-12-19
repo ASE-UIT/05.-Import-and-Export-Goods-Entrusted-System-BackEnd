@@ -146,12 +146,18 @@ export class DocumentController {
     return new SuccessResponse('Document updated', result);
   }
 
-  @ApiOperation({ summary: 'Search for document' })
+  @ApiOperation({ summary: 'Get document based on queries' })
   @ApiQuery({
     name: 'shipmentId',
     type: String,
     required: false,
-    description: 'Search document by shipment id',
+    description: 'Get all documents that belong to a shipment',
+  })
+  @ApiQuery({
+    name: 'userId',
+    type: String,
+    required: false,
+    description: 'Get all documents that belong to a user',
   })
   @ApiQuery({
     name: 'type',
@@ -209,7 +215,7 @@ export class DocumentController {
     return new SuccessResponse('Success', result);
   }
 
-  @ApiOperation({ summary: "Get a specific user's document" })
+  @ApiOperation({ summary: 'Get a specific document' })
   @ApiResponse({
     status: 200,
     description: 'Success',
@@ -243,12 +249,12 @@ export class DocumentController {
   })
   // @UseGuards(RoleGuard)
   // @Roles([RoleEnum.ADMIN, RoleEnum.DOCUMENTATION, RoleEnum.CLIENT])
-  @Get(':userId')
+  @Get(':id')
   async findUserDocument(
-    @Param('userId')
+    @Param('id')
     userId: string,
   ) {
-    const result = await this.documentService.findUserDocument(userId);
+    const result = await this.documentService.findDocumentById(userId);
     return new SuccessResponse('Success', result);
   }
 }
