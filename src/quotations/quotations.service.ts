@@ -75,7 +75,10 @@ export class QuotationsService {
       });
     } catch (error) {
       if (error instanceof ForeignKeyConstraintError) {
-        throw new HttpException('Invalid foreign key.', HttpStatus.BAD_REQUEST);
+        throw new HttpException(
+          `Invalid foreign key: ${error.message}`,
+          HttpStatus.BAD_REQUEST,
+        );
       }
       if (error instanceof NotFoundException) {
         throw new HttpException('Invalid foreign key.', HttpStatus.BAD_REQUEST);

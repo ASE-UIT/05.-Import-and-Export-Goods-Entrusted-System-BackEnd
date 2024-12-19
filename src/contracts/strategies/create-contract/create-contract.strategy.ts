@@ -18,14 +18,16 @@ export class CreateContractStrategy implements ICreateContractStrategy {
         endDate: strategyInfo.endDate,
         status: strategyInfo.status,
         contractDate: strategyInfo.contractDate,
-        userId: strategyInfo.userId,
+        //userId: strategyInfo.userId,
         employeeId: strategyInfo.employeeId,
         quotationId: strategyInfo.quotationId,
       });
       return contract;
     } catch (err) {
       if (err instanceof ForeignKeyConstraintError) {
-        throw new ConflictException('Employee Id or Quotation Id or User Id not found');
+        throw new ConflictException(
+          'Employee Id or Quotation Id or User Id not found',
+        );
       }
     }
   }
