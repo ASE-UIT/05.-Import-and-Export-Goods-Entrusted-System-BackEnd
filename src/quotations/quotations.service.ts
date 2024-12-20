@@ -214,10 +214,19 @@ export class QuotationsService {
     return quotationsWithServiceIds;
   }
 
-  async findQuotationById(id: string): Promise<Quotation> {
+  async findQuotationById(id: string) {
     const quotation = await this.quotationModel.findOne({ where: { id } });
     if (!quotation) throw new NotFoundException('Quotation not found');
-    return quotation;
+    const serviceRecords = await this.quotationServiceModel.findAll({
+      where: { quotation_id: quotation.id },
+      attributes: ['service_id'],
+    });
+
+    const serviceIds = serviceRecords.map((record) => record.service_id);
+    return {
+      ...quotation.toJSON(),
+      serviceIds,
+    };
   }
 
   async update(
@@ -252,8 +261,18 @@ export class QuotationsService {
         { ...updateInfo },
         { where: { id: quotationID }, returning: true },
       );
-      return updateData.dataValues as Quotation;
-      //return await this.updateQuotationStrategy.update(quotationID, updateInfo);
+
+      const serviceRecords = await this.quotationServiceModel.findAll({
+        where: { quotation_id: quotationID },
+        attributes: ['service_id'],
+      });
+
+      const serviceIds = serviceRecords.map((record) => record.service_id);
+
+      return {
+        ...updateData.dataValues,
+        serviceIds,
+      };
     } catch (error) {
       if (error instanceof NotFoundException) {
         throw new HttpException(
