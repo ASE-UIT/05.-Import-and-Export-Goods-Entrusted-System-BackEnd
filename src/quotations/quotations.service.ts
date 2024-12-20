@@ -7,29 +7,15 @@ import {
 } from '@nestjs/common';
 import { Quotation } from './models/quotations.model';
 import { CreateQuotationDto } from './dtos/CreateQuotationDto';
-import { FindQuotationByStatus } from './strategies/find-quotation/find-by-status';
-import { FindQuotationByDeliveryDate } from './strategies/find-quotation/find-by-delivery-date';
-import { FindQuotationByExpiredDate } from './strategies/find-quotation/find-by-expired-date';
-import { FindQuotationByPickupDate } from './strategies/find-quotation/find-by-pickup-date';
-import { FindQuotationByQuotationDate } from './strategies/find-quotation/find-by-quotation-date';
-import { FindQuotationByTotalPrice } from './strategies/find-quotation/find-by-total-price';
-import { FindAllQuotationStrategy } from './strategies/find-quotation/find-all.strategy';
-import { FindQuotationStrategy } from './strategies/find-quotation/find-quotation-strategy.enum';
-import { IFindQuotationStrategy } from './strategies/find-quotation/find-quotation-strategy.interface';
-import { CreateQuotationStrategy } from './strategies/create-quotation/create-quotation.strategy';
-import { UpdateQuotationStrategy } from './strategies/update-quotation/update-quotation.strategy';
-import { FindQuotationByEmployeeId } from './strategies/find-quotation/find-by-employee-id';
-import { FindQuotationByUserId } from './strategies/find-quotation/find-by-user-id';
 import { ForeignKeyConstraintError, Op } from 'sequelize';
 import { QueryQuotationDto } from './dtos/QueryQuotationDto';
-import { PaginationDto } from '@/shared/dto/pagination.dto';
-import { PaginationResponse } from '@/shared/dto/paginantion-response.dto';
-import { PaginatedResponse } from '@/shared/dto/paginated-response.dto';
 import { InjectModel } from '@nestjs/sequelize';
-import { Sequelize } from 'sequelize-typescript';
 import { QuotationStatus } from '@/shared/enums/quotation-status.enum';
 import { QuotationReq } from '@/quotation-requests/models/quotationReq.model';
 import { UpdateQuotationDto } from './dtos/UpdateQuotationDto';
+import { Sequelize } from 'sequelize-typescript';
+import { QuotationService } from '@/quotation-services/models/quotation-services.model';
+import { Service } from '@/services/models/service.model';
 
 @Injectable()
 export class QuotationsService {
@@ -38,20 +24,26 @@ export class QuotationsService {
     private quotationModel: typeof Quotation,
     @InjectModel(QuotationReq)
     private quoteReqModel: typeof QuotationReq,
-    private findAllQuotationStrategy: FindAllQuotationStrategy,
-    private findQuotationByPickupDate: FindQuotationByPickupDate,
-    private findQuotationByStatus: FindQuotationByStatus,
-    private findQuotationByDeliveryDate: FindQuotationByDeliveryDate,
-    private findQuotationByExpiredDate: FindQuotationByExpiredDate,
-    private findQuotationByQuotationDate: FindQuotationByQuotationDate,
-    private findQuotationByTotalPrice: FindQuotationByTotalPrice,
-    private findQuotationByEmployeeId: FindQuotationByEmployeeId,
-    private findQuotationByUserId: FindQuotationByUserId,
-    private createQuotationStrategy: CreateQuotationStrategy,
-    private updateQuotationStrategy: UpdateQuotationStrategy,
+    @InjectModel(QuotationService)
+    private quotationServiceModel: typeof QuotationService,
+    @InjectModel(Service)
+    private serviceModel: typeof Service,
+    private sequelize: Sequelize,
+    // private findAllQuotationStrategy: FindAllQuotationStrategy,
+    // private findQuotationByPickupDate: FindQuotationByPickupDate,
+    // private findQuotationByStatus: FindQuotationByStatus,
+    // private findQuotationByDeliveryDate: FindQuotationByDeliveryDate,
+    // private findQuotationByExpiredDate: FindQuotationByExpiredDate,
+    // private findQuotationByQuotationDate: FindQuotationByQuotationDate,
+    // private findQuotationByTotalPrice: FindQuotationByTotalPrice,
+    // private findQuotationByEmployeeId: FindQuotationByEmployeeId,
+    // private findQuotationByUserId: FindQuotationByUserId,
+    // private createQuotationStrategy: CreateQuotationStrategy,
+    // private updateQuotationStrategy: UpdateQuotationStrategy,
   ) {}
 
-  async create(quotationInfo: CreateQuotationDto): Promise<Quotation> {
+  async create(quotationInfo: CreateQuotationDto) {
+    const transaction = await this.sequelize.transaction();
     try {
       //return await this.createQuotationStrategy.create(quotationInfo);
       const quoteReq = await this.quoteReqModel.findByPk(
@@ -61,19 +53,86 @@ export class QuotationsService {
         throw new NotFoundException('Quotation request not found');
       }
 
-      return await this.quotationModel.create({
-        totalPrice: 0,
-        pickupDate: quotationInfo.pickupDate,
-        deliveryDate: quotationInfo.deliveryDate,
-        quotationDate: quotationInfo.quotationDate,
-        expiredDate: quotationInfo.expiredDate,
-        status: QuotationStatus.DRAFT,
-        freightId: quotationInfo.freightId,
-        quoteReqId: quotationInfo.quoteReqId,
-        employeeId: quotationInfo.employeeId,
-        userId: quoteReq.userId,
-      });
+      let totalServicePrice = 0;
+
+      if (quotationInfo.serviceIds && quotationInfo.serviceIds.length > 0) {
+        const services = await this.serviceModel.findAll({
+          where: { id: quotationInfo.serviceIds },
+          attributes: ['id', 'fee'], // Lấy thêm thuộc tính `fee`
+          transaction,
+        });
+
+        const validServiceIds = services.map((service) => service.id);
+        const invalidServiceIds = quotationInfo.serviceIds.filter(
+          (serviceId) => !validServiceIds.includes(serviceId),
+        );
+
+        if (invalidServiceIds.length > 0) {
+          throw new NotFoundException(
+            `Invalid service ids: ${invalidServiceIds.join(', ')}`,
+          );
+        }
+
+        totalServicePrice = services.reduce(
+          (sum, service) => sum + service.fee,
+          0,
+        );
+
+        const quotation = await this.quotationModel.create(
+          {
+            totalPrice: totalServicePrice,
+            pickupDate: quotationInfo.pickupDate,
+            deliveryDate: quotationInfo.deliveryDate,
+            quotationDate: quotationInfo.quotationDate,
+            expiredDate: quotationInfo.expiredDate,
+            status: QuotationStatus.DRAFT,
+            freightId: quotationInfo.freightId,
+            quoteReqId: quotationInfo.quoteReqId,
+            employeeId: quotationInfo.employeeId,
+            userId: quoteReq.userId,
+          },
+          { transaction },
+        );
+
+        const quotationServices = quotationInfo.serviceIds.map((serviceId) => ({
+          quotation_id: quotation.id,
+          service_id: serviceId,
+        }));
+
+        await this.quotationServiceModel.bulkCreate(quotationServices, {
+          transaction,
+        });
+
+        await transaction.commit();
+        return {
+          ...quotation.toJSON(),
+          servideIds: quotationInfo.serviceIds,
+        };
+      } else {
+        const quotation = await this.quotationModel.create(
+          {
+            totalPrice: totalServicePrice,
+            pickupDate: quotationInfo.pickupDate,
+            deliveryDate: quotationInfo.deliveryDate,
+            quotationDate: quotationInfo.quotationDate,
+            expiredDate: quotationInfo.expiredDate,
+            status: QuotationStatus.DRAFT,
+            freightId: quotationInfo.freightId,
+            quoteReqId: quotationInfo.quoteReqId,
+            employeeId: quotationInfo.employeeId,
+            userId: quoteReq.userId,
+          },
+          { transaction },
+        );
+
+        await transaction.commit();
+        return {
+          ...quotation.toJSON(),
+          servideIds: [],
+        };
+      }
     } catch (error) {
+      await transaction.rollback();
       if (error instanceof ForeignKeyConstraintError) {
         throw new HttpException(
           `Invalid foreign key: ${error.message}`,
@@ -81,7 +140,7 @@ export class QuotationsService {
         );
       }
       if (error instanceof NotFoundException) {
-        throw new HttpException('Invalid foreign key.', HttpStatus.BAD_REQUEST);
+        throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
       }
       throw new Error(error);
     }
@@ -133,7 +192,26 @@ export class QuotationsService {
     //   pagination: paginationInfo,
     //   results: rows,
     // };
-    return rows;
+
+    const quotationsWithServiceIds = await Promise.all(
+      rows.map(async (quotation) => {
+        // Lấy các serviceId liên quan đến quotation này
+        const services = await this.quotationServiceModel.findAll({
+          where: { quotation_id: quotation.id },
+          attributes: ['service_id'],
+        });
+
+        // Lấy danh sách các serviceIds
+        const serviceIds = services.map((service) => service.service_id);
+
+        // Trả về quotation kèm theo serviceIds
+        return {
+          ...quotation.toJSON(), // Lấy tất cả thông tin của quotation
+          serviceIds, // Thêm serviceIds vào kết quả trả về
+        };
+      }),
+    );
+    return quotationsWithServiceIds;
   }
 
   async findQuotationById(id: string): Promise<Quotation> {
@@ -141,39 +219,6 @@ export class QuotationsService {
     if (!quotation) throw new NotFoundException('Quotation not found');
     return quotation;
   }
-
-  // async find(
-  //   strategy: FindQuotationStrategy,
-  //   quotationInfo: any,
-  // ): Promise<Quotation[] | null> {
-  //   const findStrategy = this.getFindStrategy(strategy);
-  //   const quotation: Quotation[] | null =
-  //     await findStrategy.find(quotationInfo);
-  //   return quotation;
-  // }
-
-  // getFindStrategy(strategy: FindQuotationStrategy): IFindQuotationStrategy {
-  //   switch (strategy) {
-  //     case FindQuotationStrategy.ALL:
-  //       return this.findAllQuotationStrategy;
-  //     case FindQuotationStrategy.DELIVERY_DATE:
-  //       return this.findQuotationByDeliveryDate;
-  //     case FindQuotationStrategy.EXPIRED_DATE:
-  //       return this.findQuotationByExpiredDate;
-  //     case FindQuotationStrategy.PICKUP_DATE:
-  //       return this.findQuotationByPickupDate;
-  //     case FindQuotationStrategy.QUOTATION_DATE:
-  //       return this.findQuotationByQuotationDate;
-  //     case FindQuotationStrategy.STATUS:
-  //       return this.findQuotationByStatus;
-  //     case FindQuotationStrategy.TOTAL_PRICE:
-  //       return this.findQuotationByTotalPrice;
-  //     case FindQuotationStrategy.EMPLOYEE_ID:
-  //       return this.findQuotationByEmployeeId;
-  //     case FindQuotationStrategy.CUSTOMER_ID:
-  //       return this.findQuotationByCustomerId;
-  //   }
-  // }
 
   async update(
     quotationID: string,

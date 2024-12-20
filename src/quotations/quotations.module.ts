@@ -16,9 +16,18 @@ import { FindQuotationByEmployeeId } from './strategies/find-quotation/find-by-e
 import { FindQuotationByUserId } from './strategies/find-quotation/find-by-user-id';
 import { FindQuotationReqByUserIdStrategy } from '@/quotation-requests/strategies/find-quotationReq/find-by-userId.strategy';
 import { QuotationReq } from '@/quotation-requests/models/quotationReq.model';
+import { QuotationService } from '@/quotation-services/models/quotation-services.model';
+import { Service } from '@/services/models/service.model';
 
 @Module({
-  imports: [SequelizeModule.forFeature([Quotation, QuotationReq])],
+  imports: [
+    SequelizeModule.forFeature([
+      Quotation,
+      QuotationReq,
+      QuotationService,
+      Service,
+    ]),
+  ],
   controllers: [QuotationsController],
   providers: [
     QuotationsService,
@@ -36,4 +45,4 @@ import { QuotationReq } from '@/quotation-requests/models/quotationReq.model';
     UpdateQuotationStrategy,
   ],
 })
-export class QuotationsModule { }
+export class QuotationsModule {}

@@ -6,7 +6,7 @@ import {
   Table,
   PrimaryKey,
   ForeignKey,
-  DataType,
+  BelongsTo,
 } from 'sequelize-typescript';
 
 @Table({ tableName: 'quotation_services', timestamps: true })
@@ -23,17 +23,23 @@ export class QuotationService extends Model<QuotationService> {
   @Column
   service_id: string;
 
-  @Column({
-    type: DataType.DATE,
-    allowNull: false,
-    defaultValue: DataType.NOW, // Đảm bảo giá trị mặc định cho createdAt
-  })
-  createdAt: Date;
+  @BelongsTo(() => Quotation)
+  quotation: Quotation;
 
-  @Column({
-    type: DataType.DATE,
-    allowNull: false,
-    defaultValue: DataType.NOW, // Đảm bảo giá trị mặc định cho updatedAt
-  })
-  updatedAt: Date;
+  @BelongsTo(() => Service)
+  service: Service;
+
+  // @Column({
+  //   type: DataType.DATE,
+  //   allowNull: false,
+  //   defaultValue: DataType.NOW, // Đảm bảo giá trị mặc định cho createdAt
+  // })
+  // createdAt: Date;
+
+  // @Column({
+  //   type: DataType.DATE,
+  //   allowNull: false,
+  //   defaultValue: DataType.NOW, // Đảm bảo giá trị mặc định cho updatedAt
+  // })
+  // updatedAt: Date;
 }
