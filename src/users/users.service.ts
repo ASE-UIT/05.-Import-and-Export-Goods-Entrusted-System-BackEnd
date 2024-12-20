@@ -22,10 +22,13 @@ import {
 import { RoleEnum } from '@/shared/enums/roles.enum';
 import { Customer } from '@/customers/models/customer.model';
 import { Employee } from '@/employees/models/employee.model';
+import { InjectModel } from '@nestjs/sequelize';
 
 @Injectable()
 export class UsersService {
   constructor(
+    @InjectModel(User)
+    private userModel: typeof User,
     private findUserByUsernameStrategy: FindUserByUsernameStrategy,
     private findUserByIdStrategy: FindUserByIdStrategy,
   ) {}
@@ -133,5 +136,23 @@ export class UsersService {
       { hashedPassword: newHashedPassword },
       { where: { id: userId } },
     );
+  }
+
+  async getAllUsers(): Promise<User[]> {
+    return await this.userModel.findAll({
+      attributes: { exclude: ['hashedPassword'] },
+      include: [
+        {
+          model: Role,
+          attributes: ['name'],
+        },
+        {
+          model: Employee,
+        },
+        {
+          model: Customer,
+        },
+      ],
+    });
   }
 }

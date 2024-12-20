@@ -3,6 +3,7 @@ import {
   Body,
   Controller,
   ForbiddenException,
+  Get,
   NotFoundException,
   Param,
   Patch,
@@ -31,7 +32,7 @@ import { Employee } from './models/employee.model';
   version: '1',
 })
 export class EmployeesController {
-  constructor(private employeesService: EmployeesService) { }
+  constructor(private employeesService: EmployeesService) {}
 
   @ApiOperation({ description: 'Create a new employee' })
   @ApiResponse({
@@ -113,5 +114,12 @@ export class EmployeesController {
       updateDetails,
     );
     return new SuccessResponse('Employee successfully updated', employee);
+  }
+
+  @ApiOperation({ description: 'Get all employee' })
+  @Get()
+  async getAllEmployee() {
+    const results = await this.employeesService.getAllEmployee();
+    return new SuccessResponse('Success', results);
   }
 }
