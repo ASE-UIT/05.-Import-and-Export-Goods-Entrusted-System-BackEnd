@@ -16,6 +16,16 @@ import { UpdateQuotationDto } from './dtos/UpdateQuotationDto';
 import { Sequelize } from 'sequelize-typescript';
 import { QuotationService } from '@/quotation-services/models/quotation-services.model';
 import { Service } from '@/services/models/service.model';
+import {
+  QuoteReqDetail,
+  ShipmentType,
+} from '@/quote-request-details/models/quoteReqDetail.model';
+import { PackageDetail } from '@/package-details/models/packageDetails.model';
+import { Freight } from '@/freights/models/freights.model';
+import { AirFreight } from '@/air-freights/models/air-freights.model';
+import { LandFreight } from '@/land-freights/models/land-freights.model';
+import { FCL } from '@/fcls/models/fcls.model';
+import { LCL } from '@/lcls/models/lcls.model';
 
 @Injectable()
 export class QuotationsService {
@@ -24,10 +34,24 @@ export class QuotationsService {
     private quotationModel: typeof Quotation,
     @InjectModel(QuotationReq)
     private quoteReqModel: typeof QuotationReq,
+    @InjectModel(QuoteReqDetail)
+    private quoteReqDetailModel: typeof QuoteReqDetail,
+    @InjectModel(PackageDetail)
+    private packageDetailModel: typeof PackageDetail,
     @InjectModel(QuotationService)
     private quotationServiceModel: typeof QuotationService,
     @InjectModel(Service)
     private serviceModel: typeof Service,
+    @InjectModel(Freight)
+    private freightModel: typeof Freight,
+    @InjectModel(AirFreight)
+    private airFreightModel: typeof AirFreight,
+    @InjectModel(LandFreight)
+    private landFreightModel: typeof LandFreight,
+    @InjectModel(FCL)
+    private fclModel: typeof FCL,
+    @InjectModel(LCL)
+    private lclModel: typeof LCL,
     private sequelize: Sequelize,
     // private findAllQuotationStrategy: FindAllQuotationStrategy,
     // private findQuotationByPickupDate: FindQuotationByPickupDate,
@@ -48,17 +72,62 @@ export class QuotationsService {
       //return await this.createQuotationStrategy.create(quotationInfo);
       const quoteReq = await this.quoteReqModel.findByPk(
         quotationInfo.quoteReqId,
+        {
+          include: [
+            {
+              model: this.quoteReqDetailModel,
+              include: [
+                {
+                  model: this.packageDetailModel,
+                },
+              ],
+            },
+          ],
+          raw: true,
+          nest: true,
+        },
       );
       if (!quoteReq) {
         throw new NotFoundException('Quotation request not found');
       }
+      const freight = await this.freightModel.findByPk(
+        quotationInfo.freightId,
+        {
+          include: [
+            {
+              model: this.airFreightModel,
+            },
+            {
+              model: this.landFreightModel,
+            },
+            {
+              model: this.fclModel,
+            },
+            {
+              model: this.lclModel,
+            },
+          ],
+          raw: true,
+          nest: true,
+        },
+      );
+      if (!freight) throw new NotFoundException('Freight not found');
+      if (
+        (freight.freightType as unknown as ShipmentType) !==
+        quoteReq.quoteReqDetails.shipmentType
+      ) {
+        throw new BadRequestException(
+          'Freight type is not match with shipment',
+        );
+      }
 
       let totalServicePrice = 0;
+      const freightPrice = await this.calculateFreightPrice(quoteReq, freight);
 
       if (quotationInfo.serviceIds && quotationInfo.serviceIds.length > 0) {
         const services = await this.serviceModel.findAll({
           where: { id: quotationInfo.serviceIds },
-          attributes: ['id', 'fee'], // Lấy thêm thuộc tính `fee`
+          attributes: ['id', 'fee'],
           transaction,
         });
 
@@ -80,7 +149,7 @@ export class QuotationsService {
 
         const quotation = await this.quotationModel.create(
           {
-            totalPrice: totalServicePrice,
+            totalPrice: totalServicePrice + freightPrice,
             pickupDate: quotationInfo.pickupDate,
             deliveryDate: quotationInfo.deliveryDate,
             quotationDate: quotationInfo.quotationDate,
@@ -111,7 +180,7 @@ export class QuotationsService {
       } else {
         const quotation = await this.quotationModel.create(
           {
-            totalPrice: totalServicePrice,
+            totalPrice: totalServicePrice + freightPrice,
             pickupDate: quotationInfo.pickupDate,
             deliveryDate: quotationInfo.deliveryDate,
             quotationDate: quotationInfo.quotationDate,
@@ -142,8 +211,66 @@ export class QuotationsService {
       if (error instanceof NotFoundException) {
         throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
       }
+      if (error instanceof BadRequestException) {
+        throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+      }
       throw new Error(error);
     }
+  }
+
+  async calculateFreightPrice(quoteReq, freight) {
+    console.log('Check shipment', quoteReq.quoteReqDetails.shipmentType);
+    let freightCost = 0;
+
+    const weight = quoteReq.quoteReqDetails.packageDetails.weight;
+    switch (quoteReq.quoteReqDetails.shipmentType) {
+      case ShipmentType.AIR:
+        console.log('check go air');
+        if (!freight.airFreight.air_freight_id)
+          throw new NotFoundException('Air price not found');
+        if (weight >= 0 && weight < 45) {
+          freightCost = weight * freight.airFreight.price_0K;
+        } else if (weight >= 45 && weight <= 100) {
+          freightCost = weight * freight.airFreight.price_45K;
+        } else if (weight > 100 && weight <= 300) {
+          freightCost = weight * freight.airFreight.price_100K;
+        } else if (weight > 300 && weight <= 500) {
+          freightCost = weight * freight.airFreight.price_300K;
+        } else if (weight > 500) {
+          freightCost = weight * freight.airFreight.price_500K;
+        } else {
+          throw new BadRequestException('Package weight is invalid');
+        }
+        break;
+      case ShipmentType.LAND:
+        console.log('check go land');
+
+        if (!freight.landFreight.land_freight_id)
+          throw new NotFoundException('Land price not found');
+        if (weight >= 0 && weight < 100) {
+          freightCost = weight * freight.landFreight.price_0_100;
+        } else if (weight >= 100 && weight < 200) {
+          freightCost = weight * freight.landFreight.price_100_200;
+        } else if (weight >= 200 && weight < 500) {
+          freightCost = weight * freight.landFreight.price_200_500;
+        } else if (weight >= 500 && weight < 1500) {
+          freightCost = weight * freight.landFreight.price_500_1500;
+        } else if (weight >= 1500 && weight < 5000) {
+          freightCost = weight * freight.landFreight.price_1500_5000;
+        } else if (weight >= 5000 && weight < 10000) {
+          freightCost = weight * freight.landFreight.price_5000_10000;
+        } else if (weight >= 10000) {
+          freightCost = weight * freight.landFreight.price_10000;
+        } else {
+          throw new BadRequestException('Package weight is invalid');
+        }
+        break;
+      case ShipmentType.FCL:
+        break;
+      case ShipmentType.LCL:
+        break;
+    }
+    return freightCost + freight.additionFee;
   }
 
   async findQuotations(

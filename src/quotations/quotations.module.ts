@@ -18,14 +18,28 @@ import { FindQuotationReqByUserIdStrategy } from '@/quotation-requests/strategie
 import { QuotationReq } from '@/quotation-requests/models/quotationReq.model';
 import { QuotationService } from '@/quotation-services/models/quotation-services.model';
 import { Service } from '@/services/models/service.model';
+import { QuoteReqDetail } from '@/quote-request-details/models/quoteReqDetail.model';
+import { PackageDetail } from '@/package-details/models/packageDetails.model';
+import { Freight } from '@/freights/models/freights.model';
+import { AirFreight } from '@/air-freights/models/air-freights.model';
+import { LandFreight } from '@/land-freights/models/land-freights.model';
+import { FCL } from '@/fcls/models/fcls.model';
+import { LCL } from '@/lcls/models/lcls.model';
 
 @Module({
   imports: [
     SequelizeModule.forFeature([
       Quotation,
       QuotationReq,
+      QuoteReqDetail,
+      PackageDetail,
       QuotationService,
       Service,
+      Freight,
+      AirFreight,
+      LandFreight,
+      FCL,
+      LCL,
     ]),
   ],
   controllers: [QuotationsController],
