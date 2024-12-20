@@ -30,16 +30,16 @@ export class DocumentService {
     private documentModel: typeof Document,
   ) {}
   async createDocument(body: CreateDocumentDto) {
-    if (body.type && body.schema) {
-      const { success, error } = checkBodySchema(body.fields, body.schema);
+    // if (body.type && body.schema) {
+    //   const { success, error } = checkBodySchema(body.fields, body.schema);
 
-      if (!success) {
-        const errDetails: ValidationErrorDetail[] = error.errors.map((err) => {
-          return new ValidationErrorDetail(err.path.toString(), err.message);
-        });
-        throw new BadRequestException(new ValidationError(errDetails));
-      }
-    }
+    //   if (!success) {
+    //     const errDetails: ValidationErrorDetail[] = error.errors.map((err) => {
+    //       return new ValidationErrorDetail(err.path.toString(), err.message);
+    //     });
+    //     throw new BadRequestException(new ValidationError(errDetails));
+    //   }
+    // }
 
     const shipment = await this.shipmentService.findShipmentById(
       body.shipmentId,
