@@ -5,12 +5,12 @@ import { QuoteReqDetail } from '@/quote-request-details/models/quoteReqDetail.mo
 import { InjectModel } from '@nestjs/sequelize';
 
 @Injectable()
-export class FindQuotationReqByCustomerIdStrategy implements IFindQuotationReqStrategy {
+export class FindQuotationReqByUserIdStrategy implements IFindQuotationReqStrategy {
     constructor(@InjectModel(QuotationReq) private quotationReqModel: typeof QuotationReq) { }
 
-    async find(customerId: string): Promise<QuotationReq[] | null> {
+    async find(userId: string): Promise<QuotationReq[] | null> {
         return await this.quotationReqModel.findAll({
-            where: { customerId: customerId }
+            where: { userId: userId }
         });
     }
 }

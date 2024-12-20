@@ -18,7 +18,7 @@ export class CreateQuotationReqStrategy implements ICreateQuotationReqStrategy {
         const newQuotationReq = await this.quotationReqModel.create({
             requestDate: quotationReqInfo.requestDate,
             status: QuotationReqStatus.PENDING,
-            customerId: quotationReqInfo.customerId
+            userId: quotationReqInfo.userId
         })
         return newQuotationReq
     }

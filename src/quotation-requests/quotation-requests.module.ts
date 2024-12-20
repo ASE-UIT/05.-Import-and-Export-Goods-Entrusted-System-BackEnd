@@ -7,22 +7,32 @@ import { CreateQuotationReqStrategy } from './strategies/create-quotationReq/cre
 import { FindAllQuotationReqStrategy } from './strategies/find-quotationReq/find-all.strategy';
 import { FindQuotationReqByRequestDateStrategy } from './strategies/find-quotationReq/find-by-requestDate.strategy';
 import { FindQuotationReqByStatusStrategy } from './strategies/find-quotationReq/find-by-status.strategy';
-import { FindQuotationReqByCustomerIdStrategy } from './strategies/find-quotationReq/find-by-customerId.strategy';
 import { UpdateQuotationReqStrategy } from './strategies/update-quotationReq/update-quotationReq.strategy';
 import { QuoteReqDetail } from '@/quote-request-details/models/quoteReqDetail.model';
 import { PackageDetail } from '@/package-details/models/packageDetails.model';
+import { FindQuotationReqByUserIdStrategy } from './strategies/find-quotationReq/find-by-userId.strategy';
+import { User } from '@/users/models/user.model';
+import { Role } from '@/roles/models/role.model';
 
 @Module({
-  imports: [SequelizeModule.forFeature([QuotationReq, QuoteReqDetail, PackageDetail])],
+  imports: [
+    SequelizeModule.forFeature([
+      QuotationReq,
+      QuoteReqDetail,
+      PackageDetail,
+      User,
+      Role,
+    ]),
+  ],
   providers: [
     QuotationReqsService,
     FindAllQuotationReqStrategy,
     FindQuotationReqByRequestDateStrategy,
     FindQuotationReqByStatusStrategy,
-    FindQuotationReqByCustomerIdStrategy,
+    FindQuotationReqByUserIdStrategy,
     CreateQuotationReqStrategy,
     UpdateQuotationReqStrategy,
   ],
   controllers: [QuotationReqsController],
 })
-export class QuotationReqsModule { }
+export class QuotationReqsModule {}

@@ -12,9 +12,16 @@ import {
   ValidationError,
   ValidationErrorDetail,
 } from '@/shared/classes/validation-error.class';
+import { InjectModel } from '@nestjs/sequelize';
+import { Role } from '@/roles/models/role.model';
+import { User } from '@/users/models/user.model';
 
 @Injectable()
 export class EmployeesService {
+  constructor(
+    @InjectModel(Employee)
+    private employeeModel: typeof Employee,
+  ) {}
   async createEmployee(employeeInfo: CreateEmployeeDto) {
     const employee = new Employee();
     employee.name = employeeInfo.name;
@@ -52,5 +59,20 @@ export class EmployeesService {
     if (affectedRows === 0) throw new NotFoundException('Employee not found');
 
     return updatedEmployees[0];
+  }
+
+  async getAllEmployee(): Promise<Employee[]> {
+    return await this.employeeModel.findAll({
+      include: {
+        model: User,
+        attributes: ['roleId'],
+        include: [
+          {
+            model: Role,
+            attributes: ['name'],
+          },
+        ],
+      },
+    });
   }
 }

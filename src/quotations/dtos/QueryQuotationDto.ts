@@ -8,7 +8,7 @@ export const QueryQuotationSchema = z.object({
   expiredDate: z.string().optional(),
   status: z.nativeEnum(QuotationStatus).optional(),
   employeeId: z.string().optional(),
-  customerId: z.string().optional(),
+  userId: z.string().optional(),
 });
 
 export type QueryQuotationDto = z.infer<typeof QueryQuotationSchema>;

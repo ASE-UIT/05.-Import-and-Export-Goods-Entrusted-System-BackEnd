@@ -37,6 +37,7 @@ import {
 import { createResponseType } from '@/shared/helpers/create-response.mixin';
 import { ValidationError } from '@/shared/classes/validation-error.class';
 import { Document } from './models/document.model';
+import { DocumentType } from '@/shared/enums/document-type.enum';
 
 @ApiTags('Documentation')
 @Controller({ path: 'document', version: '1' })
@@ -82,8 +83,8 @@ export class DocumentController {
     description: 'Conflict',
     type: ValidationError,
   })
-  @UseGuards(RoleGuard)
-  @Roles([RoleEnum.ADMIN, RoleEnum.DOCUMENTATION])
+  // @UseGuards(RoleGuard)
+  // @Roles([RoleEnum.ADMIN, RoleEnum.DOCUMENTATION])
   @Post()
   async createDocument(
     @Body(new ZodValidationPipe(CreateDocumentSchema)) body: CreateDocumentDto,
@@ -131,8 +132,8 @@ export class DocumentController {
     example: new NotFoundException('Document not found').getResponse(),
   })
   @ApiResponse({ status: 409, description: 'Conflict', type: ValidationError })
-  @UseGuards(RoleGuard)
-  @Roles([RoleEnum.ADMIN, RoleEnum.DOCUMENTATION])
+  // @UseGuards(RoleGuard)
+  // @Roles([RoleEnum.ADMIN, RoleEnum.DOCUMENTATION])
   @Patch(':id')
   async updateDocument(
     @Param('id') id: string,
@@ -145,16 +146,22 @@ export class DocumentController {
     return new SuccessResponse('Document updated', result);
   }
 
-  @ApiOperation({ summary: 'Search for document' })
+  @ApiOperation({ summary: 'Get document based on queries' })
   @ApiQuery({
     name: 'shipmentId',
     type: String,
     required: false,
-    description: 'Search document by shipment id',
+    description: 'Get all documents that belong to a shipment',
+  })
+  @ApiQuery({
+    name: 'userId',
+    type: String,
+    required: false,
+    description: 'Get all documents that belong to a user',
   })
   @ApiQuery({
     name: 'type',
-    type: String,
+    enum: DocumentType,
     required: false,
     description: 'Search document by document type',
   })
@@ -184,11 +191,11 @@ export class DocumentController {
   @ApiResponse({
     status: 403,
     description:
-      'Only user with role: [ADMIN | DOCUMENTATION] can perform this action',
+      'Only user with role: [ADMIN | DOCUMENTATION | CLIENT] can perform this action',
     type: ForbiddenException,
 
     example: new ForbiddenException(
-      'Only users with the following roles can access this resource: ADMIN, DOCUMENTATION',
+      'Only users with the following roles can access this resource: ADMIN, DOCUMENTATION, CLIENT',
     ).getResponse(),
   })
   @ApiResponse({
@@ -197,14 +204,57 @@ export class DocumentController {
     type: NotFoundException,
     example: new NotFoundException('Document not found').getResponse(),
   })
-  @UseGuards(RoleGuard)
-  @Roles([RoleEnum.ADMIN, RoleEnum.DOCUMENTATION])
+  // @UseGuards(RoleGuard)
+  // @Roles([RoleEnum.ADMIN, RoleEnum.DOCUMENTATION, RoleEnum.CLIENT])
   @Get()
   async findDocument(
     @Query(new ZodValidationPipe(QueryDocumentSchema.partial().strict()))
     query: Partial<QueryDocumentDto>,
   ) {
     const result = await this.documentService.findDocument(query);
+    return new SuccessResponse('Success', result);
+  }
+
+  @ApiOperation({ summary: 'Get a specific document' })
+  @ApiResponse({
+    status: 200,
+    description: 'Success',
+    type: Document,
+  })
+  @ApiResponse({
+    status: 401,
+    description: "Authentication is required to find customer's documents",
+    type: UnauthorizedException,
+    example: new UnauthorizedException(
+      'Only authenticated users can access this resource',
+    ).getResponse(),
+  })
+  @ApiResponse({
+    status: 403,
+    description:
+      'Only user with role: [ADMIN | DOCUMENTATION | CLIENT] can perform this action',
+    type: ForbiddenException,
+
+    example: new ForbiddenException(
+      'Only users with the following roles can access this resource: ADMIN, DOCUMENTATION, CLIENT',
+    ).getResponse(),
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'User with provided userId not found',
+    type: NotFoundException,
+    example: new NotFoundException(
+      'User with provided userId not found',
+    ).getResponse(),
+  })
+  // @UseGuards(RoleGuard)
+  // @Roles([RoleEnum.ADMIN, RoleEnum.DOCUMENTATION, RoleEnum.CLIENT])
+  @Get(':id')
+  async findUserDocument(
+    @Param('id')
+    userId: string,
+  ) {
+    const result = await this.documentService.findDocumentById(userId);
     return new SuccessResponse('Success', result);
   }
 }

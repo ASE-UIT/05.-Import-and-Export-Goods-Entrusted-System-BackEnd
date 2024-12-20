@@ -1,6 +1,8 @@
 import { Shipment } from '@/shipment/models/shipment.model';
 import { ApiProperty } from '@nestjs/swagger';
+import sequelize from 'sequelize';
 import { UUIDV4 } from 'sequelize';
+import { DocumentType } from '@/shared/enums/document-type.enum';
 import {
   AllowNull,
   BelongsTo,
@@ -24,12 +26,7 @@ export class Document extends Model {
   @ApiProperty()
   @AllowNull(false)
   @Column
-  type: string;
-
-  @ApiProperty()
-  @AllowNull
-  @Column
-  image: string;
+  type: DocumentType;
 
   @ApiProperty()
   @AllowNull(false)
@@ -39,6 +36,27 @@ export class Document extends Model {
   })
   @Column
   docNumber: number;
+
+  @ApiProperty()
+  @AllowNull
+  @Column({
+    type: sequelize.DataTypes.UUID,
+  })
+  userId: string;
+
+  @ApiProperty()
+  @AllowNull(true)
+  @Column({
+    type: sequelize.DataTypes.JSON,
+  })
+  fields: JSON;
+
+  @ApiProperty()
+  @AllowNull(true)
+  @Column({
+    type: sequelize.DataTypes.JSON,
+  })
+  schema: JSON;
 
   //Association
   @ApiProperty()

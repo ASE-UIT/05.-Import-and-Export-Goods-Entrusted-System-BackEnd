@@ -16,6 +16,7 @@ export const QueryContractSchema = z.object({
   contractDate: z.coerce.date().optional(),
   employeeId: z.string().uuid().optional(),
   quotationId: z.string().uuid().optional(),
+  userId: z.string().uuid().optional(),
 });
 
 export type QueryContractDto = z.infer<typeof QueryContractSchema>;

@@ -7,4 +7,5 @@ export enum FindContractStrategy {
   CONTRACT_DATE = 'CONTRACT_DATE',
   EMPLOYEE_ID = 'EMPLOYEE_ID',
   QUOTATION_ID = 'QUOTATION_ID',
+  USER_ID = 'USER_ID',
 }

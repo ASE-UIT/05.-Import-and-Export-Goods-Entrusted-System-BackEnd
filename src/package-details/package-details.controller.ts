@@ -164,7 +164,7 @@ export class PackageDetailsController {
     description: 'Only the following roles can create users',
     type: ForbiddenException,
     example: new ForbiddenException(
-      'Only users with the following roles can access this resource: ADMIN,SALES,MANAGER',
+      'Only users with the following roles can access this resource: ADMIN, SALES, MANAGER, CLIENT',
     ).getResponse(),
   })
   @ApiBody({
@@ -181,7 +181,7 @@ export class PackageDetailsController {
     },
   })
   @UseGuards(RoleGuard)
-  @Roles([RoleEnum.ADMIN, RoleEnum.SALES, RoleEnum.MANAGER])
+  @Roles([RoleEnum.ADMIN, RoleEnum.SALES, RoleEnum.MANAGER, RoleEnum.CLIENT])
   @Post()
   async createPackageDetail(
     @Body(new ZodValidationPipe(CreatePackageDetailSchema))
@@ -221,7 +221,7 @@ export class PackageDetailsController {
     description: 'Only the following roles can create users',
     type: ForbiddenException,
     example: new ForbiddenException(
-      'Only users with the following roles can access this resource: ADMIN,SALES,MANAGER',
+      'Only users with the following roles can access this resource: ADMIN, SALES, MANAGER, CLIENT',
     ).getResponse(),
   })
   @ApiResponse({
@@ -246,7 +246,7 @@ export class PackageDetailsController {
     },
   })
   @UseGuards(RoleGuard)
-  @Roles([RoleEnum.ADMIN, RoleEnum.SALES, RoleEnum.MANAGER])
+  @Roles([RoleEnum.ADMIN, RoleEnum.SALES, RoleEnum.MANAGER, RoleEnum.CLIENT])
   @Patch(':id')
   async updatePackageDetail(
     @Param('id') id: string,

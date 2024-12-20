@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   ForbiddenException,
+  Get,
   NotFoundException,
   Param,
   Patch,
@@ -32,7 +33,7 @@ import { createResponseType } from '@/shared/helpers/create-response.mixin';
   version: '1',
 })
 export class UsersController {
-  constructor(private usersService: UsersService) { }
+  constructor(private usersService: UsersService) {}
 
   @ApiOperation({ summary: 'Create a new user' })
   @ApiResponse({
@@ -133,5 +134,12 @@ export class UsersController {
     const hashedPassword = user.hashedPassword;
     await this.usersService.updateUser(userId, hashedPassword, body);
     return new SuccessResponse('User password updated', null);
+  }
+
+  @ApiOperation({ summary: 'Get all users' })
+  @Get()
+  async getAllUser() {
+    const result = await this.usersService.getAllUsers();
+    return new SuccessResponse('Success', result);
   }
 }

@@ -1,9 +1,12 @@
+import { ContactRepFirmRep } from '@/contact-representatives-firm-representatives/models/contact-firm-representatives.model';
+import { FirmRep } from '@/firm-representatives/models/firm-representatives.model';
 import { Provider } from '@/providers/models/providers.model';
 import { ApiProperty } from '@nestjs/swagger';
 import sequelize from 'sequelize';
 import {
   AllowNull,
   BelongsTo,
+  BelongsToMany,
   Column,
   Default,
   ForeignKey,
@@ -52,6 +55,20 @@ export class ContactRep extends Model {
   @Column
   phone: string;
 
-  @HasMany(() => Provider)
-  providers: Provider[];
+  @ApiProperty()
+  @AllowNull(false)
+  @Column
+  branch_location: string;
+
+  @ApiProperty()
+  @ForeignKey(() => Provider)
+  @AllowNull(false)
+  @Column
+  provider_id: string;
+
+  @BelongsTo(() => Provider)
+  provider: Provider;
+
+  @BelongsToMany(() => FirmRep, () => ContactRepFirmRep)
+  firmReps: FirmRep[];
 }

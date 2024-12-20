@@ -13,7 +13,12 @@ import { QuotationReq } from '@/quotation-requests/models/quotationReq.model';
 import { QuoteReqDetail } from '@/quote-request-details/models/quoteReqDetail.model';
 import { Service } from '@/services/models/service.model';
 import { QuotationStatus } from '@/shared/enums/quotation-status.enum';
-import { BadRequestException, HttpException, HttpStatus, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  HttpException,
+  HttpStatus,
+  NotFoundException,
+} from '@nestjs/common';
 import sequelize from 'sequelize';
 import {
   Column,
@@ -31,6 +36,7 @@ import {
   HasOne,
 } from 'sequelize-typescript';
 import { from } from 'rxjs';
+import { User } from '@/users/models/user.model';
 
 @Table({ tableName: 'quotations' })
 export class Quotation extends Model {
@@ -63,6 +69,13 @@ export class Quotation extends Model {
   @Column
   status: QuotationStatus;
 
+  @ForeignKey(() => User)
+  @AllowNull(false)
+  @Column
+  userId: string;
+
+  @BelongsTo(() => User)
+  user: User;
 
   //Association
   @HasMany(() => QuotationService)
@@ -71,26 +84,26 @@ export class Quotation extends Model {
   @ForeignKey(() => QuotationReq)
   @AllowNull(false)
   @Column
-  quoteReqId: string
+  quoteReqId: string;
 
   @BelongsTo(() => QuotationReq)
-  quotationReq: QuotationReq
+  quotationReq: QuotationReq;
 
   @ForeignKey(() => Freight)
   @AllowNull(false)
   @Column
-  freightId: string
+  freightId: string;
 
   @BelongsTo(() => Freight)
-  freight: Freight
+  freight: Freight;
 
   @ForeignKey(() => Employee)
-  @AllowNull(false)
+  //@AllowNull(false)
   @Column
-  employeeId: string
+  employeeId: string;
 
   @BelongsTo(() => Employee)
-  employee: Employee
+  employee: Employee;
 
   // @HasOne(() => Contract)
   // contract: Contract

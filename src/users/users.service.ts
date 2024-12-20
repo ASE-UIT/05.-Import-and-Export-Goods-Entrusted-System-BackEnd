@@ -1,9 +1,9 @@
 import {
+  BadRequestException,
   ConflictException,
   ForbiddenException,
   Injectable,
   NotFoundException,
-  UnauthorizedException,
 } from '@nestjs/common';
 import { User } from './models/user.model';
 import { FindUserByIdStrategy } from './strategies/find-user/find-by-id.strategy';
@@ -15,15 +15,20 @@ import * as argon2 from 'argon2';
 import { Role } from '@/roles/models/role.model';
 import { ForeignKeyConstraintError, UniqueConstraintError } from 'sequelize';
 import { UpdatePasswordDto } from './dtos/update-password.dto';
-import { ArgumentOutOfRangeError } from 'rxjs';
 import {
   ValidationError,
   ValidationErrorDetail,
 } from '@/shared/classes/validation-error.class';
+import { RoleEnum } from '@/shared/enums/roles.enum';
+import { Customer } from '@/customers/models/customer.model';
+import { Employee } from '@/employees/models/employee.model';
+import { InjectModel } from '@nestjs/sequelize';
 
 @Injectable()
 export class UsersService {
   constructor(
+    @InjectModel(User)
+    private userModel: typeof User,
     private findUserByUsernameStrategy: FindUserByUsernameStrategy,
     private findUserByIdStrategy: FindUserByIdStrategy,
   ) {}
@@ -52,17 +57,45 @@ export class UsersService {
     password,
     employeeId,
     role,
+    customerId,
   }: CreateUserDto): Promise<User> {
     const userRole = await Role.findOne({ where: { name: role } });
     if (!userRole) throw new NotFoundException('Role not found');
 
+    const employeeExist =
+      employeeId &&
+      (await Employee.findOne({
+        where: { id: employeeId },
+      }));
+
+    const customerExist =
+      customerId &&
+      (await Customer.findOne({
+        where: { id: customerId },
+      }));
+
     // Create a new user
     const user = new User();
+    if (employeeId) {
+      if (!employeeExist)
+        throw new NotFoundException('Employee with provided id does not exist');
+      user.employeeId = employeeId;
+      user.roleId = userRole.id;
+    }
+
+    if (customerId) {
+      if (!customerExist)
+        throw new NotFoundException('Customer with provided id does not exist');
+
+      user.customerId = customerId;
+      const clientRole = await Role.findOne({
+        where: { name: RoleEnum.CLIENT },
+      });
+      user.roleId = clientRole.id;
+    }
     const passwordHash = await argon2.hash(password);
     user.username = username;
-    user.roleId = userRole.id;
     user.hashedPassword = passwordHash;
-    user.employeeId = employeeId;
 
     try {
       const newUser = await user.save();
@@ -103,5 +136,23 @@ export class UsersService {
       { hashedPassword: newHashedPassword },
       { where: { id: userId } },
     );
+  }
+
+  async getAllUsers(): Promise<User[]> {
+    return await this.userModel.findAll({
+      attributes: { exclude: ['hashedPassword'] },
+      include: [
+        {
+          model: Role,
+          attributes: ['name'],
+        },
+        {
+          model: Employee,
+        },
+        {
+          model: Customer,
+        },
+      ],
+    });
   }
 }

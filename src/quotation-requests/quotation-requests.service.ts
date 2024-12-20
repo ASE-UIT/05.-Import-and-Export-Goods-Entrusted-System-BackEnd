@@ -1,9 +1,10 @@
 import {
-  BadRequestException,
+  ForbiddenException,
   HttpException,
   HttpStatus,
   Injectable,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { CreateQuotationReqDto } from './dtos/CreateQuotationReqDto';
 import { CreateQuotationReqStrategy } from './strategies/create-quotationReq/create-quotationReq.strategy';
@@ -13,7 +14,6 @@ import { IFindQuotationReqStrategy } from './strategies/find-quotationReq/find-q
 import { FindAllQuotationReqStrategy } from './strategies/find-quotationReq/find-all.strategy';
 import { FindQuotationReqByRequestDateStrategy } from './strategies/find-quotationReq/find-by-requestDate.strategy';
 import { FindQuotationReqByStatusStrategy } from './strategies/find-quotationReq/find-by-status.strategy';
-import { FindQuotationReqByCustomerIdStrategy } from './strategies/find-quotationReq/find-by-customerId.strategy';
 import { UpdateQuotationReqStrategy } from './strategies/update-quotationReq/update-quotationReq.strategy';
 import { ForeignKeyConstraintError } from 'sequelize';
 import { Sequelize } from 'sequelize-typescript';
@@ -27,6 +27,10 @@ import { QueryQuotationReqDto } from './dtos/QueryQuotationReqDto';
 import { PaginationDto } from '@/shared/dto/pagination.dto';
 import { PaginatedResponse } from '@/shared/dto/paginated-response.dto';
 import { PaginationResponse } from '@/shared/dto/paginantion-response.dto';
+import { FindQuotationReqByUserIdStrategy } from './strategies/find-quotationReq/find-by-userId.strategy';
+import { User } from '@/users/models/user.model';
+import { Role } from '@/roles/models/role.model';
+import { RoleEnum } from '@/shared/enums/roles.enum';
 
 @Injectable()
 export class QuotationReqsService {
@@ -36,13 +40,15 @@ export class QuotationReqsService {
     private findAllQuotationReqStratygy: FindAllQuotationReqStrategy,
     private findQuotationReqByRequestDateStrategy: FindQuotationReqByRequestDateStrategy,
     private findQuotationReqByStatus: FindQuotationReqByStatusStrategy,
-    private findQuotationReqByCustomerId: FindQuotationReqByCustomerIdStrategy,
+    private findQuotationReqByUserId: FindQuotationReqByUserIdStrategy,
     private sequelize: Sequelize,
     @InjectModel(QuotationReq) private quotationReqModel: typeof QuotationReq,
     @InjectModel(QuoteReqDetail)
     private quoteReqDetailModel: typeof QuoteReqDetail,
     @InjectModel(PackageDetail)
     private packageDetailModel: typeof PackageDetail,
+    @InjectModel(User) private userModel: typeof User,
+    @InjectModel(Role) private roleModel: typeof Role,
   ) {}
 
   async getQuoteRequests(
@@ -104,6 +110,25 @@ export class QuotationReqsService {
   }
 
   async createQuoteRequestWithDetails(data: CreateQuoteReqWithDetailDto) {
+    const user = await this.userModel.findByPk(data.userId, {
+      include: [
+        {
+          model: this.roleModel,
+        },
+      ],
+    });
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    if (
+      !user.role ||
+      (user.role.name !== RoleEnum.CLIENT && user.role.name !== RoleEnum.ADMIN)
+    ) {
+      throw new ForbiddenException(
+        'Access denied: Only CLIENT role is allowed in userId feild',
+      );
+    }
+    console.log('Check user', user);
     const transaction = await this.sequelize.transaction();
 
     try {
@@ -111,7 +136,7 @@ export class QuotationReqsService {
         {
           requestDate: data.requestDate,
           status: QuotationReqStatus.PENDING,
-          customerId: data.customerId,
+          userId: data.userId,
         },
         { transaction },
       );
@@ -155,11 +180,17 @@ export class QuotationReqsService {
     } catch (error) {
       await transaction.rollback();
       console.log('Check error', error);
-      if (error instanceof ForeignKeyConstraintError) {
+      if (
+        error instanceof ForeignKeyConstraintError ||
+        error instanceof NotFoundException
+      ) {
         throw new HttpException('Customer not found.', HttpStatus.BAD_REQUEST);
       }
       if (error instanceof z.ZodError) {
         throw new HttpException(error.errors, HttpStatus.BAD_REQUEST);
+      }
+      if (error instanceof UnauthorizedException) {
+        throw new HttpException(error.message, HttpStatus.FORBIDDEN);
       }
       throw new HttpException(
         'Error when creating quote request',
@@ -186,7 +217,6 @@ export class QuotationReqsService {
         {
           requestDate: data.requestDate,
           status: data.status,
-          customerId: data.customerId,
         },
         { transaction },
       );
@@ -245,10 +275,7 @@ export class QuotationReqsService {
         throw new HttpException(error.errors, HttpStatus.BAD_REQUEST);
       }
       if (error instanceof NotFoundException) {
-        throw new HttpException(
-          'Quote Request not found.',
-          HttpStatus.NOT_FOUND,
-        );
+        throw new HttpException(error.message, HttpStatus.NOT_FOUND);
       }
       throw new HttpException(
         'Error when updating quote request',
@@ -278,8 +305,8 @@ export class QuotationReqsService {
         return this.findQuotationReqByRequestDateStrategy;
       case FindQuotationReqStrategy.STATUS:
         return this.findQuotationReqByStatus;
-      case FindQuotationReqStrategy.CUSTOMERID:
-        return this.findQuotationReqByCustomerId;
+      case FindQuotationReqStrategy.USERID:
+        return this.findQuotationReqByUserId;
     }
   }
 

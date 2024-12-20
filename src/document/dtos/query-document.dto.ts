@@ -1,8 +1,10 @@
+import { DocumentType } from '@/shared/enums/document-type.enum';
 import { z } from 'zod';
 
 export const QueryDocumentSchema = z.object({
   shipmentId: z.string().uuid(),
-  type: z.string(),
+  userId: z.string().uuid(),
+  type: z.nativeEnum(DocumentType),
   docNumber: z.string(),
 });
 
