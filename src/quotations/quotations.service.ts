@@ -20,12 +20,21 @@ import {
   QuoteReqDetail,
   ShipmentType,
 } from '@/quote-request-details/models/quoteReqDetail.model';
-import { PackageDetail } from '@/package-details/models/packageDetails.model';
+import {
+  PackageDetail,
+  PackageType,
+} from '@/package-details/models/packageDetails.model';
 import { Freight } from '@/freights/models/freights.model';
 import { AirFreight } from '@/air-freights/models/air-freights.model';
 import { LandFreight } from '@/land-freights/models/land-freights.model';
 import { FCL } from '@/fcls/models/fcls.model';
 import { LCL } from '@/lcls/models/lcls.model';
+
+type Container = {
+  name: string;
+  price: number;
+  maxWeight: number;
+};
 
 @Injectable()
 export class QuotationsService {
@@ -53,17 +62,6 @@ export class QuotationsService {
     @InjectModel(LCL)
     private lclModel: typeof LCL,
     private sequelize: Sequelize,
-    // private findAllQuotationStrategy: FindAllQuotationStrategy,
-    // private findQuotationByPickupDate: FindQuotationByPickupDate,
-    // private findQuotationByStatus: FindQuotationByStatus,
-    // private findQuotationByDeliveryDate: FindQuotationByDeliveryDate,
-    // private findQuotationByExpiredDate: FindQuotationByExpiredDate,
-    // private findQuotationByQuotationDate: FindQuotationByQuotationDate,
-    // private findQuotationByTotalPrice: FindQuotationByTotalPrice,
-    // private findQuotationByEmployeeId: FindQuotationByEmployeeId,
-    // private findQuotationByUserId: FindQuotationByUserId,
-    // private createQuotationStrategy: CreateQuotationStrategy,
-    // private updateQuotationStrategy: UpdateQuotationStrategy,
   ) {}
 
   async create(quotationInfo: CreateQuotationDto) {
@@ -117,7 +115,7 @@ export class QuotationsService {
         quoteReq.quoteReqDetails.shipmentType
       ) {
         throw new BadRequestException(
-          'Freight type is not match with shipment',
+          `Freight type: ${freight.freightType} is not match with shipment type: ${quoteReq.quoteReqDetails.shipmentType}`,
         );
       }
 
@@ -178,6 +176,8 @@ export class QuotationsService {
           servideIds: quotationInfo.serviceIds,
         };
       } else {
+        // console.log('TOtal freight:', freightPrice);
+        // console.log('Total service:', totalServicePrice);
         const quotation = await this.quotationModel.create(
           {
             totalPrice: totalServicePrice + freightPrice,
@@ -218,14 +218,16 @@ export class QuotationsService {
     }
   }
 
-  async calculateFreightPrice(quoteReq, freight) {
-    console.log('Check shipment', quoteReq.quoteReqDetails.shipmentType);
+  calculateFreightPrice(quoteReq, freight) {
     let freightCost = 0;
 
-    const weight = quoteReq.quoteReqDetails.packageDetails.weight;
+    //const weight = quoteReq.quoteReqDetails.packageDetails.weight;
+    const { length, width, height, weight } =
+      quoteReq.quoteReqDetails.packageDetails;
+    const volume = length * width * height;
     switch (quoteReq.quoteReqDetails.shipmentType) {
       case ShipmentType.AIR:
-        console.log('check go air');
+        // console.log('check go air');
         if (!freight.airFreight.air_freight_id)
           throw new NotFoundException('Air price not found');
         if (weight >= 0 && weight < 45) {
@@ -243,7 +245,7 @@ export class QuotationsService {
         }
         break;
       case ShipmentType.LAND:
-        console.log('check go land');
+        // console.log('check go land');
 
         if (!freight.landFreight.land_freight_id)
           throw new NotFoundException('Land price not found');
@@ -266,11 +268,60 @@ export class QuotationsService {
         }
         break;
       case ShipmentType.FCL:
+        if (!freight.fcl.fcl_id)
+          throw new NotFoundException('FCL price not found');
+        if (
+          quoteReq.quoteReqDetails.packageDetails.packageType ===
+          PackageType.DRY
+        ) {
+          // console.log('Weight: ', weight);
+          const containers: Container[] = [
+            { name: '20DC', price: freight.fcl.price_20dc, maxWeight: 28280 },
+            { name: '40DC', price: freight.fcl.price_40dc, maxWeight: 26750 },
+            { name: '40HC', price: freight.fcl.price_40hc, maxWeight: 26580 },
+          ];
+          freightCost = this.getOptimalShippingCost(weight, containers);
+        } else {
+          const containers: Container[] = [
+            { name: '20RF', price: freight.fcl.price_20rf, maxWeight: 27280 },
+            { name: '40RF', price: freight.fcl.price_40rf, maxWeight: 28390 },
+          ];
+          freightCost = this.getOptimalShippingCost(weight, containers);
+        }
         break;
       case ShipmentType.LCL:
+        if (!freight.lcl.lcl_id)
+          throw new NotFoundException('LCL price not found');
+        freightCost = Math.max(volume, weight / 1000) * freight.lcl.cost;
+        // console.log('Volume:', volume);
+        // console.log('Weight:', weight);
+        // console.log('Freight cost:', freightCost);
         break;
     }
+    // console.log('Freight cost:', freightCost);
+    // console.log('Addition fee:', freight.additionFee);
     return freightCost + freight.additionFee;
+  }
+
+  getOptimalShippingCost(weight: number, containers: Container[]): number {
+    let optimalCost = Infinity;
+
+    for (let container of containers) {
+      if (weight <= container.maxWeight) {
+        const cost = container.price;
+        if (cost < optimalCost) {
+          optimalCost = cost;
+        }
+      } else {
+        const requiredContainers = Math.ceil(weight / container.maxWeight);
+        const totalCost = requiredContainers * container.price;
+        if (totalCost < optimalCost) {
+          optimalCost = totalCost;
+        }
+      }
+    }
+
+    return optimalCost;
   }
 
   async findQuotations(
