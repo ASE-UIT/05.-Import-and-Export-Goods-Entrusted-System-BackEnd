@@ -47,7 +47,7 @@ import { SortDto, SortSchema } from '@/shared/dto/sort.dto';
   version: '1',
 })
 export class CustomersController {
-  constructor(private customerService: CustomersService) {}
+  constructor(private customerService: CustomersService) { }
 
   @ApiOperation({ summary: 'Search for customer' })
   @ApiQuery({
@@ -131,6 +131,7 @@ export class CustomersController {
     RoleEnum.SALES,
     RoleEnum.CUSTOMER_SERVICE,
     RoleEnum.MANAGER,
+    RoleEnum.CLIENT
   ])
   @Get()
   async getCustomers(
@@ -185,6 +186,7 @@ export class CustomersController {
     RoleEnum.SALES,
     RoleEnum.CUSTOMER_SERVICE,
     RoleEnum.MANAGER,
+    RoleEnum.CLIENT
   ])
   @Get(':id')
   async getCustomersById(
@@ -242,6 +244,7 @@ export class CustomersController {
     RoleEnum.SALES,
     RoleEnum.CUSTOMER_SERVICE,
     RoleEnum.MANAGER,
+    RoleEnum.CLIENT
   ])
   @Post()
   async createCustomer(
@@ -296,6 +299,7 @@ export class CustomersController {
     RoleEnum.SALES,
     RoleEnum.CUSTOMER_SERVICE,
     RoleEnum.MANAGER,
+    RoleEnum.CLIENT
   ])
   @Patch(':id')
   async updateCustomer(
