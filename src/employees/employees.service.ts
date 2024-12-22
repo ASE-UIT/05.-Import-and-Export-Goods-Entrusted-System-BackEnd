@@ -21,7 +21,7 @@ export class EmployeesService {
   constructor(
     @InjectModel(Employee)
     private employeeModel: typeof Employee,
-  ) {}
+  ) { }
   async createEmployee(employeeInfo: CreateEmployeeDto) {
     const employee = new Employee();
     employee.name = employeeInfo.name;
@@ -74,5 +74,11 @@ export class EmployeesService {
         ],
       },
     });
+  }
+
+  async getEmployeeById(employeeId: string): Promise<Employee> {
+    const employee = await this.employeeModel.findByPk(employeeId);
+    if (!employee) throw new NotFoundException('Employee not found');
+    return employee;
   }
 }

@@ -32,7 +32,7 @@ import { Employee } from './models/employee.model';
   version: '1',
 })
 export class EmployeesController {
-  constructor(private employeesService: EmployeesService) {}
+  constructor(private employeesService: EmployeesService) { }
 
   @ApiOperation({ description: 'Create a new employee' })
   @ApiResponse({
@@ -120,6 +120,12 @@ export class EmployeesController {
   @Get()
   async getAllEmployee() {
     const results = await this.employeesService.getAllEmployee();
+    return new SuccessResponse('Success', results);
+  }
+  @ApiOperation({ description: 'Get employee by id' })
+  @Get(':employeeId')
+  async getEmployee(@Param('employeeId') employeeId: string) {
+    const results = await this.employeesService.getEmployeeById(employeeId);
     return new SuccessResponse('Success', results);
   }
 }
