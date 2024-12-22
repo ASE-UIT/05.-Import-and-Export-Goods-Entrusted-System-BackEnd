@@ -13,7 +13,7 @@ export const UpdateQuotationSchema = z
     //userId: z.string().min(1).optional(),
     //quoteReqId: z.string().min(1).optional(),
     //freightId: z.string().min(1).optional(),
-    //employeeId: z.string().min(1).optional(),
+    employeeId: z.string().min(1).optional(),
   })
   .refine(
     (data) => {
