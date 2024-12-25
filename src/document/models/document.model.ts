@@ -35,7 +35,7 @@ export class Document extends Model {
     msg: 'This document number is taken',
   })
   @Column
-  docNumber: number;
+  docNumber: string;
 
   @ApiProperty()
   @AllowNull

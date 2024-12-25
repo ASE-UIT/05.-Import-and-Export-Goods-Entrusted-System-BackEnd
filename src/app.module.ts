@@ -47,7 +47,7 @@ import { FirmRepsModule } from './firm-representatives/firm-representatives.modu
         password: configService.getOrThrow<string>('POSTGRES_PASSWORD'),
         database: configService.getOrThrow<string>('POSTGRES_DB'),
         autoLoadModels: true,
-        sync: {},
+        sync: { alter: true },
         logging: false,
       }),
     }),
