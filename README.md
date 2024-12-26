@@ -1,85 +1,162 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Import and Export Goods Entrusted System (Backend) 🚢
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+[![License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](LICENSE)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
+[![Code Style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg?style=flat-square)](https://standardjs.com)
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+### Technologies
+[![Node.js](https://img.shields.io/badge/Node.js-339933?style=flat-square&logo=nodedotjs&logoColor=white)](https://nodejs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=flat-square&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Express.js](https://img.shields.io/badge/Express.js-000000?style=flat-square&logo=express&logoColor=white)](https://expressjs.com/)
+[![Prisma](https://img.shields.io/badge/Prisma-2D3748?style=flat-square&logo=prisma&logoColor=white)](https://www.prisma.io/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-316192?style=flat-square&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
+[![Redis](https://img.shields.io/badge/Redis-DC382D?style=flat-square&logo=redis&logoColor=white)](https://redis.io/)
+[![Docker](https://img.shields.io/badge/Docker-2496ED?style=flat-square&logo=docker&logoColor=white)](https://www.docker.com/)
+[![Jest](https://img.shields.io/badge/Jest-C21325?style=flat-square&logo=jest&logoColor=white)](https://jestjs.io/)
 
-## Description
+A robust backend system for managing import and export goods entrusted operations, developed by the ASE-UIT team 5. This system provides a comprehensive API for handling logistics, inventory tracking, and customs documentation.
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## 🌟 Features
 
-## Project setup
+- **Secure Authentication & Authorization**
+  - Role-based access control
+  - Secure password hashing
 
+- **Core Functionalities**
+  - Import/Export documentation management
+  - Customs declaration processing
+  - Partner management
+  - Billing and invoicing
+
+- **Technical Highlights**
+  - RESTful API architecture
+  - Prisma ORM for type-safe database operations
+  - Automated backup system
+  - Comprehensive logging
+  - Rate limiting and request throttling
+
+## 📋 Prerequisites
+
+- Node.js (v14.0.0 or higher)
+- PostgreSQL (v12.0 or higher)
+- Redis (v6.0 or higher)
+- Docker (optional)
+
+
+1. **Clone the repository**
 ```bash
-$ npm install
+git clone https://github.com/ASE-UIT/05.-Import-and-Export-Goods-Entrusted-System-BackEnd.git
+cd 05.-Import-and-Export-Goods-Entrusted-System-BackEnd
 ```
 
-## Compile and run the project
-
+2. **Install dependencies**
 ```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+npm install
 ```
 
-## Run tests
-
+3. **Set up environment variables**
 ```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+cp .env.example .env
+# Edit .env with your configuration
 ```
 
-## Resources
+4. **Set up Prisma**
+```bash
+# Generate Prisma Client
+npx prisma generate
 
-Check out a few resources that may come in handy when working with NestJS:
+# Run database migrations
+npx prisma migrate dev
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+# (Optional) Seed the database
+npx prisma db seed
+```
 
-## Support
+## 🐳 Docker Setup (make sure you already have Docker)
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+```bash
+# Build and run with Docker Compose
+npm run docker:dev
+```
 
-## Stay in touch
+## 📊 Database Schema
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+We use Prisma as our ORM. The database schema is defined in `prisma/schema.prisma`.
 
-## License
+## 📚 API Documentation
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+API documentation is available at `/api/documents` after starting the server. We use Swagger UI for API documentation.
+
+## 🔒 Environment Variables
+
+Required environment variables: Follow the .env.example file
+
+## 🧪 Testing
+
+```bash
+# Run all tests
+npm test
+
+# Run with coverage report
+npm run test:coverage
+
+# Run Prisma-specific tests
+npm run test:prisma
+```
+
+## 📈 Performance Monitoring
+
+The system includes built-in performance monitoring with:
+- Response time tracking
+- Request rate monitoring
+- Error rate tracking
+- Resource usage statistics
+- Prisma query performance metrics
+
+## 🛠 Database Management
+
+```bash
+# Generate Prisma Client
+npx prisma generate
+
+# Create a migration
+npx prisma migrate dev --name migration_name
+
+# Apply migrations
+npx prisma migrate deploy
+
+# Reset database
+npx prisma reset
+
+# View database in Prisma Studio
+npx prisma studio
+```
+
+## 🤝 Contributing
+
+We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.md) for details.
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 👥 Team
+
+- **Project Supervisor**: TS. Nguyen Trinh Dong [Trinh-Dong](https://github.com/Trinh-Dong-Nguyen)
+- **Lead Developer**: Ngo Duc Loc [@VaderNgo](https://github.com/VaderNgo)
+- **Contributors**: 
+
+| Name | GitHub |
+|------|--------|
+| Nguyen Thai Dang Khoa | [@NTDKhoa04](https://github.com/NTDKhoa04) |
+| Truong Tuan Huy | [@trapper268](https://github.com/trapper268) |
+| Truong Minh Khoi | [@Khoinese204](https://github.com/Khoinese204) |
+| Pham Le Khoa | [@khoaphamlee](https://github.com/khoaphamlee) |
+
+
